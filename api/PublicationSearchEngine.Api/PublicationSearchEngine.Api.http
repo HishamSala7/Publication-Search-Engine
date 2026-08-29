@@ -1,0 +1,6 @@
+@PublicationSearchEngine.Api_HostAddress = http://localhost:5058
+
+GET {{PublicationSearchEngine.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="PublicationSearchEngine.Api/PublicationSearchEngine.Api.csproj" />
+  <Project Path="PublicationSearchEngine.Application/PublicationSearchEngine.Application.csproj" />
+  <Project Path="PublicationSearchEngine.Data/PublicationSearchEngine.Data.csproj" />
+  <Project Path="PublicationSearchEngine.Domain/PublicationSearchEngine.Domain.csproj" />
+</Solution>

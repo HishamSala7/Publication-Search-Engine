@@ -65,6 +65,11 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
         services.AddScoped<IInstitutionRepository, InstitutionRepository>();
         services.AddScoped<IInstitutionDomainRepository, InstitutionDomainRepository>();
+        services.AddScoped<ICountryRepository, CountryRepository>();
+        services.AddScoped<IFieldRepository, FieldRepository>();
+        services.AddScoped<IKeywordRepository, KeywordRepository>();
+        services.AddScoped<ISubFieldRepository, SubFieldRepository>();
+        services.AddScoped<ITopicRepository, TopicRepository>();
     }
 
     public static void AddApiMiddleWares(this WebApplication app)

@@ -17,10 +17,92 @@ namespace PublicationSearchEngine.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.11")
+                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Country", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Continent")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("continent");
+
+                    b.Property<string>("CountryCodeAlphaThree")
+                        .HasColumnType("text")
+                        .HasColumnName("country_code_alpha_three");
+
+                    b.Property<string>("CountryCodeAlphaTwo")
+                        .HasColumnType("text")
+                        .HasColumnName("country_code_alpha_two");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("display_name");
+
+                    b.Property<string>("OpenAlexId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("open_alex_id");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<long>("WorksCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("works_count");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OpenAlexId")
+                        .IsUnique();
+
+                    b.ToTable("countries", (string)null);
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Field", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("display_name");
+
+                    b.Property<string>("OpenAlexId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("open_alex_id");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<long>("WorksCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("works_count");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OpenAlexId")
+                        .IsUnique();
+
+                    b.ToTable("fields", (string)null);
+                });
 
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Institution", b =>
                 {
@@ -92,6 +174,128 @@ namespace PublicationSearchEngine.Data.Migrations
                     b.ToTable("institution_domains", (string)null);
                 });
 
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Keyword", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("display_name");
+
+                    b.Property<string>("OpenAlexId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("open_alex_id");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<Guid>("TopicId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("topic_id");
+
+                    b.Property<long>("WorksCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("works_count");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OpenAlexId")
+                        .IsUnique();
+
+                    b.HasIndex("TopicId");
+
+                    b.ToTable("keywords", (string)null);
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.SubField", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("display_name");
+
+                    b.Property<Guid>("FieldId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("field_id");
+
+                    b.Property<string>("OpenAlexId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("open_alex_id");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<long>("WorksCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("works_count");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FieldId");
+
+                    b.HasIndex("OpenAlexId")
+                        .IsUnique();
+
+                    b.ToTable("sub_fields", (string)null);
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Topic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("display_name");
+
+                    b.Property<Guid?>("FieldId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OpenAlexId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("open_alex_id");
+
+                    b.Property<Guid>("SubFieldId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sub_field_id");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<long>("WorksCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("works_count");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FieldId");
+
+                    b.HasIndex("OpenAlexId")
+                        .IsUnique();
+
+                    b.HasIndex("SubFieldId");
+
+                    b.ToTable("topics", (string)null);
+                });
+
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.InstitutionDomain", b =>
                 {
                     b.HasOne("PublicationSearchEngine.Domain.Entities.Institution", "Institution")
@@ -103,9 +307,63 @@ namespace PublicationSearchEngine.Data.Migrations
                     b.Navigation("Institution");
                 });
 
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Keyword", b =>
+                {
+                    b.HasOne("PublicationSearchEngine.Domain.Entities.Topic", "Topic")
+                        .WithMany("Keywords")
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Topic");
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.SubField", b =>
+                {
+                    b.HasOne("PublicationSearchEngine.Domain.Entities.Field", "Field")
+                        .WithMany("SubFields")
+                        .HasForeignKey("FieldId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Field");
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Topic", b =>
+                {
+                    b.HasOne("PublicationSearchEngine.Domain.Entities.Field", null)
+                        .WithMany("Topics")
+                        .HasForeignKey("FieldId");
+
+                    b.HasOne("PublicationSearchEngine.Domain.Entities.SubField", "SubField")
+                        .WithMany("Topics")
+                        .HasForeignKey("SubFieldId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SubField");
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Field", b =>
+                {
+                    b.Navigation("SubFields");
+
+                    b.Navigation("Topics");
+                });
+
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Institution", b =>
                 {
                     b.Navigation("Domains");
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.SubField", b =>
+                {
+                    b.Navigation("Topics");
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Topic", b =>
+                {
+                    b.Navigation("Keywords");
                 });
 #pragma warning restore 612, 618
         }

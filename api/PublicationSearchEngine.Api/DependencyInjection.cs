@@ -19,7 +19,9 @@ public static class DependencyInjection
         services.AddOpenApi();
 
         services.AddDbContext<PublicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+            options
+                .UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+                .UseLazyLoadingProxies()
         );
 
         services.Configure<OpenAlexRequestConfiguration>(
@@ -57,9 +59,6 @@ public static class DependencyInjection
         });
 
         // services
-        //services.AddScoped<OpenAlexService>();
-        //services.AddScoped<HipoDomainSyncService>();
-        //services.AddScoped<RorService>();
         services.AddScoped<InstitutionResolutionService>();
 
         // repositories

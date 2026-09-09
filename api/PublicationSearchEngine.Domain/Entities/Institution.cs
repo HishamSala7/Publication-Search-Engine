@@ -5,6 +5,7 @@ namespace PublicationSearchEngine.Domain.Entities;
 public class Institution : EntityBase
 {
     public string Name { get; set; } = string.Empty;
+    //public Guid? CountryId { get; set; }
     public string? Country { get; set; }
     public string? AlphaTwoCode { get; set; }
     public string? RorId { get; set; }
@@ -12,6 +13,7 @@ public class Institution : EntityBase
     public DateTime? RorLookupAttemptedAt { get; set; }
     public DateTime SyncedAt { get; set; }
 
+    //public virtual Country? Country { get; set; }
     public virtual ICollection<InstitutionDomain> Domains { get; set; } =
         new List<InstitutionDomain>();
 }

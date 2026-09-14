@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using PublicationSearchEngine.Data.Context;
 using PublicationSearchEngine.Domain.Entities;
 using PublicationSearchEngine.Domain.IRepositories;
@@ -35,5 +36,15 @@ public class SubFieldRepository : ISubFieldRepository
     public void DeleteRange(IEnumerable<SubField> entities)
     {
         _context.SubFields.RemoveRange(entities);
+    }
+
+    public async Task<SubField?> FirstOrDefaultAsync(
+        Expression<Func<SubField, bool>>? predicate = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return predicate is null
+            ? await _context.SubFields.FirstOrDefaultAsync(cancellationToken)
+            : await _context.SubFields.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 }

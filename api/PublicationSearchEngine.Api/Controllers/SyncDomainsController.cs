@@ -47,6 +47,13 @@ namespace PublicationSearchEngine.Api.Controllers
             return Ok();
         }
 
+        [HttpPost("sync-keywords")]
+        public async Task<IActionResult> SyncKeywordsAsync(CancellationToken cancellationToken)
+        {
+            await _openAlexSyncService.SyncKeywordsAsync(cancellationToken);
+            return Ok();
+        }
+
         [HttpPost("sync-topics")]
         public async Task<IActionResult> SyncTopicsAsync(CancellationToken cancellationToken)
         {

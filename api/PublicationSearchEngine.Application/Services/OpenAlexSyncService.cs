@@ -222,217 +222,235 @@ public class OpenAlexSyncService
 
     public async Task SyncTopicsAsync(CancellationToken cancellationToken)
     {
-        await _syncLock.WaitAsync(cancellationToken);
+        var syncTime = DateTime.UtcNow;
 
-        try
+        var allTopics = await GetAllOpenAlexTopicsAsync(cancellationToken);
+
+        var existingTopics = await _topicRepository.GetAllAsync(cancellationToken);
+
+        var existingKeywords = await _keywordRepository.GetAllAsync(cancellationToken);
+
+        var existingTopicKeywords = await _topicKeywordRepository.GetAllAsync(cancellationToken);
+
+        var topicsLookup = existingTopics.ToDictionary(x => x.OpenAlexId);
+
+        var keywordsLookup = existingKeywords.ToDictionary(x => x.OpenAlexId);
+
+        var topicKeywordLookup = existingTopicKeywords.ToDictionary(x =>
+            $"{x.TopicId}_{x.KeywordId}"
+        );
+
+        var keywordNameLookup = existingKeywords
+            .Where(x => !string.IsNullOrWhiteSpace(x.DisplayName))
+            .GroupBy(x => x.DisplayName.Trim().ToLower())
+            .ToDictionary(x => x.Key, x => x.First());
+
+        var topicsToAdd = new List<Topic>();
+
+        var topicKeywordsToAdd = new List<TopicKeyword>();
+
+        var syncedTopicIds = new HashSet<string>();
+
+        var syncedTopicKeywordIds = new HashSet<string>();
+
+        foreach (var openAlexTopic in allTopics)
         {
-            var syncTime = DateTime.UtcNow;
+            var topicOpenAlexId = openAlexTopic.Id?.Split("/").Last();
 
-            var allTopics = await GetAllOpenAlexTopicsAsync(cancellationToken);
+            if (string.IsNullOrWhiteSpace(topicOpenAlexId))
+                continue;
 
-            var allKeywords = await GetAllOpenAlexKeywordsAsync(cancellationToken);
+            syncedTopicIds.Add(topicOpenAlexId);
 
-            var subFields = await _subFieldRepository.GetAllAsync(cancellationToken);
+            Topic topic;
 
-            var existingTopics = await _topicRepository.GetAllAsync(cancellationToken);
-
-            var existingKeywords = await _keywordRepository.GetAllAsync(cancellationToken);
-
-            var existingTopicKeywords = await _topicKeywordRepository.GetAllAsync(
-                cancellationToken
-            );
-
-            var subFieldLookup = subFields.ToDictionary(x => x.OpenAlexId);
-
-            var topicsLookup = existingTopics.ToDictionary(x => x.OpenAlexId);
-
-            var keywordsLookup = existingKeywords.ToDictionary(x => x.OpenAlexId);
-
-            var topicKeywordLookup = existingTopicKeywords.ToDictionary(x =>
-                $"{x.TopicId}_{x.KeywordId}"
-            );
-
-            var allKeywordsLookup = allKeywords
-                .Where(x =>
-                    !string.IsNullOrWhiteSpace(x.Id) && !string.IsNullOrWhiteSpace(x.DisplayName)
-                )
-                .GroupBy(x => x.Id!.Split("/").Last())
-                .ToDictionary(x => x.Key, x => x.First());
-
-            var openAlexKeywordLookup = allKeywords
-                .Where(x =>
-                    !string.IsNullOrWhiteSpace(x.Id) && !string.IsNullOrWhiteSpace(x.DisplayName)
-                )
-                .GroupBy(x => x.DisplayName!.Trim().ToLower())
-                .ToDictionary(x => x.Key, x => x.First().Id!.Split("/").Last());
-
-            var topicsToAdd = new List<Topic>();
-
-            var keywordsToAdd = new List<Keyword>();
-
-            var topicKeywordsToAdd = new List<TopicKeyword>();
-
-            var syncedTopicIds = new HashSet<string>();
-
-            var syncedKeywordIds = new HashSet<string>();
-
-            var syncedTopicKeywordIds = new HashSet<string>();
-
-            foreach (var openAlexTopic in allTopics)
+            if (topicsLookup.TryGetValue(topicOpenAlexId, out var existingTopic))
             {
-                var topicOpenAlexId = openAlexTopic.Id?.Split("/").Last();
+                topic = existingTopic;
 
-                if (string.IsNullOrWhiteSpace(topicOpenAlexId))
-                    continue;
-
-                syncedTopicIds.Add(topicOpenAlexId);
+                topic.DisplayName = openAlexTopic.DisplayName ?? string.Empty;
+                topic.WorksCount = openAlexTopic.WorksCount ?? 0;
+                topic.SyncedAt = syncTime;
 
                 var subFieldOpenAlexId = openAlexTopic.SubField?.Id?.Split("/").Last();
 
-                subFieldLookup.TryGetValue(subFieldOpenAlexId ?? string.Empty, out var subField);
-
-                Topic topic;
-
-                if (topicsLookup.TryGetValue(topicOpenAlexId, out var existingTopic))
+                if (!string.IsNullOrWhiteSpace(subFieldOpenAlexId))
                 {
-                    topic = existingTopic;
+                    var subField = await _subFieldRepository.FirstOrDefaultAsync(
+                        x => x.OpenAlexId == subFieldOpenAlexId,
+                        cancellationToken
+                    );
 
-                    topic.DisplayName = openAlexTopic.DisplayName ?? string.Empty;
-                    topic.WorksCount = openAlexTopic.WorksCount ?? 0;
-                    topic.SubFieldId = subField?.Id ?? Guid.Empty;
-                    topic.SyncedAt = syncTime;
-                }
-                else
-                {
-                    topic = new Topic
-                    {
-                        Id = Guid.NewGuid(),
-                        OpenAlexId = topicOpenAlexId,
-                        DisplayName = openAlexTopic.DisplayName ?? string.Empty,
-                        WorksCount = openAlexTopic.WorksCount ?? 0,
-                        SubFieldId = subField?.Id ?? Guid.Empty,
-                        SyncedAt = syncTime,
-                    };
-
-                    topicsToAdd.Add(topic);
-
-                    topicsLookup.Add(topicOpenAlexId, topic);
-                }
-
-                foreach (var keywordValue in openAlexTopic.Keywords ?? [])
-                {
-                    if (string.IsNullOrWhiteSpace(keywordValue))
-                        continue;
-
-                    var keywordName = keywordValue.Trim().ToLower();
-
-                    if (!openAlexKeywordLookup.TryGetValue(keywordName, out var keywordOpenAlexId))
-                        continue;
-
-                    syncedKeywordIds.Add(keywordOpenAlexId);
-
-                    Keyword keyword;
-
-                    if (keywordsLookup.TryGetValue(keywordOpenAlexId, out var existingKeyword))
-                    {
-                        keyword = existingKeyword;
-
-                        keyword.DisplayName = keywordValue.Trim();
-
-                        if (
-                            allKeywordsLookup.TryGetValue(
-                                keywordOpenAlexId,
-                                out var openAlexKeyword
-                            )
-                        )
-                            keyword.WorksCount = openAlexKeyword.WorksCount ?? 0;
-
-                        keyword.SyncedAt = syncTime;
-                    }
-                    else
-                    {
-                        keyword = new Keyword
-                        {
-                            Id = Guid.NewGuid(),
-                            OpenAlexId = keywordOpenAlexId,
-                            DisplayName = keywordValue.Trim(),
-
-                            WorksCount = allKeywordsLookup.TryGetValue(
-                                keywordOpenAlexId,
-                                out var openAlexKeyword
-                            )
-                                ? openAlexKeyword.WorksCount ?? 0
-                                : 0,
-
-                            SyncedAt = syncTime,
-                        };
-
-                        keywordsToAdd.Add(keyword);
-
-                        keywordsLookup.Add(keywordOpenAlexId, keyword);
-                    }
-
-                    var relationKey = $"{topic.Id}_{keyword.Id}";
-
-                    if (
-                        syncedTopicKeywordIds.Add(relationKey)
-                        && !topicKeywordLookup.ContainsKey(relationKey)
-                    )
-                        topicKeywordsToAdd.Add(
-                            new TopicKeyword
-                            {
-                                Id = Guid.NewGuid(),
-                                TopicId = topic.Id,
-                                KeywordId = keyword.Id,
-                            }
-                        );
+                    if (subField != null)
+                        topic.SubFieldId = subField.Id;
                 }
             }
+            else
+            {
+                var subFieldOpenAlexId = openAlexTopic.SubField?.Id?.Split("/").Last();
+
+                Guid subFieldId = Guid.Empty;
+
+                if (!string.IsNullOrWhiteSpace(subFieldOpenAlexId))
+                {
+                    var subField = await _subFieldRepository.FirstOrDefaultAsync(
+                        x => x.OpenAlexId == subFieldOpenAlexId,
+                        cancellationToken
+                    );
+
+                    if (subField != null)
+                        subFieldId = subField.Id;
+                }
+
+                topic = new Topic
+                {
+                    Id = Guid.NewGuid(),
+                    OpenAlexId = topicOpenAlexId,
+                    DisplayName = openAlexTopic.DisplayName ?? string.Empty,
+                    WorksCount = openAlexTopic.WorksCount ?? 0,
+                    SubFieldId = subFieldId,
+                    SyncedAt = syncTime,
+                };
+
+                topicsToAdd.Add(topic);
+
+                topicsLookup.Add(topicOpenAlexId, topic);
+            }
+
+            foreach (var keywordValue in openAlexTopic.Keywords ?? [])
+            {
+                if (string.IsNullOrWhiteSpace(keywordValue))
+                    continue;
+
+                var keywordName = keywordValue.Trim().ToLower();
+
+                if (!keywordNameLookup.TryGetValue(keywordName, out var keyword))
+                    continue;
+
+                var relationKey = $"{topic.Id}_{keyword.Id}";
+
+                syncedTopicKeywordIds.Add(relationKey);
+
+                if (!topicKeywordLookup.ContainsKey(relationKey))
+                    topicKeywordsToAdd.Add(
+                        new TopicKeyword
+                        {
+                            Id = Guid.NewGuid(),
+                            TopicId = topic.Id,
+                            KeywordId = keyword.Id,
+                        }
+                    );
+            }
+        }
+
+        var topicKeywordsToDelete = existingTopicKeywords
+            .Where(x => !syncedTopicKeywordIds.Contains($"{x.TopicId}_{x.KeywordId}"))
+            .ToList();
+
+        if (topicKeywordsToDelete.Any())
+            _topicKeywordRepository.DeleteRange(topicKeywordsToDelete);
+
+        var topicsToDelete = existingTopics
+            .Where(x => !syncedTopicIds.Contains(x.OpenAlexId))
+            .ToList();
+
+        if (topicsToDelete.Any())
+        {
+            var deletedTopicIds = topicsToDelete.Select(x => x.Id).ToHashSet();
+
+            var remainingTopicKeywords = existingTopicKeywords
+                .Where(x => deletedTopicIds.Contains(x.TopicId))
+                .ToList();
+
+            if (remainingTopicKeywords.Any())
+                _topicKeywordRepository.DeleteRange(remainingTopicKeywords);
+
+            _topicRepository.DeleteRange(topicsToDelete);
+        }
+
+        if (topicsToAdd.Any())
+            await _topicRepository.AddRangeAsync(topicsToAdd, cancellationToken);
+
+        if (topicKeywordsToAdd.Any())
+            await _topicKeywordRepository.AddRangeAsync(topicKeywordsToAdd, cancellationToken);
+
+        await _context.CompleteAsync(cancellationToken);
+    }
+
+    public async Task SyncKeywordsAsync(CancellationToken cancellationToken)
+    {
+        var syncTime = DateTime.UtcNow;
+
+        var allKeywords = await GetAllOpenAlexKeywordsAsync(cancellationToken);
+
+        var existingKeywords = await _keywordRepository.GetAllAsync(cancellationToken);
+
+        var existingTopicKeywords = await _topicKeywordRepository.GetAllAsync(cancellationToken);
+
+        var existingKeywordsLookup = existingKeywords.ToDictionary(x => x.OpenAlexId);
+
+        var keywordsToAdd = new List<Keyword>();
+
+        var syncedKeywordIds = new HashSet<string>();
+
+        var keywordsToUpdate = new List<Keyword>();
+
+        foreach (var openAlexKeyword in allKeywords)
+        {
+            var openAlexId = openAlexKeyword.Id?.Split("/").Last();
+
+            if (string.IsNullOrWhiteSpace(openAlexId))
+                continue;
+
+            syncedKeywordIds.Add(openAlexId);
+
+            if (existingKeywordsLookup.TryGetValue(openAlexId, out var keyword))
+            {
+                keyword.DisplayName = openAlexKeyword.DisplayName ?? string.Empty;
+                keyword.WorksCount = openAlexKeyword.WorksCount ?? 0;
+                keyword.SyncedAt = syncTime;
+
+                keywordsToUpdate.Add(keyword);
+            }
+            else
+            {
+                keyword = new Keyword
+                {
+                    Id = Guid.NewGuid(),
+                    OpenAlexId = openAlexId,
+                    DisplayName = openAlexKeyword.DisplayName ?? string.Empty,
+                    WorksCount = openAlexKeyword.WorksCount ?? 0,
+                    SyncedAt = syncTime,
+                };
+
+                keywordsToAdd.Add(keyword);
+
+                existingKeywordsLookup.Add(openAlexId, keyword);
+            }
+        }
+
+        var keywordsToDelete = existingKeywords
+            .Where(x => !syncedKeywordIds.Contains(x.OpenAlexId))
+            .ToList();
+
+        if (keywordsToDelete.Any())
+        {
+            var deletedKeywordIds = keywordsToDelete.Select(x => x.Id).ToHashSet();
 
             var topicKeywordsToDelete = existingTopicKeywords
-                .Where(x => !syncedTopicKeywordIds.Contains($"{x.TopicId}_{x.KeywordId}"))
+                .Where(x => deletedKeywordIds.Contains(x.KeywordId))
                 .ToList();
 
-            var keywordsToDelete = existingKeywords
-                .Where(x => !syncedKeywordIds.Contains(x.OpenAlexId))
-                .ToList();
-
-            var topicsToDelete = existingTopics
-                .Where(x => !syncedTopicIds.Contains(x.OpenAlexId))
-                .ToList();
-
-            topicsToDelete.RemoveAll(x => topicsToAdd.Any(y => y.Id == x.Id));
-
-            keywordsToDelete.RemoveAll(x => keywordsToAdd.Any(y => y.Id == x.Id));
-
-            // Delete relations first because FK restriction
-
-            if (topicKeywordsToDelete.Count > 0)
+            if (topicKeywordsToDelete.Any())
                 _topicKeywordRepository.DeleteRange(topicKeywordsToDelete);
 
-            if (keywordsToDelete.Count > 0)
-                _keywordRepository.DeleteRange(keywordsToDelete);
-
-            if (topicsToDelete.Count > 0)
-                _topicRepository.DeleteRange(topicsToDelete);
-
-            // Insert new records
-
-            if (topicsToAdd.Count > 0)
-                await _topicRepository.AddRangeAsync(topicsToAdd, cancellationToken);
-
-            if (keywordsToAdd.Count > 0)
-                await _keywordRepository.AddRangeAsync(keywordsToAdd, cancellationToken);
-
-            if (topicKeywordsToAdd.Count > 0)
-                await _topicKeywordRepository.AddRangeAsync(topicKeywordsToAdd, cancellationToken);
-
-            await _context.CompleteAsync(cancellationToken);
+            _keywordRepository.DeleteRange(keywordsToDelete);
         }
-        finally
-        {
-            _syncLock.Release();
-        }
+
+        if (keywordsToAdd.Any())
+            await _keywordRepository.AddRangeAsync(keywordsToAdd, cancellationToken);
+
+        await _context.CompleteAsync(cancellationToken);
     }
 
     private async Task<List<OpenAlexCountryDto>> GetAllOpenAlexCountriesAsync(

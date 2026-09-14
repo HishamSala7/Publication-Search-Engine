@@ -9,24 +9,6 @@ public class OpenAlexRequestConfiguration
     public string? ApiKey { get; set; }
 }
 
-public class OpenAlexWorksResponse
-{
-    [JsonPropertyName("meta")]
-    public OpenAlexMeta? Meta { get; set; }
-
-    [JsonPropertyName("results")]
-    public List<OpenAlexWork> Results { get; set; } = new();
-}
-
-public class OpenAlexMeta
-{
-    [JsonPropertyName("count")]
-    public int Count { get; set; }
-
-    [JsonPropertyName("next_cursor")]
-    public string? NextCursor { get; set; }
-}
-
 public class OpenAlexWork
 {
     [JsonPropertyName("id")]
@@ -45,7 +27,7 @@ public class OpenAlexWork
     public string? PublicationDate { get; set; }
 
     [JsonPropertyName("cited_by_count")]
-    public int? CitedByCount { get; set; }
+    public long? CitedByCount { get; set; }
 
     [JsonPropertyName("abstract_inverted_index")]
     public Dictionary<string, List<int>>? AbstractInvertedIndex { get; set; }
@@ -102,17 +84,8 @@ public class AuthorCandidate
     public string DisplayName { get; set; } = default!;
     public string? Orcid { get; set; } // null if the author has none on record
     public string? Institution { get; set; } // their last known institution's display name
-    public int WorksCount { get; set; }
-    public int CitedByCount { get; set; }
-}
-
-public class OpenAlexAuthorsResponse
-{
-    [JsonPropertyName("meta")]
-    public OpenAlexMeta? Meta { get; set; }
-
-    [JsonPropertyName("results")]
-    public List<OpenAlexAuthorDetail> Results { get; set; } = new();
+    public long WorksCount { get; set; }
+    public long CitedByCount { get; set; }
 }
 
 public class OpenAlexAuthorDetail
@@ -127,10 +100,10 @@ public class OpenAlexAuthorDetail
     public string? Orcid { get; set; } // "https://orcid.org/0000-0002-1825-0097"
 
     [JsonPropertyName("works_count")]
-    public int WorksCount { get; set; }
+    public long WorksCount { get; set; }
 
     [JsonPropertyName("cited_by_count")]
-    public int CitedByCount { get; set; }
+    public long CitedByCount { get; set; }
 
     [JsonPropertyName("last_known_institutions")]
     public List<OpenAlexInstitution>? LastKnownInstitutions { get; set; }
@@ -161,13 +134,4 @@ public class OpenAlexInstitution
 
     [JsonPropertyName("lineage")]
     public List<string>? Lineage { get; set; } // hierarchy chain of institution IDs
-}
-
-public class OpenAlexInstitutionsResponse
-{
-    [JsonPropertyName("meta")]
-    public OpenAlexMeta? Meta { get; set; }
-
-    [JsonPropertyName("results")]
-    public List<OpenAlexInstitution> Results { get; set; } = new();
 }

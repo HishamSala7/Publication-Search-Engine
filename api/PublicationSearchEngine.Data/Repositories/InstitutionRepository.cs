@@ -15,7 +15,7 @@ public class InstitutionRepository : IInstitutionRepository
         _context = context;
     }
 
-    public async Task<IReadOnlyList<Institution>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<List<Institution>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Institutions.ToListAsync(cancellationToken);
     }

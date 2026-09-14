@@ -21,7 +21,7 @@ public class SubFieldConfiguration : EntityBaseConfiguration<SubField>
 
         builder.Property(x => x.SyncedAt).HasColumnName("synced_at").IsRequired();
 
-        builder.Property(f => f.FieldId).HasColumnName("field_id").IsRequired();
+        builder.Property(f => f.FieldId).HasColumnName("field_id");
 
         builder
             .HasOne(x => x.Field)

@@ -5,7 +5,7 @@ namespace PublicationSearchEngine.Domain.IRepositories;
 
 public interface IInstitutionRepository
 {
-    Task<IReadOnlyList<Institution>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<Institution>> GetAllAsync(CancellationToken cancellationToken);
     Task AddRangeAsync(IEnumerable<Institution> entities, CancellationToken cancellationToken);
     Task AddAsync(Institution entity, CancellationToken cancellationToken);
     Task<Institution?> FirstOrDefaultAsync(

@@ -5,7 +5,7 @@ namespace PublicationSearchEngine.Domain.IRepositories;
 
 public interface IInstitutionDomainRepository
 {
-    Task<IReadOnlyList<InstitutionDomain>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<InstitutionDomain>> GetAllAsync(CancellationToken cancellationToken);
     Task<InstitutionDomain?> GetDomainWithIncludeInstitutionAsync(
         Expression<Func<InstitutionDomain, bool>> predicate,
         CancellationToken cancellationToken

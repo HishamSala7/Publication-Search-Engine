@@ -34,29 +34,11 @@ public static class DependencyInjection
 
         services.AddTransient<OpenAlexRequestHandler>();
 
-        builder
-            .Services.AddHttpClient<OpenAlexService>(client =>
-            {
-                var baseUrl =
-                    builder.Configuration["OpenAlex:BaseUrl"] ?? "https://api.openalex.org/";
-                client.BaseAddress = new Uri(baseUrl);
-                client.DefaultRequestHeaders.Add("User-Agent", "Publication Search");
-            })
-            .AddHttpMessageHandler<OpenAlexRequestHandler>();
-
-        services.AddHttpClient<RorService>(client =>
-        {
-            var baseUrl = builder.Configuration["Ror:BaseUrl"] ?? "https://api.ror.org/v2/";
-            client.BaseAddress = new Uri(baseUrl);
-        });
-
-        services.AddHttpClient<HipoDomainSyncService>(client =>
-        {
-            var datasetUrl =
-                builder.Configuration["Hipo:BaseUrl"]
-                ?? "https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json";
-            client.BaseAddress = new Uri(datasetUrl);
-        });
+        // Http clients
+        builder.Services.AddOpenAlexClient<OpenAlexService>(builder.Configuration);
+        builder.Services.AddOpenAlexClient<OpenAlexSyncService>(builder.Configuration);
+        builder.Services.AddRorClient<RorService>(builder.Configuration);
+        builder.Services.AddHipoClient<HipoDomainSyncService>(builder.Configuration);
 
         // services
         services.AddScoped<InstitutionResolutionService>();
@@ -70,6 +52,7 @@ public static class DependencyInjection
         services.AddScoped<IKeywordRepository, KeywordRepository>();
         services.AddScoped<ISubFieldRepository, SubFieldRepository>();
         services.AddScoped<ITopicRepository, TopicRepository>();
+        services.AddScoped<ITopicKeywordRepository, TopicKeywordRepository>();
     }
 
     public static void AddApiMiddleWares(this WebApplication app)

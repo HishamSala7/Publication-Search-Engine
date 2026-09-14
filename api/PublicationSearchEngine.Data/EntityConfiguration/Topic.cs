@@ -21,7 +21,7 @@ public class TopicConfiguration : EntityBaseConfiguration<Topic>
 
         builder.Property(x => x.SyncedAt).HasColumnName("synced_at").IsRequired();
 
-        builder.Property(f => f.SubFieldId).HasColumnName("sub_field_id").IsRequired();
+        builder.Property(f => f.SubFieldId).HasColumnName("sub_field_id");
 
         builder
             .HasOne(x => x.SubField)

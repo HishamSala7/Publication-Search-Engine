@@ -11,6 +11,8 @@ public class PublicationDbContext : DbContext
     public DbSet<SubField> SubFields { get; set; }
     public DbSet<Topic> Topics { get; set; }
     public DbSet<Keyword> Keywords { get; set; }
+    public DbSet<Country> Countries { get; set; }
+    public DbSet<TopicKeyword> TopicKeywords { get; set; }
 
     public PublicationDbContext(DbContextOptions<PublicationDbContext> options)
         : base(options) { }

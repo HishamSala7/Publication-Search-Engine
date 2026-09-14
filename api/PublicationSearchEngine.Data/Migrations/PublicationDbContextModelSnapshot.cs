@@ -195,10 +195,6 @@ namespace PublicationSearchEngine.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("synced_at");
 
-                    b.Property<Guid>("TopicId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("topic_id");
-
                     b.Property<long>("WorksCount")
                         .HasColumnType("bigint")
                         .HasColumnName("works_count");
@@ -207,8 +203,6 @@ namespace PublicationSearchEngine.Data.Migrations
 
                     b.HasIndex("OpenAlexId")
                         .IsUnique();
-
-                    b.HasIndex("TopicId");
 
                     b.ToTable("keywords", (string)null);
                 });
@@ -225,7 +219,7 @@ namespace PublicationSearchEngine.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("display_name");
 
-                    b.Property<Guid>("FieldId")
+                    b.Property<Guid?>("FieldId")
                         .HasColumnType("uuid")
                         .HasColumnName("field_id");
 
@@ -272,7 +266,7 @@ namespace PublicationSearchEngine.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("open_alex_id");
 
-                    b.Property<Guid>("SubFieldId")
+                    b.Property<Guid?>("SubFieldId")
                         .HasColumnType("uuid")
                         .HasColumnName("sub_field_id");
 
@@ -296,6 +290,31 @@ namespace PublicationSearchEngine.Data.Migrations
                     b.ToTable("topics", (string)null);
                 });
 
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.TopicKeyword", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("KeywordId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("keyword_id");
+
+                    b.Property<Guid>("TopicId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("topic_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KeywordId");
+
+                    b.HasIndex("TopicId", "KeywordId")
+                        .IsUnique();
+
+                    b.ToTable("topic_keywords", (string)null);
+                });
+
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.InstitutionDomain", b =>
                 {
                     b.HasOne("PublicationSearchEngine.Domain.Entities.Institution", "Institution")
@@ -307,24 +326,12 @@ namespace PublicationSearchEngine.Data.Migrations
                     b.Navigation("Institution");
                 });
 
-            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Keyword", b =>
-                {
-                    b.HasOne("PublicationSearchEngine.Domain.Entities.Topic", "Topic")
-                        .WithMany("Keywords")
-                        .HasForeignKey("TopicId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Topic");
-                });
-
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.SubField", b =>
                 {
                     b.HasOne("PublicationSearchEngine.Domain.Entities.Field", "Field")
                         .WithMany("SubFields")
                         .HasForeignKey("FieldId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Field");
                 });
@@ -338,10 +345,28 @@ namespace PublicationSearchEngine.Data.Migrations
                     b.HasOne("PublicationSearchEngine.Domain.Entities.SubField", "SubField")
                         .WithMany("Topics")
                         .HasForeignKey("SubFieldId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("SubField");
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.TopicKeyword", b =>
+                {
+                    b.HasOne("PublicationSearchEngine.Domain.Entities.Keyword", "Keyword")
+                        .WithMany("TopicKeywords")
+                        .HasForeignKey("KeywordId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("SubField");
+                    b.HasOne("PublicationSearchEngine.Domain.Entities.Topic", "Topic")
+                        .WithMany("TopicKeywords")
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Keyword");
+
+                    b.Navigation("Topic");
                 });
 
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Field", b =>
@@ -356,6 +381,11 @@ namespace PublicationSearchEngine.Data.Migrations
                     b.Navigation("Domains");
                 });
 
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Keyword", b =>
+                {
+                    b.Navigation("TopicKeywords");
+                });
+
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.SubField", b =>
                 {
                     b.Navigation("Topics");
@@ -363,7 +393,7 @@ namespace PublicationSearchEngine.Data.Migrations
 
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Topic", b =>
                 {
-                    b.Navigation("Keywords");
+                    b.Navigation("TopicKeywords");
                 });
 #pragma warning restore 612, 618
         }

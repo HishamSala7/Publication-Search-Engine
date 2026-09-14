@@ -20,13 +20,5 @@ public class KeywordConfiguration : EntityBaseConfiguration<Keyword>
         builder.Property(f => f.WorksCount).HasColumnName("works_count").IsRequired();
 
         builder.Property(x => x.SyncedAt).HasColumnName("synced_at").IsRequired();
-
-        builder.Property(f => f.TopicId).HasColumnName("topic_id").IsRequired();
-
-        builder
-            .HasOne(x => x.Topic)
-            .WithMany(i => i.Keywords)
-            .HasForeignKey(x => x.TopicId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

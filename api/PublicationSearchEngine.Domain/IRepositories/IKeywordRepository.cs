@@ -1,3 +1,11 @@
-﻿namespace PublicationSearchEngine.Domain.IRepositories;
+﻿using PublicationSearchEngine.Domain.Entities;
 
-public interface IKeywordRepository { }
+namespace PublicationSearchEngine.Domain.IRepositories;
+
+public interface IKeywordRepository
+{
+    Task<List<Keyword>> GetAllAsync(CancellationToken cancellationToken);
+    Task AddRangeAsync(IEnumerable<Keyword> entities, CancellationToken cancellationToken);
+    void UpdateRange(IEnumerable<Keyword> entities);
+    void DeleteRange(IEnumerable<Keyword> entities);
+}

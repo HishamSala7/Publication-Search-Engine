@@ -15,7 +15,7 @@ public class OpenAlexService
     public async Task<OpenAlexWork?> GetWorkByIdAsync(string workId, CancellationToken ct) =>
         await _httpClient.GetFromJsonAsync<OpenAlexWork>($"works/{workId}", ct);
 
-    public async Task<OpenAlexWorksResponse?> GetWorksPageAsync(
+    public async Task<OpenAlexResponse<OpenAlexWork>?> GetWorksPageAsync(
         string? authorId,
         string? search,
         string? cursor,
@@ -39,7 +39,7 @@ public class OpenAlexService
         if (!string.IsNullOrWhiteSpace(search))
             queryParams.Add($"search={Uri.EscapeDataString(search)}");
 
-        return await _httpClient.GetFromJsonAsync<OpenAlexWorksResponse>(
+        return await _httpClient.GetFromJsonAsync<OpenAlexResponse<OpenAlexWork>>(
             $"works?{string.Join("&", queryParams)}",
             ct
         );
@@ -113,9 +113,9 @@ public class OpenAlexService
             );
         }
 
-        var response = await httpResponse.Content.ReadFromJsonAsync<OpenAlexAuthorsResponse>(
-            cancellationToken: ct
-        );
+        var response = await httpResponse.Content.ReadFromJsonAsync<
+            OpenAlexResponse<OpenAlexAuthorDetail>
+        >(cancellationToken: ct);
 
         var candidates =
             response

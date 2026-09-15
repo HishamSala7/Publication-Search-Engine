@@ -8,4 +8,10 @@ public interface IFieldRepository
     Task AddRangeAsync(IEnumerable<Field> entities, CancellationToken cancellationToken);
     void UpdateRange(IEnumerable<Field> entities);
     void DeleteRange(IEnumerable<Field> entities);
+    Task<(List<Field>, long)> SearchWithPaginationAsync(
+        int take,
+        int skip,
+        string? filter,
+        CancellationToken cancellationToken
+    );
 }

@@ -42,6 +42,7 @@ public static class DependencyInjection
 
         // services
         services.AddScoped<InstitutionResolutionService>();
+        services.AddScoped<SearchEngineDropDownsService>();
 
         // repositories
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();

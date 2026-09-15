@@ -36,4 +36,31 @@ public class CountryRepository : ICountryRepository
     {
         _context.Countries.RemoveRange(entities);
     }
+
+    public async Task<(List<Country>, long)> SearchWithPaginationAsync(
+        int take,
+        int skip,
+        string? filter,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = _context.Countries.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter))
+        {
+            var search = filter.Trim();
+
+            query = query.Where(x => EF.Functions.ILike(x.DisplayName, $"%{search}%"));
+        }
+
+        long totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderBy(x => x.DisplayName)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }

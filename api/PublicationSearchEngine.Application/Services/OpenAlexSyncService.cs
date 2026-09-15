@@ -8,7 +8,6 @@ namespace PublicationSearchEngine.Application.Services;
 public class OpenAlexSyncService
 {
     private readonly HttpClient _httpClient;
-    private static readonly SemaphoreSlim _syncLock = new(1, 1);
     private readonly IApplicationDbContext _context;
     private readonly ICountryRepository _countryRepository;
     private readonly IFieldRepository _fieldRepository;

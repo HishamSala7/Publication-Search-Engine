@@ -8,4 +8,13 @@ public interface IKeywordRepository
     Task AddRangeAsync(IEnumerable<Keyword> entities, CancellationToken cancellationToken);
     void UpdateRange(IEnumerable<Keyword> entities);
     void DeleteRange(IEnumerable<Keyword> entities);
+    Task<(List<Keyword>, long)> SearchWithPaginationAsync(
+       List<Guid> fieldIds,
+       List<Guid> subfieldIds,
+       List<Guid> topicIds,
+       int take,
+       int skip,
+       string? filter,
+       CancellationToken cancellationToken
+   );
 }

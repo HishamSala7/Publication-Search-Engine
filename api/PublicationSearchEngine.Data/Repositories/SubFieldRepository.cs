@@ -47,4 +47,37 @@ public class SubFieldRepository : ISubFieldRepository
             ? await _context.SubFields.FirstOrDefaultAsync(cancellationToken)
             : await _context.SubFields.FirstOrDefaultAsync(predicate, cancellationToken);
     }
+
+    public async Task<(List<SubField>, long)> SearchWithPaginationAsync(
+        List<Guid> fieldIds,
+        int take,
+        int skip,
+        string? filter,
+        CancellationToken cancellationToken
+    )
+    {
+        fieldIds ??= [];
+
+        var query = _context.SubFields.AsNoTracking().AsQueryable();
+
+        if (fieldIds.Count > 0)
+            query = query.Where(x => x.FieldId.HasValue && fieldIds.Contains(x.FieldId.Value));
+
+        if (!string.IsNullOrWhiteSpace(filter))
+        {
+            var search = filter.Trim();
+
+            query = query.Where(x => EF.Functions.ILike(x.DisplayName, $"%{search}%"));
+        }
+
+        long totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderBy(x => x.DisplayName)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }

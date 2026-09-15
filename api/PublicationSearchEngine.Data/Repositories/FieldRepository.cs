@@ -36,4 +36,31 @@ public class FieldRepository : IFieldRepository
     {
         _context.Fields.RemoveRange(entities);
     }
+
+    public async Task<(List<Field>, long)> SearchWithPaginationAsync(
+        int take,
+        int skip,
+        string? filter,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = _context.Fields.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter))
+        {
+            var search = filter.Trim();
+
+            query = query.Where(x => EF.Functions.ILike(x.DisplayName, $"%{search}%"));
+        }
+
+        long totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderBy(x => x.DisplayName)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }

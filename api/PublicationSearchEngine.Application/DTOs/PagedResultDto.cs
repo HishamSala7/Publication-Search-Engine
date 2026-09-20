@@ -1,4 +1,4 @@
-﻿namespace PublicationSearchEngine.Application.Shared;
+﻿namespace PublicationSearchEngine.Application.DTOs;
 
 public class PagedResultDto<T>
 {

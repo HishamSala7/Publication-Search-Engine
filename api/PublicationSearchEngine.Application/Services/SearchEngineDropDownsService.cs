@@ -1,6 +1,6 @@
 ﻿using PublicationSearchEngine.Application.DTOs;
-using PublicationSearchEngine.Application.Shared;
 using PublicationSearchEngine.Application.Shared.Keys;
+using PublicationSearchEngine.Application.Shared.Result;
 using PublicationSearchEngine.Domain.Entities;
 using PublicationSearchEngine.Domain.IRepositories;
 
@@ -61,9 +61,9 @@ public class SearchEngineDropDownsService
         };
 
         return totalCount > 0
-            ? ResultHandler.Success(result, PublicationSearchEngineKeys.Success)
+            ? ResultHandler.Success(result, ResponseKeys.Success)
             : ResultHandler.NoContent<PagedResultDto<SearchEngineDropDownCountryDto>>(
-                PublicationSearchEngineKeys.NoContent
+                ResponseKeys.NoContent
             );
     }
 
@@ -95,9 +95,9 @@ public class SearchEngineDropDownsService
         };
 
         return totalCount > 0
-            ? ResultHandler.Success(result, PublicationSearchEngineKeys.Success)
+            ? ResultHandler.Success(result, ResponseKeys.Success)
             : ResultHandler.NoContent<PagedResultDto<SearchEngineDropDownFieldDto>>(
-                PublicationSearchEngineKeys.NoContent
+                ResponseKeys.NoContent
             );
     }
 
@@ -133,9 +133,9 @@ public class SearchEngineDropDownsService
         };
 
         return totalCount > 0
-            ? ResultHandler.Success(result, PublicationSearchEngineKeys.Success)
+            ? ResultHandler.Success(result, ResponseKeys.Success)
             : ResultHandler.NoContent<PagedResultDto<SearchEngineDropDownSubFieldDto>>(
-                PublicationSearchEngineKeys.NoContent
+                ResponseKeys.NoContent
             );
     }
 
@@ -169,9 +169,9 @@ public class SearchEngineDropDownsService
         };
 
         return totalCount > 0
-            ? ResultHandler.Success(result, PublicationSearchEngineKeys.Success)
+            ? ResultHandler.Success(result, ResponseKeys.Success)
             : ResultHandler.NoContent<PagedResultDto<SearchEngineDropDownTopicDto>>(
-                PublicationSearchEngineKeys.NoContent
+                ResponseKeys.NoContent
             );
     }
 
@@ -209,9 +209,9 @@ public class SearchEngineDropDownsService
         };
 
         return totalCount > 0
-            ? ResultHandler.Success(result, PublicationSearchEngineKeys.Success)
+            ? ResultHandler.Success(result, ResponseKeys.Success)
             : ResultHandler.NoContent<PagedResultDto<SearchEngineDropDownKeywordDto>>(
-                PublicationSearchEngineKeys.NoContent
+                ResponseKeys.NoContent
             );
     }
 }

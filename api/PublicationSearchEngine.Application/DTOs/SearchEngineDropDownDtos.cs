@@ -1,6 +1,4 @@
-﻿using PublicationSearchEngine.Application.Shared;
-
-namespace PublicationSearchEngine.Application.DTOs;
+﻿namespace PublicationSearchEngine.Application.DTOs;
 
 public class SearchEngineDropDownCountrySearchDto : SearchDto { }
 

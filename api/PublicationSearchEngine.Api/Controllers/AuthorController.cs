@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PublicationSearchEngine.Application.DTOs;
 using PublicationSearchEngine.Application.Services;
+using PublicationSearchEngine.Application.Shared.Keys;
+using PublicationSearchEngine.Application.Shared.Result;
 
 namespace PublicationSearchEngine.Api.Controllers
 {
@@ -69,39 +72,74 @@ namespace PublicationSearchEngine.Api.Controllers
             return Ok(new { resolvedInstitution = resolvedInstitutionName, candidates });
         }
 
-        [HttpGet("GetAllWorks")]
-        public async Task<IActionResult> GetAllWorks(
-            [FromQuery] string authorId,
+        [HttpGet("get-all-works-by-author-id")]
+        public async Task<Result<PagedResultDto<OpenAlexWork>>> GetAllWorksByOpenAlexAuthorId(
+            [FromQuery] OpenAlexAuthorWorksSearchDto request,
             CancellationToken cancellationToken
         )
         {
-            if (string.IsNullOrWhiteSpace(authorId))
-                return BadRequest("authorId is required");
-
-            var works = await _openAlexService.GetAllWorksByAuthorAsync(
-                authorId,
+            var works = await _openAlexService.GetWorksPageFilteredByAuthorAsync(
+                request,
                 cancellationToken
             );
-            return Ok(new { count = works.Count, results = works });
+            return works;
         }
 
-        [HttpGet("page")]
-        public async Task<IActionResult> GetWorksPage(
-            [FromQuery] string? authorId,
-            [FromQuery] string? search,
-            [FromQuery] string? cursor,
-            CancellationToken cancellationToken,
-            [FromQuery] int perPage = 25
+        [HttpGet("get-all-works-by-orcid")]
+        public async Task<Result<PagedResultDto<OpenAlexWork>>> GetAllWorksByOrcid(
+            [FromQuery] OpenAlexOrcidModeSearchDto request,
+            CancellationToken cancellationToken
         )
         {
-            var page = await _openAlexService.GetWorksPageAsync(
-                authorId,
-                search,
-                cursor,
-                perPage,
+            var works = await _openAlexService.GetWorksPageFilteredByOrcidAsync(
+                request,
                 cancellationToken
             );
-            return Ok(page);
+            return works;
+        }
+
+        [HttpGet("get-work-by-doi")]
+        public async Task<Result<OpenAlexWork>> GetWorkByDoi(
+            [FromQuery] string doi,
+            CancellationToken cancellationToken
+        )
+        {
+            var work = await _openAlexService.GetWorkByDoiAsync(doi, cancellationToken);
+            return work;
+        }
+
+        [HttpGet("get-latest-works")]
+        public async Task<
+            Result<PagedResultDto<OpenAlexWork>>
+        > GetLatestWorksPageByOpenAlexAuthorId(
+            [FromQuery] OpenAlexAuthorWorksSearchDto request,
+            CancellationToken cancellationToken
+        )
+        {
+            request.OrderBy = OpenAlexEntityAttributesKeys.PublicationDate;
+            request.IsDescending = true;
+
+            return await _openAlexService.GetWorksPageFilteredByAuthorAsync(
+                request,
+                cancellationToken
+            );
+        }
+
+        [HttpGet("get-highest-cited-works")]
+        public async Task<
+            Result<PagedResultDto<OpenAlexWork>>
+        > GetHighestCitedWorksPageByOpenAlexAuthorId(
+            [FromQuery] OpenAlexAuthorWorksSearchDto request,
+            CancellationToken cancellationToken
+        )
+        {
+            request.OrderBy = OpenAlexEntityAttributesKeys.CitedByCount;
+            request.IsDescending = true;
+
+            return await _openAlexService.GetWorksPageFilteredByAuthorAsync(
+                request,
+                cancellationToken
+            );
         }
     }
 }

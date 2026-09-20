@@ -6,7 +6,7 @@ public class OpenAlexResponse<T>
     where T : class
 {
     [JsonPropertyName("meta")]
-    public OpenAlexMeta? Meta { get; set; }
+    public OpenAlexMeta Meta { get; set; } = new();
 
     [JsonPropertyName("results")]
     public List<T> Results { get; set; } = [];

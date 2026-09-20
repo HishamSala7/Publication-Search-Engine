@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PublicationSearchEngine.Application.DTOs;
 using PublicationSearchEngine.Application.Services;
-using PublicationSearchEngine.Application.Shared;
+using PublicationSearchEngine.Application.Shared.Result;
 
 namespace PublicationSearchEngine.Api.Controllers;
 

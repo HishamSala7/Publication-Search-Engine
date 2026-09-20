@@ -135,3 +135,15 @@ public class OpenAlexInstitution
     [JsonPropertyName("lineage")]
     public List<string>? Lineage { get; set; } // hierarchy chain of institution IDs
 }
+
+public class OpenAlexAuthorWorksSearchDto : SearchDto
+{
+    public string OpenAlexAuthorId { get; set; } = string.Empty;
+}
+
+public class OpenAlexOrcidModeSearchDto : SearchDto
+{
+    public string Orcid { get; set; } = string.Empty;
+}
+
+

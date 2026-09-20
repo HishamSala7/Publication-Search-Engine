@@ -1,6 +1,6 @@
 ﻿namespace PublicationSearchEngine.Api.Utilities;
 
-public static class HttpClientServiceExtensions
+public static class HttpClientRegisterServiceExtensions
 {
     public static IHttpClientBuilder AddOpenAlexClient<TClient>(
         this IServiceCollection services,

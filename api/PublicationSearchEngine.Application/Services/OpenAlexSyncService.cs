@@ -1,5 +1,6 @@
-﻿using System.Net.Http.Json;
-using PublicationSearchEngine.Application.DTOs;
+﻿using PublicationSearchEngine.Application.DTOs;
+using PublicationSearchEngine.Application.Services.HttpClientServices;
+using PublicationSearchEngine.Application.Shared.Keys;
 using PublicationSearchEngine.Domain.Entities;
 using PublicationSearchEngine.Domain.IRepositories;
 
@@ -7,7 +8,7 @@ namespace PublicationSearchEngine.Application.Services;
 
 public class OpenAlexSyncService
 {
-    private readonly HttpClient _httpClient;
+    private readonly OpenAlexClientService _openAlexClientService;
     private readonly IApplicationDbContext _context;
     private readonly ICountryRepository _countryRepository;
     private readonly IFieldRepository _fieldRepository;
@@ -17,7 +18,7 @@ public class OpenAlexSyncService
     private readonly ITopicKeywordRepository _topicKeywordRepository;
 
     public OpenAlexSyncService(
-        HttpClient httpClient,
+        OpenAlexClientService openAlexClientService,
         IApplicationDbContext context,
         ICountryRepository countryRepository,
         IFieldRepository fieldRepository,
@@ -27,7 +28,7 @@ public class OpenAlexSyncService
         ITopicKeywordRepository topicKeywordRepository
     )
     {
-        _httpClient = httpClient;
+        _openAlexClientService = openAlexClientService;
         _context = context;
         _countryRepository = countryRepository;
         _fieldRepository = fieldRepository;
@@ -41,7 +42,11 @@ public class OpenAlexSyncService
     {
         var syncTime = DateTime.UtcNow;
 
-        var allCountries = await GetAllOpenAlexCountriesAsync(cancellationToken);
+        var allCountries = await _openAlexClientService.GetAllAsync<OpenAlexCountryDto>(
+            OpenAlexEntityKeys.Countries,
+            null,null,
+            cancellationToken
+        );
 
         var existingCountries = await _countryRepository.GetAllAsync(cancellationToken);
 
@@ -103,7 +108,11 @@ public class OpenAlexSyncService
     {
         var syncTime = DateTime.UtcNow;
 
-        var allFields = await GetAllOpenAlexFieldsAsync(cancellationToken);
+        var allFields = await _openAlexClientService.GetAllAsync<OpenAlexFieldDto>(
+            OpenAlexEntityKeys.Fields,
+            null,null,
+            cancellationToken
+        );
 
         var existingFields = await _fieldRepository.GetAllAsync(cancellationToken);
 
@@ -159,7 +168,11 @@ public class OpenAlexSyncService
     {
         var syncTime = DateTime.UtcNow;
 
-        var allSubFields = await GetAllOpenAlexSubfieldsAsync(cancellationToken);
+        var allSubFields = await _openAlexClientService.GetAllAsync<OpenAlexSubfieldDto>(
+            OpenAlexEntityKeys.SubFields,
+            null,null,
+            cancellationToken
+        );
 
         var fields = await _fieldRepository.GetAllAsync(cancellationToken);
 
@@ -223,7 +236,11 @@ public class OpenAlexSyncService
     {
         var syncTime = DateTime.UtcNow;
 
-        var allTopics = await GetAllOpenAlexTopicsAsync(cancellationToken);
+        var allTopics = await _openAlexClientService.GetAllAsync<OpenAlexTopicDto>(
+            OpenAlexEntityKeys.Topics,
+            null,null,
+            cancellationToken
+        );
 
         var existingTopics = await _topicRepository.GetAllAsync(cancellationToken);
 
@@ -380,7 +397,11 @@ public class OpenAlexSyncService
     {
         var syncTime = DateTime.UtcNow;
 
-        var allKeywords = await GetAllOpenAlexKeywordsAsync(cancellationToken);
+        var allKeywords = await _openAlexClientService.GetAllAsync<OpenAlexKeywordDto>(
+            OpenAlexEntityKeys.Keywords,
+            null,null,
+            cancellationToken
+        );
 
         var existingKeywords = await _keywordRepository.GetAllAsync(cancellationToken);
 
@@ -450,150 +471,5 @@ public class OpenAlexSyncService
             await _keywordRepository.AddRangeAsync(keywordsToAdd, cancellationToken);
 
         await _context.CompleteAsync(cancellationToken);
-    }
-
-    private async Task<List<OpenAlexCountryDto>> GetAllOpenAlexCountriesAsync(
-        CancellationToken cancellationToken
-    )
-    {
-        List<OpenAlexCountryDto> allCountries = [];
-        string? cursor = "*";
-
-        while (cursor != null)
-        {
-            var page = await GetPageAsync<OpenAlexCountryDto>(
-                100,
-                cursor,
-                "countries",
-                cancellationToken
-            );
-            if (page?.Results == null || page.Results.Count == 0)
-                break;
-
-            allCountries.AddRange(page.Results);
-            cursor = page.Meta?.NextCursor;
-        }
-
-        return allCountries;
-    }
-
-    private async Task<List<OpenAlexFieldDto>> GetAllOpenAlexFieldsAsync(
-        CancellationToken cancellationToken
-    )
-    {
-        List<OpenAlexFieldDto> allFields = [];
-        string? cursor = "*";
-
-        while (cursor != null)
-        {
-            var page = await GetPageAsync<OpenAlexFieldDto>(
-                100,
-                cursor,
-                "fields",
-                cancellationToken
-            );
-            if (page?.Results == null || page.Results.Count == 0)
-                break;
-
-            allFields.AddRange(page.Results);
-            cursor = page.Meta?.NextCursor;
-        }
-
-        return allFields;
-    }
-
-    private async Task<List<OpenAlexSubfieldDto>> GetAllOpenAlexSubfieldsAsync(
-        CancellationToken cancellationToken
-    )
-    {
-        List<OpenAlexSubfieldDto> allSubfields = [];
-        string? cursor = "*";
-
-        while (cursor != null)
-        {
-            var page = await GetPageAsync<OpenAlexSubfieldDto>(
-                100,
-                cursor,
-                "subfields",
-                cancellationToken
-            );
-            if (page?.Results == null || page.Results.Count == 0)
-                break;
-
-            allSubfields.AddRange(page.Results);
-            cursor = page.Meta?.NextCursor;
-        }
-
-        return allSubfields;
-    }
-
-    private async Task<List<OpenAlexTopicDto>> GetAllOpenAlexTopicsAsync(
-        CancellationToken cancellationToken
-    )
-    {
-        List<OpenAlexTopicDto> allTopics = [];
-        string? cursor = "*";
-
-        while (cursor != null)
-        {
-            var page = await GetPageAsync<OpenAlexTopicDto>(
-                100,
-                cursor,
-                "topics",
-                cancellationToken
-            );
-            if (page?.Results == null || page.Results.Count == 0)
-                break;
-
-            allTopics.AddRange(page.Results);
-            cursor = page.Meta?.NextCursor;
-        }
-
-        return allTopics;
-    }
-
-    private async Task<List<OpenAlexKeywordDto>> GetAllOpenAlexKeywordsAsync(
-        CancellationToken cancellationToken
-    )
-    {
-        List<OpenAlexKeywordDto> allKeywords = [];
-        string? cursor = "*";
-
-        while (cursor != null)
-        {
-            var page = await GetPageAsync<OpenAlexKeywordDto>(
-                100,
-                cursor,
-                "keywords",
-                cancellationToken
-            );
-            if (page?.Results == null || page.Results.Count == 0)
-                break;
-
-            allKeywords.AddRange(page.Results);
-            cursor = page.Meta?.NextCursor;
-        }
-
-        return allKeywords;
-    }
-
-    private async Task<OpenAlexResponse<T>?> GetPageAsync<T>(
-        int perPage,
-        string? cursor,
-        string openAlexEntity,
-        CancellationToken cancellationToken
-    )
-        where T : class
-    {
-        var queryParams = new List<string>
-        {
-            $"per-page={perPage}",
-            $"cursor={Uri.EscapeDataString(cursor ?? "*")}",
-        };
-
-        return await _httpClient.GetFromJsonAsync<OpenAlexResponse<T>>(
-            $"{openAlexEntity}?{string.Join("&", queryParams)}",
-            cancellationToken
-        );
     }
 }

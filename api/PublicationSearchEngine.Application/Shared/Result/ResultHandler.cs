@@ -1,10 +1,10 @@
-﻿namespace PublicationSearchEngine.Application.Shared;
+﻿namespace PublicationSearchEngine.Application.Shared.Result;
 
 public class ResultHandler
 {
-    public static Result<T> Success<T>(string message)
+    public static Result Success(string message)
     {
-        return new Result<T>()
+        return new Result()
         {
             StatusCode = (int)System.Net.HttpStatusCode.OK,
             Succeeded = true,

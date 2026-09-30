@@ -12,7 +12,7 @@ import PublicLayout
   from "./components/layout/PublicLayout";
 
 import HomePage
-  from "./pages/homepage";
+  from "./pages/HomePage";
 
 import SearchPage
   from "./pages/SearchPage";

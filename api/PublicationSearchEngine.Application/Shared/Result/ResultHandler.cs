@@ -53,6 +53,16 @@ public class ResultHandler
         };
     }
 
+    public static Result<T> Failed<T>(string message)
+    {
+        return new Result<T>()
+        {
+            StatusCode = (int)System.Net.HttpStatusCode.InternalServerError,
+            Succeeded = false,
+            Message = message,
+        };
+    }
+
     public static Result<T> NotFound<T>(string message)
     {
         return new Result<T>()

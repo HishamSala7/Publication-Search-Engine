@@ -136,14 +136,39 @@ public class OpenAlexInstitution
     public List<string>? Lineage { get; set; } // hierarchy chain of institution IDs
 }
 
-public class OpenAlexAuthorWorksSearchDto : SearchDto
+public class OpenAlexWorksSearchDto : SearchDto
 {
-    public string OpenAlexAuthorId { get; set; } = string.Empty;
+    public string? OpenAlexAuthorId { get; set; }
+    public string? Orcid { get; set; }
+    public string? StartDate { get; set; }
+    public string? EndDate { get; set; }
+    public List<string> OpenAlexFieldIds { get; set; } = [];
+    public List<string> OpenAlexSubFieldIds { get; set; } = [];
+    public List<string> OpenAlexTopicIds { get; set; } = [];
+    public List<string> OpenAlexKeywordIds { get; set; } = [];
 }
 
-public class OpenAlexOrcidModeSearchDto : SearchDto
+public class OpenAlexFilter
 {
-    public string Orcid { get; set; } = string.Empty;
+    public string Attribute { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
 }
 
+public class OpenAlexSort
+{
+    public string Attribute { get; set; } = string.Empty;
+    public bool IsDescending { get; set; }
+}
 
+public class AuthorPositionCountDto
+{
+    public int FirstPositionCount { get; set; }
+    public int MiddlePositionCount { get; set; }
+    public int LastPositionCount { get; set; }
+}
+
+public class OpenAlexWorksSelectDto
+{
+    public bool IncludeId { get; set; }
+    public bool IncludeAuthorships { get; set; }
+}

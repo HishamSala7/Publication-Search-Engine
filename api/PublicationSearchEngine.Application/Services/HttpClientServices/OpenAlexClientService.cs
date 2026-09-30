@@ -15,8 +15,9 @@ public class OpenAlexClientService
 
     public async Task<List<T>> GetAllAsync<T>(
         string openAlexEntity,
-        List<(string? attribute, string? value)>? filters = null,
-        List<(string? attribute, bool isDesc)>? sort = null,
+        List<OpenAlexFilter>? filters = null,
+        List<OpenAlexSort>? sort = null,
+        List<string>? select = null,
         CancellationToken cancellationToken = default
     )
         where T : class
@@ -31,6 +32,7 @@ public class OpenAlexClientService
                 OpenAlexConsts.PerPageMaxLimit,
                 filters,
                 sort,
+                select,
                 cursor,
                 cancellationToken
             );
@@ -48,14 +50,15 @@ public class OpenAlexClientService
     public async Task<OpenAlexResponse<T>?> GetPageAsync<T>(
         string entityName,
         int perPage,
-        List<(string? attribute, string? value)>? filters = null,
-        List<(string? attribute, bool isDesc)>? sort = null,
+        List<OpenAlexFilter>? filters = null,
+        List<OpenAlexSort>? sort = null,
+        List<string>? select = null,
         string? cursor = "*",
         CancellationToken cancellationToken = default
     )
         where T : class
     {
-        var url = BuildUrl(entityName, filters, sort, cursor, perPage);
+        var url = BuildUrl(entityName, filters, sort, select, cursor, perPage);
 
         if (string.IsNullOrWhiteSpace(url))
             return null;
@@ -72,14 +75,15 @@ public class OpenAlexClientService
 
     public async Task<T?> GetFirstOrDefaultAsync<T>(
         string entityName,
-        List<(string? attribute, string? value)>? filters = null,
-        List<(string? attribute, bool isDesc)>? sort = null,
+        List<OpenAlexFilter>? filters = null,
+        List<OpenAlexSort>? sort = null,
+        List<string>? select = null,
         string? cursor = "*",
         CancellationToken cancellationToken = default
     )
         where T : class
     {
-        var url = BuildUrl(entityName, filters, sort, cursor, 1);
+        var url = BuildUrl(entityName, filters, sort, select, cursor, 1);
 
         if (string.IsNullOrWhiteSpace(url))
             return null;
@@ -99,11 +103,12 @@ public class OpenAlexClientService
     public async Task<T?> GetByIdAsync<T>(
         string entityName,
         string openAlexId,
+        List<string>? select = null,
         CancellationToken cancellationToken = default
     )
         where T : class
     {
-        var url = BuildUrl(entityName, openAlexId);
+        var url = BuildUrl(entityName, openAlexId, select);
 
         if (string.IsNullOrWhiteSpace(url))
             return null;
@@ -120,8 +125,9 @@ public class OpenAlexClientService
 
     private static string? BuildUrl(
         string entityName,
-        List<(string? attribute, string? value)>? filters,
-        List<(string? attribute, bool isDesc)>? sort,
+        List<OpenAlexFilter>? filters,
+        List<OpenAlexSort>? sort,
+        List<string>? select,
         string? cursor,
         int perPage
     )
@@ -137,37 +143,59 @@ public class OpenAlexClientService
             $"cursor={Uri.EscapeDataString(cursor)}",
         };
 
-        // filters
         var combinedFilters = filters
             ?.Where(x =>
-                !string.IsNullOrWhiteSpace(x.attribute) && !string.IsNullOrWhiteSpace(x.value)
+                !string.IsNullOrWhiteSpace(x.Attribute) && !string.IsNullOrWhiteSpace(x.Value)
             )
-            .Select(x => $"{x.attribute}:{x.value}")
+            .Select(x => $"{x.Attribute}:{x.Value}")
             .ToList();
 
         if (combinedFilters?.Count > 0)
         {
-            queryParams.Add($"filter={Uri.EscapeDataString(string.Join(",", combinedFilters))}");
+            queryParams.Add(
+                $"filter={Uri.EscapeDataString(
+                    string.Join(",", combinedFilters)
+                )}"
+            );
         }
 
-        // sort
         var combinedSort = sort
-            ?.Where(x => !string.IsNullOrWhiteSpace(x.attribute))
-            .Select(x => x.isDesc ? $"{x.attribute}:desc" : x.attribute!)
+            ?.Where(x => !string.IsNullOrWhiteSpace(x.Attribute))
+            .Select(x => x.IsDescending ? $"{x.Attribute}:desc" : x.Attribute)
             .ToList();
 
         if (combinedSort?.Count > 0)
         {
-            queryParams.Add($"sort={Uri.EscapeDataString(string.Join(",", combinedSort))}");
+            queryParams.Add(
+                $"sort={Uri.EscapeDataString(
+                    string.Join(",", combinedSort)
+                )}"
+            );
+        }
+
+        if (select?.Count > 0)
+        {
+            queryParams.Add(
+                $"select={Uri.EscapeDataString(
+                    string.Join(",", select)
+                )}"
+            );
         }
 
         return $"{entityName}?{string.Join("&", queryParams)}";
     }
 
-    private static string? BuildUrl(string entityName, string openAlexId)
+    private static string? BuildUrl(string entityName, string openAlexId, List<string>? select)
     {
         if (string.IsNullOrWhiteSpace(entityName))
             return null;
+
+        if (select?.Count > 0)
+        {
+            return $"{entityName}/{openAlexId}?select={Uri.EscapeDataString(
+                string.Join(",", select)
+            )}";
+        }
 
         return $"{entityName}/{openAlexId}";
     }

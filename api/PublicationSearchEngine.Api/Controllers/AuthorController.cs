@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PublicationSearchEngine.Application.DTOs;
 using PublicationSearchEngine.Application.Services;
-using PublicationSearchEngine.Application.Shared.Keys;
 using PublicationSearchEngine.Application.Shared.Result;
 
 namespace PublicationSearchEngine.Api.Controllers
@@ -72,72 +71,14 @@ namespace PublicationSearchEngine.Api.Controllers
             return Ok(new { resolvedInstitution = resolvedInstitutionName, candidates });
         }
 
-        [HttpGet("get-all-works-by-author-id")]
-        public async Task<Result<PagedResultDto<OpenAlexWork>>> GetAllWorksByOpenAlexAuthorId(
-            [FromQuery] OpenAlexAuthorWorksSearchDto request,
+        [HttpGet("get-work-author-position-counts")]
+        public async Task<Result<AuthorPositionCountDto>> GetWorkAuthorPositionCountsAsync(
+            string openAlexAuthorId,
             CancellationToken cancellationToken
         )
         {
-            var works = await _openAlexService.GetWorksPageFilteredByAuthorAsync(
-                request,
-                cancellationToken
-            );
-            return works;
-        }
-
-        [HttpGet("get-all-works-by-orcid")]
-        public async Task<Result<PagedResultDto<OpenAlexWork>>> GetAllWorksByOrcid(
-            [FromQuery] OpenAlexOrcidModeSearchDto request,
-            CancellationToken cancellationToken
-        )
-        {
-            var works = await _openAlexService.GetWorksPageFilteredByOrcidAsync(
-                request,
-                cancellationToken
-            );
-            return works;
-        }
-
-        [HttpGet("get-work-by-doi")]
-        public async Task<Result<OpenAlexWork>> GetWorkByDoi(
-            [FromQuery] string doi,
-            CancellationToken cancellationToken
-        )
-        {
-            var work = await _openAlexService.GetWorkByDoiAsync(doi, cancellationToken);
-            return work;
-        }
-
-        [HttpGet("get-latest-works")]
-        public async Task<
-            Result<PagedResultDto<OpenAlexWork>>
-        > GetLatestWorksPageByOpenAlexAuthorId(
-            [FromQuery] OpenAlexAuthorWorksSearchDto request,
-            CancellationToken cancellationToken
-        )
-        {
-            request.OrderBy = OpenAlexEntityAttributesKeys.PublicationDate;
-            request.IsDescending = true;
-
-            return await _openAlexService.GetWorksPageFilteredByAuthorAsync(
-                request,
-                cancellationToken
-            );
-        }
-
-        [HttpGet("get-highest-cited-works")]
-        public async Task<
-            Result<PagedResultDto<OpenAlexWork>>
-        > GetHighestCitedWorksPageByOpenAlexAuthorId(
-            [FromQuery] OpenAlexAuthorWorksSearchDto request,
-            CancellationToken cancellationToken
-        )
-        {
-            request.OrderBy = OpenAlexEntityAttributesKeys.CitedByCount;
-            request.IsDescending = true;
-
-            return await _openAlexService.GetWorksPageFilteredByAuthorAsync(
-                request,
+            return await _openAlexService.GetAuthorPositionCountAsync(
+                openAlexAuthorId,
                 cancellationToken
             );
         }

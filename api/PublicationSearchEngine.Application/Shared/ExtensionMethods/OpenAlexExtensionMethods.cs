@@ -29,6 +29,66 @@ public static class OpenAlexExtensionMethods
         return IsOpenAlexId(id) ? id.ToUpperInvariant() : null;
     }
 
+    public static string? ExtractOpenAlexFieldId(this string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        value = value.Trim().TrimEnd('/');
+
+        var id = value.Split('/').LastOrDefault();
+
+        if (string.IsNullOrWhiteSpace(id))
+            return null;
+
+        return id.All(char.IsDigit) ? id : null;
+    }
+
+    public static string? ExtractOpenAlexSubfieldId(this string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        value = value.Trim().TrimEnd('/');
+
+        var id = value.Split('/').LastOrDefault();
+
+        if (string.IsNullOrWhiteSpace(id))
+            return null;
+
+        return id.All(char.IsDigit) ? id : null;
+    }
+
+    public static string? ExtractOpenAlexTopicId(this string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        value = value.Trim().TrimEnd('/');
+
+        var id = value.Split('/').LastOrDefault();
+
+        if (string.IsNullOrWhiteSpace(id))
+            return null;
+
+        return IsOpenAlexTopicId(id) ? id.ToUpperInvariant() : null;
+    }
+
+    public static string? ExtractOpenAlexKeywordId(this string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        value = value.Trim().TrimEnd('/');
+
+        var id = value.Split('/').LastOrDefault();
+
+        if (string.IsNullOrWhiteSpace(id))
+            return null;
+
+        return IsOpenAlexKeywordId(id) ? id.ToLowerInvariant() : null;
+    }
+
     private static bool IsOpenAlexId(string value)
     {
         if (value.Length < 2)
@@ -40,5 +100,17 @@ public static class OpenAlexExtensionMethods
             return false;
 
         return value[1..].All(char.IsDigit);
+    }
+
+    private static bool IsOpenAlexTopicId(string value)
+    {
+        return value.Length >= 2
+            && char.ToUpperInvariant(value[0]) == 'T'
+            && value[1..].All(char.IsDigit);
+    }
+
+    private static bool IsOpenAlexKeywordId(string value)
+    {
+        return value.All(c => char.IsLetterOrDigit(c) || c == '-');
     }
 }

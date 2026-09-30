@@ -44,7 +44,9 @@ public class OpenAlexSyncService
 
         var allCountries = await _openAlexClientService.GetAllAsync<OpenAlexCountryDto>(
             OpenAlexEntityKeys.Countries,
-            null,null,
+            null,
+            null,
+            null,
             cancellationToken
         );
 
@@ -110,7 +112,9 @@ public class OpenAlexSyncService
 
         var allFields = await _openAlexClientService.GetAllAsync<OpenAlexFieldDto>(
             OpenAlexEntityKeys.Fields,
-            null,null,
+            null,
+            null,
+            null,
             cancellationToken
         );
 
@@ -170,7 +174,9 @@ public class OpenAlexSyncService
 
         var allSubFields = await _openAlexClientService.GetAllAsync<OpenAlexSubfieldDto>(
             OpenAlexEntityKeys.SubFields,
-            null,null,
+            null,
+            null,
+            null,
             cancellationToken
         );
 
@@ -238,7 +244,9 @@ public class OpenAlexSyncService
 
         var allTopics = await _openAlexClientService.GetAllAsync<OpenAlexTopicDto>(
             OpenAlexEntityKeys.Topics,
-            null,null,
+            null,
+            null,
+            null,
             cancellationToken
         );
 
@@ -399,7 +407,9 @@ public class OpenAlexSyncService
 
         var allKeywords = await _openAlexClientService.GetAllAsync<OpenAlexKeywordDto>(
             OpenAlexEntityKeys.Keywords,
-            null,null,
+            null,
+            null,
+            null,
             cancellationToken
         );
 

@@ -6,4 +6,5 @@ public class ResponseKeys
     public const string NoContent = "No Content";
     public const string BadRequest = "Bad Request";
     public const string NotFound = "Not Found";
+    public const string Failed = "Failed";
 }

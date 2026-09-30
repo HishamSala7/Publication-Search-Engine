@@ -4,6 +4,7 @@ using PublicationSearchEngine.Application.DTOs;
 using PublicationSearchEngine.Application.Interfaces;
 using PublicationSearchEngine.Application.Services;
 using PublicationSearchEngine.Application.Services.HttpClientServices;
+using PublicationSearchEngine.Application.Shared.Builders;
 using PublicationSearchEngine.Data.Cache;
 using PublicationSearchEngine.Data.Context;
 using PublicationSearchEngine.Data.Repositories;
@@ -65,6 +66,10 @@ public static class DependencyInjection
         services.AddScoped<ITopicKeywordRepository, TopicKeywordRepository>();
 
         // interfaces & contracts
+        services.AddSingleton<ISearchCacheKeyBuilder, SearchCacheKeyBuilder>();
+        services.AddTransient<IOpenAlexWorksFilterBuilder, OpenAlexWorksFilterBuilder>();
+        services.AddTransient<IOpenAlexWorksSortBuilder, OpenAlexWorksSortBuilder>();
+        services.AddTransient<IOpenAlexWorksSelectBuilder, OpenAlexWorksSelectBuilder>();
     }
 
     public static void AddApiMiddleWares(this WebApplication app)

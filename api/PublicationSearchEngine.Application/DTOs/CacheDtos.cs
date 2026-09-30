@@ -1,20 +1,24 @@
 ﻿namespace PublicationSearchEngine.Application.DTOs;
 
-public class OpenAlexAuthorWorksCacheDto
+public class OpenAlexWorksCacheDto
 {
     public List<OpenAlexWork> Works { get; set; } = [];
-    public string? NextCursor { get; set; }
-    public int CurrentIndex { get; set; }
-    public long TotalCount { get; set; }
+    public Dictionary<int, string?> CursorMap { get; set; } = [];
+    public int TotalCount { get; set; }
+    public DateTime CachedAt { get; set; }
+}
 
-    public static string GetCacheKey(string OpenAlexAuthorId) =>
-        $"OpenAlex:OpenAlexAuthorId-Works:{OpenAlexAuthorId}";
-
-    public static string GetCacheKeySortedByPublicationDate(string openAlexAuthorId) =>
-        $"OpenAlex:OpenAlexAuthorId-Works-SortedByPublicationDate:{openAlexAuthorId}";
-
-    public static string GetCacheKeySortedByCitationCount(string openAlexAuthorId) =>
-        $"OpenAlex:OpenAlexAuthorId-Works-SortedByCitationCount:{openAlexAuthorId}";
+public class OpenAlexWorksCacheKeyDto
+{
+    public string? OpenAlexAuthorId { get; set; }
+    public string? StartDate { get; set; }
+    public string? EndDate { get; set; }
+    public List<string> FieldIds { get; set; } = [];
+    public List<string> SubFieldIds { get; set; } = [];
+    public List<string> TopicIds { get; set; } = [];
+    public List<string> KeywordIds { get; set; } = [];
+    public string? OrderBy { get; set; }
+    public bool IsDescending { get; set; }
 }
 
 public class OpenAlexOrcidAuthorCacheDto
@@ -23,7 +27,7 @@ public class OpenAlexOrcidAuthorCacheDto
 
     public static string GetCacheKey(string orcid)
     {
-        return $"OpenAlex:Orcid-Author:{orcid}";
+        return $"openalex:orcid-author:{orcid}";
     }
 }
 
@@ -33,6 +37,24 @@ public class OpenAlexDoiWorkCacheDto
 
     public static string GetCacheKey(string doi)
     {
-        return $"OpenAlex:Doi-Work:{doi}";
+        return $"openalex:doi-work:{doi}";
+    }
+}
+
+public class OpenAlexRorInstitutionCacheDto
+{
+    public OpenAlexInstitution? Institution { get; set; }
+
+    public static string GetCacheKey(string ror)
+    {
+        return $"openalex:ror-institution:{ror}";
+    }
+}
+
+public static class OpenAlexAuthorPositionCountCacheDto
+{
+    public static string GetCacheKey(string openAlexAuthorId)
+    {
+        return $"openalex:author-authorPositionCounts:{openAlexAuthorId}";
     }
 }

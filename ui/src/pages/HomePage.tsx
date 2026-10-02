@@ -5,7 +5,7 @@ import FeaturesSection
     from "../components/home/FeaturesSection";
 
 import HeroSlider
-    from "../components/home/HeroSlider/HeroSlider";
+    from "../components/home/HeroSlider";
 
 import SearchLaunch
     from "../components/home/SearchLaunch";

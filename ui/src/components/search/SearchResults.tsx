@@ -1,340 +1,244 @@
-import {
-    useState
-} from "react";
+import WorkCard
+    from "./WorkCard";
 
-import {
-    FaArrowUpRightFromSquare,
-    FaBook,
-    FaFileLines,
-    FaGraduationCap,
-    FaLightbulb,
-    FaRegBookmark
-} from "react-icons/fa6";
+import WorksToolbar
+    from "./WorksToolbar";
+
+import SearchPagination
+    from "./SearchPagination";
 
 import type {
-    IconType
-} from "react-icons";
+    OpenAlexWork,
+    WorksSortMode
+} from "../../features/search/types/search-ui.types";
 
 
-interface SearchResult {
+interface SearchResultsProps {
 
-    type: string;
+    works: OpenAlexWork[];
 
-    title: string;
+    totalCount: number;
 
-    description: string;
+    filter: string;
 
-    icon: IconType;
+    sortMode: WorksSortMode;
+
+    currentPage: number;
+
+    pageSize: number;
+
+    isLoading: boolean;
+
+    error: string | null;
+
+    onFilterChange: (
+        value: string
+    ) => void;
+
+    onSortChange: (
+        value: WorksSortMode
+    ) => void;
+
+    onPageChange: (
+        page: number
+    ) => void;
 
 }
 
 
-const resultTabs = [
-
-    "Publications",
-
-    "Books",
-
-    "Patents",
-
-    "CV & Profile"
-
-];
-
-
-const searchResults: SearchResult[] = [
-
-    {
-
-        type:
-            "JOURNAL ARTICLE · 2026",
-
-        title:
-            "Interpretable learning systems for scientific discovery",
-
-        description:
-            "Journal of Machine Learning Research · Elena Rodriguez, A. Chen, M. Patel",
-
-        icon:
-            FaFileLines
-
-    },
-
-
-    {
-
-        type:
-            "CONFERENCE PAPER · 2025",
-
-        title:
-            "Knowledge graphs for interdisciplinary research mapping",
-
-        description:
-            "International Conference on Data Mining · Elena Rodriguez, L. Wang",
-
-        icon:
-            FaFileLines
-
-    },
-
-
-    {
-
-        type:
-            "PATENT · 2024",
-
-        title:
-            "System for semantic analysis of scientific literature",
-
-        description:
-            "US Patent Application · Rodriguez, E. · Stanford University",
-
-        icon:
-            FaLightbulb
-
-    }
-
-];
-
-
-export default function SearchResults() {
-
-
-    const [
-        activeTab,
-        setActiveTab
-    ] = useState(
-        "Publications"
-    );
-
+export default function SearchResults({
+    works,
+    totalCount,
+    filter,
+    sortMode,
+    currentPage,
+    pageSize,
+    isLoading,
+    error,
+    onFilterChange,
+    onSortChange,
+    onPageChange
+}: SearchResultsProps) {
 
     return (
 
-        <div className="results-panel">
+        <section className="works-results-panel">
+
+            <WorksToolbar
+                totalCount={
+                    totalCount
+                }
+                filter={
+                    filter
+                }
+                sortMode={
+                    sortMode
+                }
+                onFilterChange={
+                    onFilterChange
+                }
+                onSortChange={
+                    onSortChange
+                }
+            />
 
 
-            <div className="results-toolbar">
+            {
+                isLoading
+                &&
+                <div className="works-empty-state">
 
+                    <span>
 
-                <div>
-
-
-                    <span className="muted">
-
-                        Faculty
+                        LOADING
 
                     </span>
 
 
                     <h3>
 
-                        Dr. Elena Rodriguez
+                        Retrieving research works...
 
                     </h3>
 
 
-                    <small>
+                    <p>
 
-                        Professor of Computer Science
-                        {" · "}
-                        Stanford University
+                        Please wait while the
+                        publication data is loaded.
 
-                    </small>
-
+                    </p>
 
                 </div>
+            }
 
 
-                <button
-                    type="button"
-                    className="save-btn"
-                >
+            {
+                !isLoading
+                &&
+                error
+                &&
+                <div className="works-empty-state">
 
-                    <FaRegBookmark />
+                    <span>
 
-                    Save profile
+                        SEARCH ERROR
 
-                </button>
-
-
-            </div>
-
-
-            <div className="profile-strip">
+                    </span>
 
 
-                <div className="avatar">
+                    <h3>
 
-                    ER
+                        We could not retrieve
+                        the research works.
+
+                    </h3>
+
+
+                    <p>
+
+                        {error}
+
+                    </p>
 
                 </div>
+            }
 
 
-                <div className="profile-facts">
-
+            {
+                !isLoading
+                &&
+                !error
+                &&
+                works.length === 0
+                &&
+                <div className="works-empty-state">
 
                     <span>
 
-                        <i>
-
-                            <FaFileLines />
-
-                        </i>
-
-                        128 Publications
+                        NO RESULTS
 
                     </span>
 
 
-                    <span>
+                    <h3>
 
-                        <i>
+                        No works match
+                        the current search.
 
-                            <FaBook />
-
-                        </i>
-
-                        9 Books
-
-                    </span>
+                    </h3>
 
 
-                    <span>
+                    <p>
 
-                        <i>
+                        Try changing the search text
+                        or clearing some filters.
 
-                            <FaLightbulb />
-
-                        </i>
-
-                        14 Patents
-
-                    </span>
-
-
-                    <span>
-
-                        <i>
-
-                            <FaGraduationCap />
-
-                        </i>
-
-                        21 Years
-
-                    </span>
-
+                    </p>
 
                 </div>
+            }
 
 
-            </div>
+            {
+                !isLoading
+                &&
+                !error
+                &&
+                works.length > 0
+                &&
+                <div className="works-list">
 
+                    {
+                        works.map(
+                            (
+                                work,
+                                index
+                            ) => (
 
-            <div className="result-tabs">
+                                <WorkCard
+                                    key={
+                                        work.id
+                                        ??
+                                        work.doi
+                                        ??
+                                        index
+                                    }
+                                    work={
+                                        work
+                                    }
+                                />
 
-
-                {
-                    resultTabs.map(
-                        tab => (
-
-                            <button
-                                type="button"
-                                key={tab}
-                                className={
-                                    activeTab === tab
-                                        ? "active"
-                                        : ""
-                                }
-                                onClick={() =>
-                                    setActiveTab(tab)
-                                }
-                            >
-
-                                {tab}
-
-                            </button>
-
+                            )
                         )
-                    )
-                }
+                    }
+
+                </div>
+            }
 
 
-            </div>
+            {
+                !isLoading
+                &&
+                !error
+                &&
+                <SearchPagination
+                    currentPage={
+                        currentPage
+                    }
+                    pageSize={
+                        pageSize
+                    }
+                    totalCount={
+                        totalCount
+                    }
+                    onPageChange={
+                        onPageChange
+                    }
+                />
+            }
 
-
-            <div className="result-list">
-
-
-                {
-                    searchResults.map(
-                        result => {
-
-
-                            const Icon =
-                                result.icon;
-
-
-                            return (
-
-                                <article
-                                    className="result-item"
-                                    key={result.title}
-                                >
-
-
-                                    <div className="type-icon">
-
-                                        <Icon />
-
-                                    </div>
-
-
-                                    <div>
-
-
-                                        <span className="result-type">
-
-                                            {result.type}
-
-                                        </span>
-
-
-                                        <h4>
-
-                                            {result.title}
-
-                                        </h4>
-
-
-                                        <p>
-
-                                            {result.description}
-
-                                        </p>
-
-
-                                    </div>
-
-
-                                    <FaArrowUpRightFromSquare
-                                        className="result-arrow"
-                                    />
-
-
-                                </article>
-
-                            );
-
-                        }
-                    )
-                }
-
-
-            </div>
-
-
-        </div>
+        </section>
 
     );
 

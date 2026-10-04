@@ -1,43 +1,121 @@
 import {
-    type FormEvent
+    useState
 } from "react";
 
 import {
-    FaArrowRight,
-    FaMagnifyingGlass
-} from "react-icons/fa6";
-
-import {
-    useLocation,
     useNavigate
 } from "react-router-dom";
 
+import SearchForm
+    from "../search/SearchForm";
+
+import SearchModeSelector
+    from "../search/SearchModeSelector";
+
+import type {
+    SearchFormValues,
+    SearchMode
+} from "../../features/search/types/search-ui.types";
+
 
 export default function SearchLaunch() {
-
 
     const navigate =
         useNavigate();
 
 
-    const location =
-        useLocation();
+    const [
+        searchMode,
+        setSearchMode
+    ] = useState<SearchMode>(
+        "author"
+    );
 
 
-    function handleSubmit(
-        event: FormEvent<HTMLFormElement>
+    function handleSearch(
+        values:
+            SearchFormValues
     ) {
 
-        event.preventDefault();
+        const params =
+            new URLSearchParams();
+
+
+        params.set(
+            "mode",
+            searchMode
+        );
 
 
         if (
-            location.pathname !== "/search"
+            searchMode === "author"
         ) {
 
-            navigate("/search");
+            params.set(
+                "name",
+                values.name
+            );
+
+
+            if (
+                values.email
+            ) {
+
+                params.set(
+                    "email",
+                    values.email
+                );
+
+            }
 
         }
+
+
+        if (
+            searchMode === "publications"
+        ) {
+
+            if (
+                values.publicationQuery
+            ) {
+
+                params.set(
+                    "filter",
+                    values.publicationQuery
+                );
+
+            }
+
+        }
+
+
+        if (
+            searchMode === "orcid"
+        ) {
+
+            params.set(
+                "orcid",
+                values.orcid
+            );
+
+        }
+
+
+        if (
+            searchMode === "doi"
+        ) {
+
+            params.set(
+                "doi",
+                values.doi
+            );
+
+        }
+
+
+        navigate(
+            `/search?${params.toString()}`
+        );
 
     }
 
@@ -49,12 +127,10 @@ export default function SearchLaunch() {
             id="search"
         >
 
-
             <div className="container search-launch-inner">
 
 
-                <div>
-
+                <div className="search-launch-copy">
 
                     <span className="section-kicker">
 
@@ -65,58 +141,48 @@ export default function SearchLaunch() {
 
                     <h2>
 
-                        Find a faculty member
+                        Search scientific research
 
                     </h2>
 
 
                     <p>
 
-                        Search by name, ORCID,
-                        institution or research area.
+                        Find a researcher by name,
+                        search publications globally,
+                        or look up research directly
+                        using ORCID or DOI.
 
                     </p>
-
 
                 </div>
 
 
-                <form
-                    className="faculty-search"
-                    onSubmit={handleSubmit}
-                >
+                <div className="search-launch-workspace">
 
-
-                    <i>
-
-                        <FaMagnifyingGlass />
-
-                    </i>
-
-
-                    <input
-                        type="search"
-                        placeholder="e.g. Maria Garcia, John Smith..."
-                        autoComplete="off"
+                    <SearchModeSelector
+                        value={
+                            searchMode
+                        }
+                        onChange={
+                            setSearchMode
+                        }
                     />
 
 
-                    <button
-                        type="submit"
-                    >
+                    <SearchForm
+                        mode={
+                            searchMode
+                        }
+                        onSubmit={
+                            handleSearch
+                        }
+                    />
 
-                        Search
-
-                        <FaArrowRight />
-
-                    </button>
-
-
-                </form>
+                </div>
 
 
             </div>
-
 
         </section>
 

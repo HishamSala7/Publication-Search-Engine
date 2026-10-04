@@ -1,0 +1,428 @@
+/* ========================================
+   Taxonomy Multi Select
+======================================== */
+
+.taxonomy-multi-select {
+    position: relative;
+
+    margin-top: 22px;
+}
+
+
+.taxonomy-multi-select-label {
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: #53605e;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: .7px;
+
+    text-transform: uppercase;
+}
+
+
+.taxonomy-multi-select-control {
+    min-height: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 5px;
+
+    background: #fff;
+
+    padding:
+        5px 9px;
+
+    cursor: text;
+
+    transition:
+        var(--transition);
+}
+
+
+.taxonomy-multi-select-control:hover {
+    border-color:
+        rgba(215, 154, 42, .7);
+}
+
+
+.taxonomy-multi-select-control.open {
+    border-color:
+        var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(215, 154, 42, .1);
+}
+
+
+.taxonomy-multi-select-values {
+    min-width: 0;
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 5px;
+}
+
+
+.taxonomy-multi-select-values input {
+    min-width: 90px;
+
+    flex: 1;
+
+    height: 28px;
+
+    border: 0;
+
+    outline: 0;
+
+    background: transparent;
+
+    color: var(--ink);
+
+    padding: 0;
+
+    font-size: 10px;
+}
+
+
+.taxonomy-multi-select-values input::placeholder {
+    color: #98a4a1;
+}
+
+
+/* ========================================
+   Selected Chips
+======================================== */
+
+.taxonomy-selected-chip {
+    max-width: 100%;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    border:
+        1px solid rgba(13, 70, 63, .13);
+
+    border-radius: 4px;
+
+    background:
+        rgba(13, 70, 63, .07);
+
+    color:
+        var(--secondary);
+
+    padding:
+        4px 5px 4px 7px;
+
+    font-size: 9px;
+
+    font-weight: 700;
+}
+
+
+.taxonomy-selected-chip>span {
+    min-width: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.taxonomy-selected-chip button {
+    width: 17px;
+
+    height: 17px;
+
+    flex:
+        0 0 17px;
+
+    display: grid;
+
+    place-items: center;
+
+    border: 0;
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: var(--muted);
+
+    padding: 0;
+
+    font-size: 8px;
+}
+
+
+.taxonomy-selected-chip button:hover {
+    background:
+        var(--secondary);
+
+    color: #fff;
+}
+
+
+/* ========================================
+   Chevron
+======================================== */
+
+.taxonomy-chevron {
+    flex:
+        0 0 auto;
+
+    color:
+        var(--muted);
+
+    font-size:
+        9px;
+
+    transition:
+        transform .2s ease;
+}
+
+
+.taxonomy-chevron.open {
+    transform:
+        rotate(180deg);
+}
+
+
+/* ========================================
+   Dropdown
+======================================== */
+
+.taxonomy-options-dropdown {
+    position: absolute;
+
+    top:
+        calc(100% + 5px);
+
+    left: 0;
+
+    right: 0;
+
+    z-index: 30;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 5px;
+
+    background: #fff;
+
+    box-shadow:
+        0 12px 30px rgba(4, 29, 26, .14);
+
+    overflow: hidden;
+}
+
+
+.taxonomy-options-list {
+    max-height: 220px;
+
+    overflow-y: auto;
+
+    overscroll-behavior: contain;
+}
+
+
+.taxonomy-option {
+    width: 100%;
+
+    min-height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    border: 0;
+
+    border-bottom:
+        1px solid rgba(226, 232, 230, .65);
+
+    background: #fff;
+
+    color:
+        var(--ink);
+
+    padding:
+        8px 11px;
+
+    text-align: left;
+
+    font-size: 10px;
+
+    transition:
+        var(--transition);
+}
+
+
+.taxonomy-option:last-of-type {
+    border-bottom: 0;
+}
+
+
+.taxonomy-option:hover {
+    background:
+        var(--light);
+
+    color:
+        var(--secondary);
+}
+
+
+.taxonomy-option.selected {
+    background:
+        rgba(215, 154, 42, .08);
+
+    color:
+        var(--secondary);
+
+    font-weight: 700;
+}
+
+
+.taxonomy-option svg {
+    flex:
+        0 0 auto;
+
+    color:
+        var(--primary);
+
+    font-size: 9px;
+}
+
+
+/* ========================================
+   States
+======================================== */
+
+.taxonomy-dropdown-message {
+    padding: 15px;
+
+    color:
+        var(--muted);
+
+    text-align: center;
+
+    font-size: 10px;
+}
+
+
+.taxonomy-dropdown-message.error {
+    color: #b42318;
+}
+
+
+.taxonomy-dropdown-loading {
+    padding: 11px;
+
+    border-top:
+        1px solid var(--border);
+
+    color:
+        var(--muted);
+
+    text-align: center;
+
+    font-size: 9px;
+}
+
+
+.taxonomy-scroll-hint {
+    padding: 8px;
+
+    border-top:
+        1px solid var(--border);
+
+    background:
+        var(--light);
+
+    color:
+        var(--muted);
+
+    text-align: center;
+
+    font-size: 8px;
+
+    font-weight: 600;
+}
+
+
+/* ========================================
+   Scrollbar
+======================================== */
+
+.taxonomy-options-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+
+.taxonomy-options-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+.taxonomy-options-list::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+
+    background:
+        #d4ddda;
+}
+
+
+.taxonomy-options-list::-webkit-scrollbar-thumb:hover {
+    background:
+        #b9c5c1;
+}
+
+
+/* ========================================
+   Responsive
+======================================== */
+
+@media (max-width: 760px) {
+
+    .taxonomy-options-dropdown {
+        position: relative;
+
+        top: 4px;
+
+        box-shadow:
+            0 7px 20px rgba(4, 29, 26, .09);
+    }
+
+
+    .taxonomy-options-list {
+        max-height: 190px;
+    }
+
+}

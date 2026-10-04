@@ -1,0 +1,676 @@
+/* ========================================
+   Search Mode Selector
+======================================== */
+
+.search-mode-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    padding: 4px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 8px;
+
+    background: var(--light);
+}
+
+
+.search-mode-button {
+    border: 0;
+
+    border-radius: 6px;
+
+    background: transparent;
+
+    color: var(--muted);
+
+    padding: 9px 16px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    transition: var(--transition);
+}
+
+
+.search-mode-button:hover {
+    color: var(--secondary);
+}
+
+
+.search-mode-button.active {
+    background: var(--secondary);
+
+    color: #fff;
+
+    box-shadow:
+        0 5px 14px rgba(4, 29, 26, .12);
+}
+
+
+/* ========================================
+   Shared Search Form
+======================================== */
+
+.search-form {
+    width: 100%;
+
+    display: flex;
+
+    align-items: end;
+
+    gap: 12px;
+
+    margin-top: 16px;
+}
+
+
+.search-form-fields {
+    flex: 1;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+
+/*
+    Publications, ORCID and DOI each contain
+    one main input, so let that input consume
+    the entire form width.
+*/
+.search-form--publications .search-form-fields,
+.search-form--orcid .search-form-fields,
+.search-form--doi .search-form-fields {
+    grid-template-columns:
+        minmax(0, 1fr);
+}
+
+
+.search-form-field {
+    min-width: 0;
+}
+
+
+.search-form-field-full {
+    width: 100%;
+}
+
+
+.search-form-field label {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin-bottom: 6px;
+
+    color: var(--ink);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: .6px;
+
+    text-transform: uppercase;
+}
+
+
+.search-form-field label span {
+    color: var(--primary);
+}
+
+
+.search-form-field label small {
+    color: var(--muted);
+
+    font-size: 9px;
+
+    font-weight: 500;
+
+    letter-spacing: 0;
+
+    text-transform: none;
+}
+
+
+.search-input-wrap {
+    min-height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 6px;
+
+    background: #fff;
+
+    padding: 0 14px;
+
+    transition: var(--transition);
+}
+
+
+.search-input-wrap:focus-within {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(215, 154, 42, .12);
+}
+
+
+.search-input-wrap>svg {
+    flex: 0 0 auto;
+
+    color: var(--primary);
+
+    font-size: 14px;
+}
+
+
+.search-input-wrap input {
+    width: 100%;
+
+    min-width: 0;
+
+    border: 0;
+
+    outline: 0;
+
+    background: transparent;
+
+    color: var(--ink);
+
+    font-size: 13px;
+}
+
+
+.search-input-wrap input::placeholder {
+    color: #a2adaa;
+}
+
+
+.search-form-submit {
+    min-height: 48px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    border: 0;
+
+    border-radius: 6px;
+
+    background: var(--secondary);
+
+    color: #fff;
+
+    padding: 0 20px;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+
+    transition: var(--transition);
+}
+
+
+.search-form-submit:hover {
+    background: var(--secondary-dark);
+
+    transform: translateY(-1px);
+}
+
+
+.search-form-error {
+    align-self: center;
+
+    color: #b42318;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+/* ========================================
+   Home Search Launch
+======================================== */
+
+.search-launch-copy {
+    width: min(390px, 100%);
+}
+
+
+.search-launch-workspace {
+    width: min(760px, 100%);
+}
+
+
+.search-launch .search-mode-selector {
+    border-color:
+        rgba(255, 255, 255, .26);
+
+    background:
+        rgba(255, 255, 255, .10);
+}
+
+
+.search-launch .search-mode-button {
+    color:
+        rgba(255, 255, 255, .78);
+}
+
+
+.search-launch .search-mode-button:hover {
+    color: #fff;
+}
+
+
+.search-launch .search-mode-button.active {
+    background: #fff;
+
+    color: var(--secondary);
+}
+
+
+.search-launch .search-form-field label {
+    color:
+        rgba(255, 255, 255, .92);
+}
+
+
+.search-launch .search-form-field label small {
+    color:
+        rgba(255, 255, 255, .67);
+}
+
+
+.search-launch .search-form {
+    margin-top: 12px;
+}
+
+
+.search-launch .search-form-error {
+    color: #fff;
+}
+
+
+/* ========================================
+   Search Page Hero
+======================================== */
+
+.search-page-hero {
+    position: relative;
+
+    min-height: 340px;
+
+    height: 340px;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    padding-top: 135px;
+
+    overflow: hidden;
+}
+
+
+.search-page-hero-content {
+    position: relative;
+
+    z-index: 2;
+
+    width: 100%;
+
+    color: #fff;
+
+    padding-bottom: 45px;
+}
+
+
+.search-page-hero-content .section-kicker {
+    color: var(--primary);
+}
+
+
+.search-page-hero-content h1 {
+    max-width: 780px;
+
+    margin: 7px 0 10px;
+
+    color: #fff;
+
+    font-size:
+        clamp(32px, 4vw, 48px);
+
+    line-height: 1.12;
+
+    letter-spacing: -1.5px;
+}
+
+
+.search-page-hero-content p {
+    max-width: 720px;
+
+    color:
+        rgba(255, 255, 255, .72);
+
+    font-size: 13px;
+
+    line-height: 1.75;
+}
+
+
+/* ========================================
+   Search Workspace
+======================================== */
+
+.search-workspace-section {
+    min-height: 600px;
+
+    padding: 65px 0 95px;
+
+    background: var(--light);
+}
+
+
+.search-workspace-heading {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: end;
+
+    gap: 50px;
+
+    margin-bottom: 30px;
+}
+
+
+.search-workspace-heading>div {
+    max-width: 650px;
+}
+
+
+.search-workspace-heading h2 {
+    margin-top: 8px;
+
+    font-size:
+        clamp(30px, 4vw, 42px);
+
+    line-height: 1.15;
+
+    letter-spacing: -1.4px;
+}
+
+
+.search-workspace-heading>p {
+    max-width: 430px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.8;
+}
+
+
+.search-workspace-card {
+    padding: 24px;
+
+    border:
+        1px solid var(--border);
+
+    background: #fff;
+
+    box-shadow: var(--shadow);
+}
+
+
+.search-empty-state,
+.search-context-card {
+    margin-top: 22px;
+
+    padding: 30px;
+
+    border:
+        1px solid var(--border);
+
+    background: #fff;
+}
+
+
+.search-empty-state {
+    text-align: center;
+
+    border-style: dashed;
+}
+
+
+.search-empty-state>span,
+.search-context-label {
+    display: inline-block;
+
+    color: var(--primary);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+
+.search-empty-state h3,
+.search-context-card h3 {
+    margin: 6px 0 8px;
+
+    color: var(--ink);
+
+    font-size: 21px;
+}
+
+
+.search-empty-state p,
+.search-context-card p {
+    max-width: 650px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.8;
+}
+
+
+.search-empty-state p {
+    margin: 0 auto;
+}
+
+
+.search-context-meta {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 18px;
+
+    padding-top: 16px;
+
+    border-top:
+        1px solid var(--border);
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+.search-context-meta strong {
+    color: var(--secondary);
+
+    word-break: break-word;
+}
+
+
+/* ========================================
+   Tablet
+======================================== */
+
+@media (max-width: 900px) {
+
+    .search-workspace-heading {
+        display: block;
+    }
+
+
+    .search-workspace-heading>p {
+        margin-top: 14px;
+    }
+
+
+    .search-form {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .search-form-submit {
+        width: 100%;
+    }
+
+}
+
+
+/* ========================================
+   Mobile
+======================================== */
+
+@media (max-width: 760px) {
+
+    .search-page-hero {
+        min-height: 290px;
+
+        height: 290px;
+
+        padding-top: 95px;
+    }
+
+
+    .search-page-hero-content {
+        padding-bottom: 30px;
+    }
+
+
+    .search-page-hero-content h1 {
+        font-size: 30px;
+
+        letter-spacing: -1px;
+    }
+
+
+    .search-workspace-section {
+        padding: 50px 0 70px;
+    }
+
+
+    .search-workspace-card {
+        padding: 18px;
+    }
+
+
+    .search-form-fields {
+        grid-template-columns: 1fr;
+    }
+
+
+    .search-mode-selector {
+        width: 100%;
+    }
+
+
+    .search-mode-button {
+        flex: 1;
+
+        padding:
+            9px 8px;
+    }
+
+
+    .search-empty-state,
+    .search-context-card {
+        padding: 22px;
+    }
+
+}
+
+
+/* ========================================
+   Small Mobile
+======================================== */
+
+@media (max-width: 480px) {
+
+    .search-page-hero {
+        min-height: 275px;
+
+        height: 275px;
+
+        padding-top: 85px;
+    }
+
+
+    .search-page-hero-content {
+        padding-bottom: 24px;
+    }
+
+
+    .search-page-hero-content h1 {
+        font-size: 27px;
+    }
+
+
+    .search-page-hero-content p {
+        font-size: 12px;
+    }
+
+
+    .search-workspace-heading h2 {
+        font-size: 29px;
+    }
+
+
+    .search-form-field label {
+        align-items: flex-start;
+
+        flex-wrap: wrap;
+    }
+
+}

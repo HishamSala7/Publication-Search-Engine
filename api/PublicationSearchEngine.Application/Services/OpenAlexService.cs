@@ -56,8 +56,8 @@ public class OpenAlexService
             request.OpenAlexAuthorId = authorId;
         }
 
-        if (string.IsNullOrWhiteSpace(request.OpenAlexAuthorId))
-            return ResultHandler.NotFound<PagedResultDto<OpenAlexWork>>(ResponseKeys.NotFound);
+        //if (string.IsNullOrWhiteSpace(request.OpenAlexAuthorId))
+        //    return ResultHandler.NotFound<PagedResultDto<OpenAlexWork>>(ResponseKeys.NotFound);
 
         return await SearchWorksByAuthorAsync(request, cancellationToken);
     }

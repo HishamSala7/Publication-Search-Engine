@@ -4,6 +4,10 @@
 @import "./header.css";
 @import "./hero.css";
 @import "./sections.css";
+@import "./search.css";
+@import "./candidates.css";
+@import "./works.css";
+@import "./taxonomy-multiselect.css";
 @import "./footer.css";
 @import "./responsive.css";
 

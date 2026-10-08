@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PublicationSearchEngine.Api.Middlewares;
 using PublicationSearchEngine.Api.Utilities;
 using PublicationSearchEngine.Application.DTOs;
 using PublicationSearchEngine.Application.Interfaces;
@@ -28,15 +29,28 @@ public static class DependencyInjection
                 .UseLazyLoadingProxies()
         );
 
+        //CORS
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(
+                "Frontend",
+                policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod();
+                }
+            );
+        });
+
+        // configuration DTOs
         services.Configure<OpenAlexRequestConfiguration>(
             builder.Configuration.GetSection("OpenAlex")
         );
 
-        // options configuration
         services.Configure<HipoRequestConfiguration>(builder.Configuration.GetSection("Hipo"));
 
         services.Configure<RorRequestConfiguration>(builder.Configuration.GetSection("Ror"));
 
+        // openalex request handler
         services.AddTransient<OpenAlexRequestHandler>();
 
         // Memory cache
@@ -44,9 +58,9 @@ public static class DependencyInjection
         services.AddScoped<ICacheService, MemoryCacheService>();
 
         // Http clients
-        builder.Services.AddOpenAlexClient<OpenAlexClientService>(builder.Configuration);
-        builder.Services.AddRorClient<RorService>(builder.Configuration);
-        builder.Services.AddHipoClient<HipoDomainSyncService>(builder.Configuration);
+        services.AddOpenAlexClient<OpenAlexClientService>(builder.Configuration);
+        services.AddRorClient<RorService>(builder.Configuration);
+        services.AddHipoClient<HipoDomainSyncService>(builder.Configuration);
 
         // services
         services.AddScoped<InstitutionResolutionService>();
@@ -86,6 +100,12 @@ public static class DependencyInjection
         }
 
         app.UseHttpsRedirection();
+
+        app.UseMiddleware<RequestCancellationMiddleware>();
+
+        app.UseRouting();
+
+        app.UseCors("Frontend");
 
         app.UseAuthorization();
 

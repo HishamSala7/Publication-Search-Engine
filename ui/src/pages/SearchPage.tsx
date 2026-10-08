@@ -1,28 +1,19 @@
-import HeroSlider
-    from "../components/home/HeroSlider";
-
-import SearchLaunch
-    from "../components/home/SearchLaunch";
-
 import SearchExplorerSection
     from "../components/search/SearchExplorerSection";
+
+import SearchHero
+    from "../components/search/SearchHero";
 
 
 export default function SearchPage() {
 
     return (
 
-        <main id="home">
+        <main id="search-page">
 
-
-            <HeroSlider />
-
-
-            <SearchLaunch />
-
+            <SearchHero />
 
             <SearchExplorerSection />
-
 
         </main>
 

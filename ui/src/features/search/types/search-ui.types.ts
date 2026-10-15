@@ -1,6 +1,7 @@
 export type SearchMode =
     | "author"
     | "publications"
+    | "institution"
     | "orcid"
     | "doi";
 
@@ -11,6 +12,26 @@ export type WorksSortMode =
     | "mostCited";
 
 
+export type PublicationType =
+    | 0 // Article
+    | 1 // Book
+    | 2 // BookChapter
+    | 3 // Conference
+    | 4 // Preprint
+    | 5; // Other
+
+
+export interface SearchInstitutionOption {
+
+    id: string;
+
+    openAlexId: string;
+
+    displayName: string;
+
+}
+
+
 export interface SearchFormValues {
 
     name: string;
@@ -18,6 +39,8 @@ export interface SearchFormValues {
     email: string;
 
     publicationQuery: string;
+
+    institutions: SearchInstitutionOption[];
 
     orcid: string;
 
@@ -149,6 +172,106 @@ export interface SearchTaxonomyOption {
 }
 
 
+export interface WorkTypeOption {
+
+    key: PublicationType;
+
+    value: string;
+
+}
+
+
+export interface OpenAlexInstitutionSimple {
+
+    id: string;
+
+    display_name: string;
+
+    ror?: string | null;
+
+    lineage?: string[] | null;
+
+}
+
+
+export interface AuthorWorksCountByYear {
+
+    year: number;
+
+    works_count: number;
+
+    cited_by_count: number;
+
+}
+
+
+export interface AuthorTopicMain {
+
+    display_name?: string | null;
+
+}
+
+
+export interface AuthorTopic {
+
+    display_name?: string | null;
+
+    count?: number | null;
+
+    subfield?: AuthorTopicMain | null;
+
+    field?: AuthorTopicMain | null;
+
+}
+
+
+export interface OpenAlexAffiliation {
+
+    institution?: OpenAlexInstitutionSimple | null;
+
+    years?: number[] | null;
+
+}
+
+
+export interface OpenAlexAuthorDetail {
+
+    id?: string | null;
+
+    display_name?: string | null;
+
+    orcid?: string | null;
+
+    works_count: number;
+
+    cited_by_count: number;
+
+    last_known_institutions?:
+    OpenAlexInstitutionSimple[] | null;
+
+    counts_by_year?:
+    AuthorWorksCountByYear[] | null;
+
+    topics?:
+    AuthorTopic[] | null;
+
+    affiliations?:
+    OpenAlexAffiliation[] | null;
+
+}
+
+
+export interface AuthorPositionCount {
+
+    firstPositionCount: number;
+
+    middlePositionCount: number;
+
+    lastPositionCount: number;
+
+}
+
+
 export interface WorksFilterValues {
 
     startDate: string;
@@ -162,6 +285,10 @@ export interface WorksFilterValues {
     topics: SearchTaxonomyOption[];
 
     keywords: SearchTaxonomyOption[];
+
+    institutions: SearchInstitutionOption[];
+
+    types: WorkTypeOption[];
 
 }
 
@@ -183,6 +310,10 @@ export interface OpenAlexWorksSearchRequest {
     openAlexTopicIds?: string[];
 
     openAlexKeywordIds?: string[];
+
+    openAlexInstitutionIds?: string[];
+
+    types?: PublicationType[];
 
     take: number;
 
@@ -206,6 +337,8 @@ export const emptySearchFormValues:
 
     publicationQuery: "",
 
+    institutions: [],
+
     orcid: "",
 
     doi: ""
@@ -228,7 +361,11 @@ export function createEmptyWorksFilterValues():
 
         topics: [],
 
-        keywords: []
+        keywords: [],
+
+        institutions: [],
+
+        types: []
 
     };
 

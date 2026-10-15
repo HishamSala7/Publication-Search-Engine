@@ -1,4 +1,5 @@
 import {
+    type MutableRefObject,
     useEffect,
     useMemo,
     useRef,
@@ -12,12 +13,20 @@ import {
 import SearchMultiSelect
     from "./SearchMultiSelect";
 
+import useInstitutions
+    from "../../features/search/hooks/useInstitutions";
+
 import useSearchTaxonomy
     from "../../features/search/hooks/useSearchTaxonomy";
 
+import useWorkTypes
+    from "../../features/search/hooks/useWorkTypes";
+
 import {
     createEmptyWorksFilterValues,
+    type SearchInstitutionOption,
     type SearchTaxonomyOption,
+    type WorkTypeOption,
     type WorksFilterValues
 } from "../../features/search/types/search-ui.types";
 
@@ -42,19 +51,30 @@ const DROPDOWN_PAGE_SIZE =
     10;
 
 
-function toggleOption(
+function toggleOption<T>(
     selected:
-        SearchTaxonomyOption[],
+        T[],
     option:
-        SearchTaxonomyOption
-): SearchTaxonomyOption[] {
+        T,
+    getKey: (
+        item: T
+    ) => string | number
+): T[] {
+
+    const optionKey =
+        getKey(
+            option
+        );
+
 
     const exists =
         selected.some(
             selectedOption =>
-                selectedOption.id
+                getKey(
+                    selectedOption
+                )
                 ===
-                option.id
+                optionKey
         );
 
 
@@ -64,9 +84,11 @@ function toggleOption(
 
         return selected.filter(
             selectedOption =>
-                selectedOption.id
+                getKey(
+                    selectedOption
+                )
                 !==
-                option.id
+                optionKey
         );
 
     }
@@ -76,6 +98,66 @@ function toggleOption(
         ...selected,
         option
     ];
+
+}
+
+
+function getTaxonomyKey(
+    option:
+        SearchTaxonomyOption
+) {
+
+    return option.id;
+
+}
+
+
+function getTaxonomyLabel(
+    option:
+        SearchTaxonomyOption
+) {
+
+    return option.displayName;
+
+}
+
+
+function getInstitutionKey(
+    option:
+        SearchInstitutionOption
+) {
+
+    return option.id;
+
+}
+
+
+function getInstitutionLabel(
+    option:
+        SearchInstitutionOption
+) {
+
+    return option.displayName;
+
+}
+
+
+function getWorkTypeKey(
+    option:
+        WorkTypeOption
+) {
+
+    return option.key;
+
+}
+
+
+function getWorkTypeLabel(
+    option:
+        WorkTypeOption
+) {
+
+    return option.value;
 
 }
 
@@ -93,13 +175,6 @@ export default function SearchFilters({
         value
     );
 
-
-    /*
-        A dropdown starts false.
-
-        Therefore mounting SearchFilters does NOT
-        automatically call its API.
-    */
 
     const [
         shouldLoadFields,
@@ -133,9 +208,21 @@ export default function SearchFilters({
     );
 
 
-    /*
-        Visible search values.
-    */
+    const [
+        shouldLoadInstitutions,
+        setShouldLoadInstitutions
+    ] = useState(
+        false
+    );
+
+
+    const [
+        shouldLoadWorkTypes,
+        setShouldLoadWorkTypes
+    ] = useState(
+        false
+    );
+
 
     const [
         fieldSearch,
@@ -169,11 +256,21 @@ export default function SearchFilters({
     );
 
 
-    /*
-        Actual backend search values.
+    const [
+        institutionSearch,
+        setInstitutionSearch
+    ] = useState(
+        ""
+    );
 
-        These change only after debounce.
-    */
+
+    const [
+        workTypeSearch,
+        setWorkTypeSearch
+    ] = useState(
+        ""
+    );
+
 
     const [
         fieldBackendSearch,
@@ -207,13 +304,13 @@ export default function SearchFilters({
     );
 
 
-    /*
-        Pagination.
+    const [
+        institutionBackendSearch,
+        setInstitutionBackendSearch
+    ] = useState(
+        ""
+    );
 
-        Take always = 10.
-
-        Only Skip moves.
-    */
 
     const [
         fieldSkip,
@@ -247,11 +344,13 @@ export default function SearchFilters({
     );
 
 
-    /*
-        Debounce timer references.
+    const [
+        institutionSkip,
+        setInstitutionSkip
+    ] = useState(
+        0
+    );
 
-        They do not cause renders.
-    */
 
     const fieldTimer =
         useRef<number | null>(
@@ -277,6 +376,12 @@ export default function SearchFilters({
         );
 
 
+    const institutionTimer =
+        useRef<number | null>(
+            null
+        );
+
+
     useEffect(
         () => {
 
@@ -291,58 +396,35 @@ export default function SearchFilters({
     );
 
 
-    /*
-        Cleanup pending debounce timers when
-        this component is removed.
-    */
-
     useEffect(
         () => {
 
             return () => {
 
-                if (
-                    fieldTimer.current !== null
-                ) {
+                [
+                    fieldTimer,
+                    subFieldTimer,
+                    topicTimer,
+                    keywordTimer,
+                    institutionTimer
+                ]
+                    .forEach(
+                        timer => {
 
-                    window.clearTimeout(
-                        fieldTimer.current
+                            if (
+                                timer.current
+                                !==
+                                null
+                            ) {
+
+                                window.clearTimeout(
+                                    timer.current
+                                );
+
+                            }
+
+                        }
                     );
-
-                }
-
-
-                if (
-                    subFieldTimer.current !== null
-                ) {
-
-                    window.clearTimeout(
-                        subFieldTimer.current
-                    );
-
-                }
-
-
-                if (
-                    topicTimer.current !== null
-                ) {
-
-                    window.clearTimeout(
-                        topicTimer.current
-                    );
-
-                }
-
-
-                if (
-                    keywordTimer.current !== null
-                ) {
-
-                    window.clearTimeout(
-                        keywordTimer.current
-                    );
-
-                }
 
             };
 
@@ -478,12 +560,142 @@ export default function SearchFilters({
     );
 
 
-    /*
-        SERVER-SIDE SEARCH
-    */
+    const {
+
+        institutions,
+
+        totalCount:
+        institutionsTotalCount,
+
+        isLoading:
+        isInstitutionsLoading,
+
+        error:
+        institutionsError
+
+    } = useInstitutions(
+        {
+
+            filter:
+                institutionBackendSearch,
+
+            skip:
+                institutionSkip,
+
+            load:
+                shouldLoadInstitutions,
+
+            pageSize:
+                DROPDOWN_PAGE_SIZE
+
+        }
+    );
+
+
+    const {
+
+        workTypes,
+
+        isLoading:
+        isWorkTypesLoading,
+
+        error:
+        workTypesError
+
+    } = useWorkTypes(
+        {
+
+            load:
+                shouldLoadWorkTypes
+
+        }
+    );
+
+
+    const displayedWorkTypes =
+        useMemo(
+            () => {
+
+                const normalizedSearch =
+                    workTypeSearch
+                        .trim()
+                        .toLowerCase();
+
+
+                if (
+                    !normalizedSearch
+                ) {
+
+                    return workTypes;
+
+                }
+
+
+                return workTypes.filter(
+                    workType =>
+                        workType
+                            .value
+                            .toLowerCase()
+                            .includes(
+                                normalizedSearch
+                            )
+                );
+
+            },
+            [
+                workTypes,
+                workTypeSearch
+            ]
+        );
+
+
+    function updateBackendSearch(
+        value:
+            string,
+        timer:
+            MutableRefObject<number | null>,
+        resetSkip:
+            () => void,
+        setBackendValue:
+            (
+                value: string
+            ) => void
+    ) {
+
+        if (
+            timer.current
+            !==
+            null
+        ) {
+
+            window.clearTimeout(
+                timer.current
+            );
+
+        }
+
+
+        timer.current =
+            window.setTimeout(
+                () => {
+
+                    resetSkip();
+
+
+                    setBackendValue(
+                        value.trim()
+                    );
+
+                },
+                350
+            );
+
+    }
+
 
     function handleFieldSearch(
-        value: string
+        value:
+            string
     ) {
 
         setFieldSearch(
@@ -491,39 +703,22 @@ export default function SearchFilters({
         );
 
 
-        if (
-            fieldTimer.current !== null
-        ) {
-
-            window.clearTimeout(
-                fieldTimer.current
-            );
-
-        }
-
-
-        fieldTimer.current =
-            window.setTimeout(
-                () => {
-
-                    setFieldSkip(
-                        0
-                    );
-
-
-                    setFieldBackendSearch(
-                        value.trim()
-                    );
-
-                },
-                350
-            );
+        updateBackendSearch(
+            value,
+            fieldTimer,
+            () =>
+                setFieldSkip(
+                    0
+                ),
+            setFieldBackendSearch
+        );
 
     }
 
 
     function handleSubFieldSearch(
-        value: string
+        value:
+            string
     ) {
 
         setSubFieldSearch(
@@ -531,39 +726,22 @@ export default function SearchFilters({
         );
 
 
-        if (
-            subFieldTimer.current !== null
-        ) {
-
-            window.clearTimeout(
-                subFieldTimer.current
-            );
-
-        }
-
-
-        subFieldTimer.current =
-            window.setTimeout(
-                () => {
-
-                    setSubFieldSkip(
-                        0
-                    );
-
-
-                    setSubFieldBackendSearch(
-                        value.trim()
-                    );
-
-                },
-                350
-            );
+        updateBackendSearch(
+            value,
+            subFieldTimer,
+            () =>
+                setSubFieldSkip(
+                    0
+                ),
+            setSubFieldBackendSearch
+        );
 
     }
 
 
     function handleTopicSearch(
-        value: string
+        value:
+            string
     ) {
 
         setTopicSearch(
@@ -571,39 +749,22 @@ export default function SearchFilters({
         );
 
 
-        if (
-            topicTimer.current !== null
-        ) {
-
-            window.clearTimeout(
-                topicTimer.current
-            );
-
-        }
-
-
-        topicTimer.current =
-            window.setTimeout(
-                () => {
-
-                    setTopicSkip(
-                        0
-                    );
-
-
-                    setTopicBackendSearch(
-                        value.trim()
-                    );
-
-                },
-                350
-            );
+        updateBackendSearch(
+            value,
+            topicTimer,
+            () =>
+                setTopicSkip(
+                    0
+                ),
+            setTopicBackendSearch
+        );
 
     }
 
 
     function handleKeywordSearch(
-        value: string
+        value:
+            string
     ) {
 
         setKeywordSearch(
@@ -611,40 +772,41 @@ export default function SearchFilters({
         );
 
 
-        if (
-            keywordTimer.current !== null
-        ) {
-
-            window.clearTimeout(
-                keywordTimer.current
-            );
-
-        }
-
-
-        keywordTimer.current =
-            window.setTimeout(
-                () => {
-
-                    setKeywordSkip(
-                        0
-                    );
-
-
-                    setKeywordBackendSearch(
-                        value.trim()
-                    );
-
-                },
-                350
-            );
+        updateBackendSearch(
+            value,
+            keywordTimer,
+            () =>
+                setKeywordSkip(
+                    0
+                ),
+            setKeywordBackendSearch
+        );
 
     }
 
 
-    /*
-        SELECTION
-    */
+    function handleInstitutionSearch(
+        value:
+            string
+    ) {
+
+        setInstitutionSearch(
+            value
+        );
+
+
+        updateBackendSearch(
+            value,
+            institutionTimer,
+            () =>
+                setInstitutionSkip(
+                    0
+                ),
+            setInstitutionBackendSearch
+        );
+
+    }
+
 
     function handleFieldToggle(
         option:
@@ -659,19 +821,13 @@ export default function SearchFilters({
                 fields:
                     toggleOption(
                         current.fields,
-                        option
+                        option,
+                        getTaxonomyKey
                     )
 
             })
         );
 
-
-        /*
-            The next dependent request starts
-            from page one.
-
-            We preserve selected chips.
-        */
 
         setSubFieldSkip(
             0
@@ -703,7 +859,8 @@ export default function SearchFilters({
                 subFields:
                     toggleOption(
                         current.subFields,
-                        option
+                        option,
+                        getTaxonomyKey
                     )
 
             })
@@ -735,7 +892,8 @@ export default function SearchFilters({
                 topics:
                     toggleOption(
                         current.topics,
-                        option
+                        option,
+                        getTaxonomyKey
                     )
 
             })
@@ -762,7 +920,8 @@ export default function SearchFilters({
                 keywords:
                     toggleOption(
                         current.keywords,
-                        option
+                        option,
+                        getTaxonomyKey
                     )
 
             })
@@ -771,56 +930,59 @@ export default function SearchFilters({
     }
 
 
-    /*
-        LAZY OPENING
-    */
+    function handleInstitutionToggle(
+        option:
+            SearchInstitutionOption
+    ) {
 
-    function handleFieldOpen() {
+        setDraftFilters(
+            current => ({
 
-        setShouldLoadFields(
-            true
+                ...current,
+
+                institutions:
+                    toggleOption(
+                        current.institutions,
+                        option,
+                        getInstitutionKey
+                    )
+
+            })
         );
 
     }
 
 
-    function handleSubFieldOpen() {
+    function handleWorkTypeToggle(
+        option:
+            WorkTypeOption
+    ) {
 
-        setShouldLoadSubFields(
-            true
+        setDraftFilters(
+            current => ({
+
+                ...current,
+
+                types:
+                    toggleOption(
+                        current.types,
+                        option,
+                        getWorkTypeKey
+                    )
+
+            })
         );
 
     }
 
-
-    function handleTopicOpen() {
-
-        setShouldLoadTopics(
-            true
-        );
-
-    }
-
-
-    function handleKeywordOpen() {
-
-        setShouldLoadKeywords(
-            true
-        );
-
-    }
-
-
-    /*
-        INFINITE SCROLL
-    */
 
     function loadMoreFields() {
 
         if (
             isFieldsLoading
             ||
-            fields.length >=
+            fields.length
+            >=
             fieldsTotalCount
         ) {
 
@@ -844,7 +1006,8 @@ export default function SearchFilters({
         if (
             isSubFieldsLoading
             ||
-            subFields.length >=
+            subFields.length
+            >=
             subFieldsTotalCount
         ) {
 
@@ -868,7 +1031,8 @@ export default function SearchFilters({
         if (
             isTopicsLoading
             ||
-            topics.length >=
+            topics.length
+            >=
             topicsTotalCount
         ) {
 
@@ -892,7 +1056,8 @@ export default function SearchFilters({
         if (
             isKeywordsLoading
             ||
-            keywords.length >=
+            keywords.length
+            >=
             keywordsTotalCount
         ) {
 
@@ -902,6 +1067,31 @@ export default function SearchFilters({
 
 
         setKeywordSkip(
+            current =>
+                current
+                +
+                DROPDOWN_PAGE_SIZE
+        );
+
+    }
+
+
+    function loadMoreInstitutions() {
+
+        if (
+            isInstitutionsLoading
+            ||
+            institutions.length
+            >=
+            institutionsTotalCount
+        ) {
+
+            return;
+
+        }
+
+
+        setInstitutionSkip(
             current =>
                 current
                 +
@@ -942,6 +1132,16 @@ export default function SearchFilters({
         );
 
 
+        setInstitutionSearch(
+            ""
+        );
+
+
+        setWorkTypeSearch(
+            ""
+        );
+
+
         setFieldBackendSearch(
             ""
         );
@@ -958,6 +1158,11 @@ export default function SearchFilters({
 
 
         setKeywordBackendSearch(
+            ""
+        );
+
+
+        setInstitutionBackendSearch(
             ""
         );
 
@@ -982,10 +1187,10 @@ export default function SearchFilters({
         );
 
 
-        /*
-            Return the dropdowns to their
-            untouched/lazy state.
-        */
+        setInstitutionSkip(
+            0
+        );
+
 
         setShouldLoadFields(
             false
@@ -1003,6 +1208,16 @@ export default function SearchFilters({
 
 
         setShouldLoadKeywords(
+            false
+        );
+
+
+        setShouldLoadInstitutions(
+            false
+        );
+
+
+        setShouldLoadWorkTypes(
             false
         );
 
@@ -1121,6 +1336,94 @@ export default function SearchFilters({
 
 
             <SearchMultiSelect
+                label="Institution"
+                placeholder="Search institutions..."
+                options={
+                    institutions
+                }
+                selected={
+                    draftFilters.institutions
+                }
+                searchValue={
+                    institutionSearch
+                }
+                isLoading={
+                    isInstitutionsLoading
+                }
+                error={
+                    institutionsError
+                }
+                totalCount={
+                    institutionsTotalCount
+                }
+                getOptionKey={
+                    getInstitutionKey
+                }
+                getOptionLabel={
+                    getInstitutionLabel
+                }
+                onOpen={() =>
+                    setShouldLoadInstitutions(
+                        true
+                    )
+                }
+                onSearchChange={
+                    handleInstitutionSearch
+                }
+                onToggle={
+                    handleInstitutionToggle
+                }
+                onLoadMore={
+                    loadMoreInstitutions
+                }
+            />
+
+
+            <SearchMultiSelect
+                label="Work type"
+                placeholder="Select work types..."
+                options={
+                    displayedWorkTypes
+                }
+                selected={
+                    draftFilters.types
+                }
+                searchValue={
+                    workTypeSearch
+                }
+                isLoading={
+                    isWorkTypesLoading
+                }
+                error={
+                    workTypesError
+                }
+                totalCount={
+                    displayedWorkTypes.length
+                }
+                getOptionKey={
+                    getWorkTypeKey
+                }
+                getOptionLabel={
+                    getWorkTypeLabel
+                }
+                onOpen={() =>
+                    setShouldLoadWorkTypes(
+                        true
+                    )
+                }
+                onSearchChange={
+                    setWorkTypeSearch
+                }
+                onToggle={
+                    handleWorkTypeToggle
+                }
+                onLoadMore={() => {
+                    // Work types are returned in one list.
+                }}
+            />
+
+
+            <SearchMultiSelect
                 label="Field"
                 placeholder="Search fields..."
                 options={
@@ -1141,8 +1444,16 @@ export default function SearchFilters({
                 totalCount={
                     fieldsTotalCount
                 }
-                onOpen={
-                    handleFieldOpen
+                getOptionKey={
+                    getTaxonomyKey
+                }
+                getOptionLabel={
+                    getTaxonomyLabel
+                }
+                onOpen={() =>
+                    setShouldLoadFields(
+                        true
+                    )
                 }
                 onSearchChange={
                     handleFieldSearch
@@ -1177,8 +1488,16 @@ export default function SearchFilters({
                 totalCount={
                     subFieldsTotalCount
                 }
-                onOpen={
-                    handleSubFieldOpen
+                getOptionKey={
+                    getTaxonomyKey
+                }
+                getOptionLabel={
+                    getTaxonomyLabel
+                }
+                onOpen={() =>
+                    setShouldLoadSubFields(
+                        true
+                    )
                 }
                 onSearchChange={
                     handleSubFieldSearch
@@ -1213,8 +1532,16 @@ export default function SearchFilters({
                 totalCount={
                     topicsTotalCount
                 }
-                onOpen={
-                    handleTopicOpen
+                getOptionKey={
+                    getTaxonomyKey
+                }
+                getOptionLabel={
+                    getTaxonomyLabel
+                }
+                onOpen={() =>
+                    setShouldLoadTopics(
+                        true
+                    )
                 }
                 onSearchChange={
                     handleTopicSearch
@@ -1249,8 +1576,16 @@ export default function SearchFilters({
                 totalCount={
                     keywordsTotalCount
                 }
-                onOpen={
-                    handleKeywordOpen
+                getOptionKey={
+                    getTaxonomyKey
+                }
+                getOptionLabel={
+                    getTaxonomyLabel
+                }
+                onOpen={() =>
+                    setShouldLoadKeywords(
+                        true
+                    )
                 }
                 onSearchChange={
                     handleKeywordSearch

@@ -3,7 +3,13 @@ export const API_ENDPOINTS = {
     authors: {
 
         candidates:
-            "/api/Authors/candidates"
+            "/api/Authors/candidates",
+
+        details:
+            "/api/Authors/author-details",
+
+        positionCounts:
+            "/api/Authors/get-work-author-position-counts"
 
     },
 
@@ -40,7 +46,13 @@ export const API_ENDPOINTS = {
             "/api/SearchEngineDropDowns/topics-drop-down",
 
         keywords:
-            "/api/SearchEngineDropDowns/keywords-drop-down"
+            "/api/SearchEngineDropDowns/keywords-drop-down",
+
+        institutions:
+            "/api/SearchEngineDropDowns/institutions-drop-down",
+
+        workTypes:
+            "/api/SearchEngineDropDowns/work-types-drop-down"
 
     }
 

@@ -30,6 +30,11 @@ const searchModes: {
         },
 
         {
+            value: "institution",
+            label: "Institution"
+        },
+
+        {
             value: "orcid",
             label: "ORCID"
         },

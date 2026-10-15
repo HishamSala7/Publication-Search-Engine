@@ -1,6 +1,7 @@
 import {
     type FormEvent,
     useEffect,
+    useRef,
     useState
 } from "react";
 
@@ -9,23 +10,56 @@ import {
     FaMagnifyingGlass
 } from "react-icons/fa6";
 
+import SearchMultiSelect
+    from "./SearchMultiSelect";
+
+import useInstitutions
+    from "../../features/search/hooks/useInstitutions";
+
 import {
     emptySearchFormValues,
     type SearchFormValues,
+    type SearchInstitutionOption,
     type SearchMode
 } from "../../features/search/types/search-ui.types";
 
 
 interface SearchFormProps {
 
-    mode: SearchMode;
+    mode:
+    SearchMode;
 
     initialValues?:
     Partial<SearchFormValues>;
 
     onSubmit: (
-        values: SearchFormValues
+        values:
+            SearchFormValues
     ) => void;
+
+}
+
+
+const INSTITUTION_PAGE_SIZE =
+    10;
+
+
+function getInstitutionKey(
+    institution:
+        SearchInstitutionOption
+) {
+
+    return institution.id;
+
+}
+
+
+function getInstitutionLabel(
+    institution:
+        SearchInstitutionOption
+) {
+
+    return institution.displayName;
 
 }
 
@@ -53,6 +87,78 @@ export default function SearchForm({
     );
 
 
+    const [
+        shouldLoadInstitutions,
+        setShouldLoadInstitutions
+    ] = useState(
+        false
+    );
+
+
+    const [
+        institutionSearch,
+        setInstitutionSearch
+    ] = useState(
+        ""
+    );
+
+
+    const [
+        institutionBackendSearch,
+        setInstitutionBackendSearch
+    ] = useState(
+        ""
+    );
+
+
+    const [
+        institutionSkip,
+        setInstitutionSkip
+    ] = useState(
+        0
+    );
+
+
+    const institutionSearchTimer =
+        useRef<number | null>(
+            null
+        );
+
+
+    const {
+
+        institutions,
+
+        totalCount:
+        institutionsTotalCount,
+
+        isLoading:
+        isInstitutionsLoading,
+
+        error:
+        institutionsError
+
+    } = useInstitutions(
+        {
+
+            filter:
+                institutionBackendSearch,
+
+            skip:
+                institutionSkip,
+
+            load:
+                mode === "institution"
+                &&
+                shouldLoadInstitutions,
+
+            pageSize:
+                INSTITUTION_PAGE_SIZE
+
+        }
+    );
+
+
     useEffect(
         () => {
 
@@ -73,6 +179,11 @@ export default function SearchForm({
                     ??
                     "",
 
+                institutions:
+                    initialValues?.institutions
+                    ??
+                    [],
+
                 orcid:
                     initialValues?.orcid
                     ??
@@ -90,21 +201,74 @@ export default function SearchForm({
                 ""
             );
 
+
+            setInstitutionSearch(
+                ""
+            );
+
+
+            setInstitutionBackendSearch(
+                ""
+            );
+
+
+            setInstitutionSkip(
+                0
+            );
+
+
+            setShouldLoadInstitutions(
+                false
+            );
+
         },
         [
             mode,
             initialValues?.name,
             initialValues?.email,
             initialValues?.publicationQuery,
+            initialValues?.institutions,
             initialValues?.orcid,
             initialValues?.doi
         ]
     );
 
 
+    useEffect(
+        () => {
+
+            return () => {
+
+                if (
+                    institutionSearchTimer.current
+                    !==
+                    null
+                ) {
+
+                    window.clearTimeout(
+                        institutionSearchTimer.current
+                    );
+
+                }
+
+            };
+
+        },
+        []
+    );
+
+
     function updateField(
         field:
-            keyof SearchFormValues,
+            "name"
+            |
+            "email"
+            |
+            "publicationQuery"
+            |
+            "orcid"
+            |
+            "doi",
         value:
             string
     ) {
@@ -134,6 +298,139 @@ export default function SearchForm({
     }
 
 
+    function toggleInstitution(
+        institution:
+            SearchInstitutionOption
+    ) {
+
+        setValues(
+            currentValues => {
+
+                const exists =
+                    currentValues
+                        .institutions
+                        .some(
+                            selectedInstitution =>
+                                selectedInstitution.id
+                                ===
+                                institution.id
+                        );
+
+
+                return {
+
+                    ...currentValues,
+
+                    institutions:
+                        exists
+                            ? currentValues
+                                .institutions
+                                .filter(
+                                    selectedInstitution =>
+                                        selectedInstitution.id
+                                        !==
+                                        institution.id
+                                )
+                            : [
+                                ...currentValues
+                                    .institutions,
+                                institution
+                            ]
+
+                };
+
+            }
+        );
+
+
+        if (
+            error
+        ) {
+
+            setError(
+                ""
+            );
+
+        }
+
+    }
+
+
+    function handleInstitutionSearch(
+        value:
+            string
+    ) {
+
+        setInstitutionSearch(
+            value
+        );
+
+
+        if (
+            institutionSearchTimer.current
+            !==
+            null
+        ) {
+
+            window.clearTimeout(
+                institutionSearchTimer.current
+            );
+
+        }
+
+
+        institutionSearchTimer.current =
+            window.setTimeout(
+                () => {
+
+                    setInstitutionSkip(
+                        0
+                    );
+
+
+                    setInstitutionBackendSearch(
+                        value.trim()
+                    );
+
+                },
+                400
+            );
+
+    }
+
+
+    function handleInstitutionLoadMore() {
+
+        if (
+            isInstitutionsLoading
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            institutions.length
+            >=
+            institutionsTotalCount
+        ) {
+
+            return;
+
+        }
+
+
+        setInstitutionSkip(
+            currentSkip =>
+                currentSkip
+                +
+                INSTITUTION_PAGE_SIZE
+        );
+
+    }
+
+
     function handleSubmit(
         event:
             FormEvent<HTMLFormElement>
@@ -156,6 +453,9 @@ export default function SearchForm({
                     .publicationQuery
                     .trim(),
 
+            institutions:
+                values.institutions,
+
             orcid:
                 values.orcid.trim(),
 
@@ -173,6 +473,25 @@ export default function SearchForm({
 
             setError(
                 "Researcher name is required."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            mode === "institution"
+            &&
+            normalizedValues
+                .institutions
+                .length
+            ===
+            0
+        ) {
+
+            setError(
+                "Select at least one institution."
             );
 
             return;
@@ -235,6 +554,15 @@ export default function SearchForm({
 
         if (
             mode === "publications"
+        ) {
+
+            return "Search publications";
+
+        }
+
+
+        if (
+            mode === "institution"
         ) {
 
             return "Search publications";
@@ -411,6 +739,63 @@ export default function SearchForm({
                             />
 
                         </div>
+
+                    </div>
+                }
+
+
+                {
+                    mode === "institution"
+                    &&
+                    <div
+                        className="
+                            search-form-field
+                            search-form-field-full
+                        "
+                    >
+
+                        <SearchMultiSelect
+                            label="Institutions"
+                            placeholder="Search institutions..."
+                            options={
+                                institutions
+                            }
+                            selected={
+                                values.institutions
+                            }
+                            searchValue={
+                                institutionSearch
+                            }
+                            isLoading={
+                                isInstitutionsLoading
+                            }
+                            error={
+                                institutionsError
+                            }
+                            totalCount={
+                                institutionsTotalCount
+                            }
+                            getOptionKey={
+                                getInstitutionKey
+                            }
+                            getOptionLabel={
+                                getInstitutionLabel
+                            }
+                            onSearchChange={
+                                handleInstitutionSearch
+                            }
+                            onToggle={
+                                toggleInstitution
+                            }
+                            onLoadMore={
+                                handleInstitutionLoadMore
+                            }
+                            onOpen={() =>
+                                setShouldLoadInstitutions(
+                                    true
+                                )
+                            }
+                        />
 
                     </div>
                 }

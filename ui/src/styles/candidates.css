@@ -407,6 +407,28 @@
 }
 
 
+/* ========================================
+   Candidate Actions
+======================================== */
+
+.candidate-card-actions {
+    min-width: 120px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.candidate-card-actions button {
+    width: 100%;
+}
+
+
 .candidate-select-button {
     min-width: 115px;
 
@@ -459,6 +481,882 @@
 
     border-color:
         var(--primary);
+}
+
+
+.candidate-info-button {
+    min-height: 38px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 4px;
+
+    background:
+        #fff;
+
+    color:
+        var(--secondary);
+
+    padding:
+        0 13px;
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    transition:
+        var(--transition);
+}
+
+
+.candidate-info-button svg {
+    color:
+        var(--primary);
+
+    font-size:
+        11px;
+}
+
+
+.candidate-info-button:hover {
+    border-color:
+        var(--primary);
+
+    background:
+        rgba(215, 154, 42, .055);
+
+    color:
+        var(--primary);
+}
+
+
+/* ========================================
+   Author Info Modal
+======================================== */
+
+.author-info-modal-backdrop {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 24px;
+
+    background:
+        rgba(4, 29, 26, .68);
+
+    backdrop-filter:
+        blur(5px);
+}
+
+
+.author-info-modal {
+    width:
+        min(900px, 100%);
+
+    max-height:
+        calc(100vh - 48px);
+
+    overflow-y:
+        auto;
+
+    border:
+        1px solid rgba(255, 255, 255, .18);
+
+    border-radius:
+        10px;
+
+    background:
+        #fff;
+
+    box-shadow:
+        0 28px 80px rgba(4, 29, 26, .28);
+}
+
+
+.author-info-modal::-webkit-scrollbar {
+    width:
+        7px;
+}
+
+
+.author-info-modal::-webkit-scrollbar-track {
+    background:
+        transparent;
+}
+
+
+.author-info-modal::-webkit-scrollbar-thumb {
+    border-radius:
+        20px;
+
+    background:
+        #c9d3d0;
+}
+
+
+.author-info-modal-header {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 24px;
+
+    padding:
+        25px 28px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    background:
+        rgba(255, 255, 255, .97);
+
+    backdrop-filter:
+        blur(10px);
+}
+
+
+.author-info-modal-header h2 {
+    margin-top:
+        5px;
+
+    color:
+        var(--ink);
+
+    font-size:
+        26px;
+
+    line-height:
+        1.25;
+
+    letter-spacing:
+        -.7px;
+}
+
+
+.author-info-close {
+    width:
+        38px;
+
+    height:
+        38px;
+
+    flex:
+        0 0 38px;
+
+    display:
+        grid;
+
+    place-items:
+        center;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        50%;
+
+    background:
+        #fff;
+
+    color:
+        var(--secondary);
+
+    transition:
+        var(--transition);
+}
+
+
+.author-info-close:hover {
+    border-color:
+        var(--primary);
+
+    background:
+        var(--primary);
+
+    color:
+        #fff;
+}
+
+
+.author-info-state {
+    min-height:
+        220px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    padding:
+        35px;
+
+    color:
+        var(--muted);
+
+    text-align:
+        center;
+
+    font-size:
+        12px;
+}
+
+
+.author-info-state strong {
+    color:
+        var(--secondary);
+
+    font-size:
+        15px;
+}
+
+
+.author-info-error strong {
+    color:
+        #b42318;
+}
+
+
+.author-info-error p {
+    max-width:
+        560px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        11px;
+
+    line-height:
+        1.7;
+}
+
+
+.author-info-content {
+    display:
+        grid;
+
+    gap:
+        20px;
+
+    padding:
+        28px;
+}
+
+
+/* ========================================
+   Author Summary
+======================================== */
+
+.author-info-summary {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap:
+        12px;
+}
+
+
+.author-info-summary>div {
+    display:
+        grid;
+
+    grid-template-columns:
+        auto 1fr auto;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    min-height:
+        68px;
+
+    padding:
+        16px 18px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        6px;
+
+    background:
+        var(--light);
+}
+
+
+.author-info-summary svg {
+    color:
+        var(--primary);
+
+    font-size:
+        15px;
+}
+
+
+.author-info-summary span {
+    color:
+        var(--muted);
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .6px;
+}
+
+
+.author-info-summary strong {
+    color:
+        var(--secondary);
+
+    font-size:
+        21px;
+}
+
+
+/* ========================================
+   Author Sections
+======================================== */
+
+.author-info-section {
+    padding:
+        20px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        6px;
+
+    background:
+        #fff;
+}
+
+
+.author-info-section h3 {
+    margin-bottom:
+        15px;
+
+    color:
+        var(--ink);
+
+    font-size:
+        15px;
+
+    line-height:
+        1.3;
+}
+
+
+.author-info-section h3::after {
+    content:
+        "";
+
+    display:
+        block;
+
+    width:
+        28px;
+
+    height:
+        2px;
+
+    margin-top:
+        6px;
+
+    background:
+        var(--primary);
+}
+
+
+/* ========================================
+   Identity
+======================================== */
+
+.author-info-list {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap:
+        10px;
+}
+
+
+.author-info-list>div {
+    min-width:
+        0;
+
+    padding:
+        13px 14px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        var(--light);
+}
+
+
+.author-info-list dt {
+    margin-bottom:
+        4px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        8px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .6px;
+}
+
+
+.author-info-list dd {
+    margin:
+        0;
+
+    color:
+        var(--secondary);
+
+    font-size:
+        11px;
+
+    font-weight:
+        700;
+
+    word-break:
+        break-word;
+}
+
+
+/* ========================================
+   Authorship Position Stats
+======================================== */
+
+.author-position-stats {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap:
+        10px;
+}
+
+
+.author-position-stats>div {
+    padding:
+        17px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        linear-gradient(135deg,
+            rgba(215, 154, 42, .06),
+            #fff);
+
+    text-align:
+        center;
+}
+
+
+.author-position-stats strong {
+    display:
+        block;
+
+    color:
+        var(--secondary);
+
+    font-size:
+        22px;
+
+    line-height:
+        1;
+}
+
+
+.author-position-stats span {
+    display:
+        block;
+
+    margin-top:
+        7px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        9px;
+
+    font-weight:
+        700;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        .45px;
+}
+
+
+/* ========================================
+   Institutions
+======================================== */
+
+.author-institution-list {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap:
+        9px;
+}
+
+
+.author-institution-item {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        9px;
+
+    min-width:
+        0;
+
+    padding:
+        12px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        var(--light);
+
+    color:
+        var(--secondary);
+
+    font-size:
+        10px;
+
+    font-weight:
+        700;
+}
+
+
+.author-institution-item svg {
+    flex:
+        0 0 auto;
+
+    color:
+        var(--primary);
+}
+
+
+.author-institution-item span {
+    min-width:
+        0;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+
+    white-space:
+        nowrap;
+}
+
+
+/* ========================================
+   Research Topics
+======================================== */
+
+.author-topic-list {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap:
+        9px;
+}
+
+
+.author-topic-item {
+    min-width:
+        0;
+
+    padding:
+        13px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        #fff;
+}
+
+
+.author-topic-item strong {
+    display:
+        block;
+
+    color:
+        var(--secondary);
+
+    font-size:
+        11px;
+
+    line-height:
+        1.45;
+}
+
+
+.author-topic-item span {
+    display:
+        block;
+
+    margin-top:
+        4px;
+
+    color:
+        var(--primary);
+
+    font-size:
+        9px;
+
+    font-weight:
+        800;
+}
+
+
+.author-topic-item small {
+    display:
+        block;
+
+    margin-top:
+        5px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        9px;
+
+    line-height:
+        1.5;
+}
+
+
+/* ========================================
+   Year Activity
+======================================== */
+
+.author-year-list {
+    display:
+        grid;
+
+    gap:
+        7px;
+}
+
+
+.author-year-item {
+    display:
+        grid;
+
+    grid-template-columns:
+        80px 1fr 1fr;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    padding:
+        10px 12px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        var(--light);
+}
+
+
+.author-year-item strong {
+    color:
+        var(--secondary);
+
+    font-size:
+        12px;
+}
+
+
+.author-year-item span {
+    color:
+        var(--muted);
+
+    font-size:
+        10px;
+}
+
+
+/* ========================================
+   Affiliations
+======================================== */
+
+.author-affiliation-list {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap:
+        9px;
+}
+
+
+.author-affiliation-item {
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    gap:
+        10px;
+
+    min-width:
+        0;
+
+    padding:
+        13px;
+
+    border:
+        1px solid var(--border);
+
+    background:
+        var(--light);
+}
+
+
+.author-affiliation-item>svg {
+    flex:
+        0 0 auto;
+
+    margin-top:
+        2px;
+
+    color:
+        var(--primary);
+}
+
+
+.author-affiliation-item>div {
+    min-width:
+        0;
+}
+
+
+.author-affiliation-item strong {
+    display:
+        block;
+
+    color:
+        var(--secondary);
+
+    font-size:
+        10px;
+
+    line-height:
+        1.5;
+}
+
+
+.author-affiliation-item small {
+    display:
+        block;
+
+    margin-top:
+        4px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        8px;
+
+    line-height:
+        1.5;
 }
 
 
@@ -783,8 +1681,24 @@
     }
 
 
-    .candidate-select-button {
+    .candidate-card-actions {
         width: 100%;
+
+        min-width: 0;
+
+        flex-direction: row;
+    }
+
+
+    .candidate-card-actions button {
+        flex: 1;
+    }
+
+
+    .candidate-select-button {
+        width: auto;
+
+        min-width: 0;
     }
 
 
@@ -813,6 +1727,55 @@
         width: 100%;
     }
 
+
+    .author-info-modal-backdrop {
+        align-items:
+            flex-start;
+
+        padding:
+            16px;
+    }
+
+
+    .author-info-modal {
+        max-height:
+            calc(100vh - 32px);
+    }
+
+
+    .author-info-modal-header {
+        padding:
+            20px;
+    }
+
+
+    .author-info-modal-header h2 {
+        font-size:
+            22px;
+    }
+
+
+    .author-info-content {
+        padding:
+            20px;
+    }
+
+
+    .author-info-summary,
+    .author-info-list,
+    .author-institution-list,
+    .author-topic-list,
+    .author-affiliation-list {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .author-year-item {
+        grid-template-columns:
+            70px 1fr 1fr;
+    }
+
 }
 
 
@@ -836,6 +1799,87 @@
         flex-direction: column;
 
         gap: 7px;
+    }
+
+
+    .candidate-card-actions {
+        flex-direction:
+            column;
+    }
+
+
+    .author-info-modal-backdrop {
+        padding:
+            8px;
+    }
+
+
+    .author-info-modal {
+        max-height:
+            calc(100vh - 16px);
+
+        border-radius:
+            7px;
+    }
+
+
+    .author-info-modal-header {
+        padding:
+            16px;
+    }
+
+
+    .author-info-modal-header h2 {
+        font-size:
+            19px;
+    }
+
+
+    .author-info-close {
+        width:
+            34px;
+
+        height:
+            34px;
+
+        flex-basis:
+            34px;
+    }
+
+
+    .author-info-content {
+        gap:
+            14px;
+
+        padding:
+            14px;
+    }
+
+
+    .author-info-section {
+        padding:
+            15px;
+    }
+
+
+    .author-info-summary {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .author-position-stats {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .author-year-item {
+        grid-template-columns:
+            1fr;
+
+        gap:
+            3px;
     }
 
 

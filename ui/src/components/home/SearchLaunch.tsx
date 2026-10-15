@@ -32,6 +32,37 @@ export default function SearchLaunch() {
     );
 
 
+    function appendInstitutions(
+        params: URLSearchParams,
+        values: SearchFormValues
+    ) {
+
+        values.institutions.forEach(
+            institution => {
+
+                params.append(
+                    "institutionId",
+                    institution.id
+                );
+
+
+                params.append(
+                    "institutionOpenAlexId",
+                    institution.openAlexId
+                );
+
+
+                params.append(
+                    "institutionName",
+                    institution.displayName
+                );
+
+            }
+        );
+
+    }
+
+
     function handleSearch(
         values:
             SearchFormValues
@@ -85,6 +116,18 @@ export default function SearchLaunch() {
                 );
 
             }
+
+        }
+
+
+        if (
+            searchMode === "institution"
+        ) {
+
+            appendInstitutions(
+                params,
+                values
+            );
 
         }
 
@@ -149,6 +192,7 @@ export default function SearchLaunch() {
                     <p>
 
                         Find a researcher by name,
+                        explore publications by institution,
                         search publications globally,
                         or look up research directly
                         using ORCID or DOI.

@@ -13,48 +13,57 @@ import {
     FaXmark
 } from "react-icons/fa6";
 
-import type {
-    SearchTaxonomyOption
-} from "../../features/search/types/search-ui.types";
 
-
-interface SearchMultiSelectProps {
+interface SearchMultiSelectProps<T> {
 
     label: string;
 
     placeholder: string;
 
     options:
-    SearchTaxonomyOption[];
+    T[];
 
     selected:
-    SearchTaxonomyOption[];
+    T[];
 
-    searchValue: string;
+    searchValue:
+    string;
 
-    isLoading: boolean;
+    isLoading:
+    boolean;
 
     error:
     string | null;
 
-    totalCount: number;
+    totalCount:
+    number;
+
+    getOptionKey: (
+        option: T
+    ) => string | number;
+
+    getOptionLabel: (
+        option: T
+    ) => string;
 
     onSearchChange: (
         value: string
     ) => void;
 
     onToggle: (
-        option: SearchTaxonomyOption
+        option: T
     ) => void;
 
-    onLoadMore: () => void;
+    onLoadMore:
+    () => void;
 
-    onOpen: () => void;
+    onOpen:
+    () => void;
 
 }
 
 
-export default function SearchMultiSelect({
+export default function SearchMultiSelect<T>({
     label,
     placeholder,
     options,
@@ -63,11 +72,13 @@ export default function SearchMultiSelect({
     isLoading,
     error,
     totalCount,
+    getOptionKey,
+    getOptionLabel,
     onSearchChange,
     onToggle,
     onLoadMore,
     onOpen
-}: SearchMultiSelectProps) {
+}: SearchMultiSelectProps<T>) {
 
     const [
         isOpen,
@@ -99,7 +110,8 @@ export default function SearchMultiSelect({
         () => {
 
             function handleOutsideClick(
-                event: globalThis.MouseEvent
+                event:
+                    globalThis.MouseEvent
             ) {
 
                 if (
@@ -112,7 +124,9 @@ export default function SearchMultiSelect({
 
 
                 if (
-                    event.target instanceof Node
+                    event.target
+                    instanceof
+                    Node
                     &&
                     !wrapperRef.current.contains(
                         event.target
@@ -159,13 +173,6 @@ export default function SearchMultiSelect({
             );
 
 
-            /*
-                The parent decides whether data
-                needs to be loaded.
-
-                Merely rendering this component no
-                longer causes an API request.
-            */
             onOpen();
 
         }
@@ -180,14 +187,22 @@ export default function SearchMultiSelect({
 
     function isSelected(
         option:
-            SearchTaxonomyOption
+            T
     ) {
+
+        const optionKey =
+            getOptionKey(
+                option
+            );
+
 
         return selected.some(
             selectedItem =>
-                selectedItem.id
+                getOptionKey(
+                    selectedItem
+                )
                 ===
-                option.id
+                optionKey
         );
 
     }
@@ -197,7 +212,7 @@ export default function SearchMultiSelect({
         event:
             MouseEvent<HTMLButtonElement>,
         option:
-            SearchTaxonomyOption
+            T
     ) {
 
         event.stopPropagation();
@@ -216,7 +231,9 @@ export default function SearchMultiSelect({
     ) {
 
         if (
-            event.key === "Escape"
+            event.key
+            ===
+            "Escape"
         ) {
 
             setIsOpen(
@@ -229,7 +246,9 @@ export default function SearchMultiSelect({
 
 
         if (
-            event.key === "ArrowDown"
+            event.key
+            ===
+            "ArrowDown"
         ) {
 
             openDropdown();
@@ -240,11 +259,15 @@ export default function SearchMultiSelect({
 
 
         if (
-            event.key === "Backspace"
+            event.key
+            ===
+            "Backspace"
             &&
             !searchValue
             &&
-            selected.length > 0
+            selected.length
+            >
+            0
         ) {
 
             const lastItem =
@@ -280,7 +303,9 @@ export default function SearchMultiSelect({
 
 
         if (
-            distanceFromBottom <= 30
+            distanceFromBottom
+            <=
+            30
             &&
             hasMore
             &&
@@ -325,45 +350,61 @@ export default function SearchMultiSelect({
 
                     {
                         selected.map(
-                            option => (
+                            option => {
 
-                                <span
-                                    className="taxonomy-selected-chip"
-                                    key={
-                                        option.id
-                                    }
-                                >
-
-                                    <span>
-
-                                        {
-                                            option.displayName
-                                        }
-
-                                    </span>
+                                const optionKey =
+                                    getOptionKey(
+                                        option
+                                    );
 
 
-                                    <button
-                                        type="button"
-                                        aria-label={
-                                            `Remove ${option.displayName}`
-                                        }
-                                        onClick={
-                                            event =>
-                                                handleRemove(
-                                                    event,
-                                                    option
-                                                )
+                                const optionLabel =
+                                    getOptionLabel(
+                                        option
+                                    );
+
+
+                                return (
+
+                                    <span
+                                        className="taxonomy-selected-chip"
+                                        key={
+                                            optionKey
                                         }
                                     >
 
-                                        <FaXmark />
+                                        <span>
 
-                                    </button>
+                                            {
+                                                optionLabel
+                                            }
 
-                                </span>
+                                        </span>
 
-                            )
+
+                                        <button
+                                            type="button"
+                                            aria-label={
+                                                `Remove ${optionLabel}`
+                                            }
+                                            onClick={
+                                                event =>
+                                                    handleRemove(
+                                                        event,
+                                                        option
+                                                    )
+                                            }
+                                        >
+
+                                            <FaXmark />
+
+                                        </button>
+
+                                    </span>
+
+                                );
+
+                            }
                         )
                     }
 
@@ -377,7 +418,9 @@ export default function SearchMultiSelect({
                             searchValue
                         }
                         placeholder={
-                            selected.length === 0
+                            selected.length
+                                ===
+                                0
                                 ? placeholder
                                 : "Search..."
                         }
@@ -428,7 +471,9 @@ export default function SearchMultiSelect({
                     {
                         !error
                         &&
-                        options.length === 0
+                        options.length
+                        ===
+                        0
                         &&
                         !isLoading
                         &&
@@ -443,7 +488,9 @@ export default function SearchMultiSelect({
                     {
                         !error
                         &&
-                        options.length > 0
+                        options.length
+                        >
+                        0
                         &&
                         <div
                             className="taxonomy-options-list"
@@ -456,6 +503,18 @@ export default function SearchMultiSelect({
                                 options.map(
                                     option => {
 
+                                        const optionKey =
+                                            getOptionKey(
+                                                option
+                                            );
+
+
+                                        const optionLabel =
+                                            getOptionLabel(
+                                                option
+                                            );
+
+
                                         const selectedOption =
                                             isSelected(
                                                 option
@@ -466,7 +525,7 @@ export default function SearchMultiSelect({
 
                                             <button
                                                 key={
-                                                    option.id
+                                                    optionKey
                                                 }
                                                 type="button"
                                                 className={
@@ -484,7 +543,7 @@ export default function SearchMultiSelect({
                                                 <span>
 
                                                     {
-                                                        option.displayName
+                                                        optionLabel
                                                     }
 
                                                 </span>
@@ -535,7 +594,9 @@ export default function SearchMultiSelect({
                     {
                         !error
                         &&
-                        options.length === 0
+                        options.length
+                        ===
+                        0
                         &&
                         isLoading
                         &&

@@ -207,6 +207,49 @@ namespace PublicationSearchEngine.Data.Migrations
                     b.ToTable("keywords", (string)null);
                 });
 
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.OpenAlexInstitution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("country_id");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("display_name");
+
+                    b.Property<string>("OpenAlexId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("open_alex_id");
+
+                    b.Property<string>("Ror")
+                        .HasColumnType("text")
+                        .HasColumnName("ror");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<long>("WorksCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("works_count");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("OpenAlexId")
+                        .IsUnique();
+
+                    b.ToTable("open_alex_institutions", (string)null);
+                });
+
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.SubField", b =>
                 {
                     b.Property<Guid>("Id")
@@ -315,6 +358,41 @@ namespace PublicationSearchEngine.Data.Migrations
                     b.ToTable("topic_keywords", (string)null);
                 });
 
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.WorkType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("OpenAlexDisplayName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("open_alex_display_name");
+
+                    b.Property<string>("OpenAlexId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("open_alex_id");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.Property<long>("WorksCount")
+                        .HasColumnType("bigint")
+                        .HasColumnName("works_count");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("work_types", (string)null);
+                });
+
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.InstitutionDomain", b =>
                 {
                     b.HasOne("PublicationSearchEngine.Domain.Entities.Institution", "Institution")
@@ -324,6 +402,16 @@ namespace PublicationSearchEngine.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Institution");
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.OpenAlexInstitution", b =>
+                {
+                    b.HasOne("PublicationSearchEngine.Domain.Entities.Country", "Country")
+                        .WithMany("OpenAlexInstitutions")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Country");
                 });
 
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.SubField", b =>
@@ -367,6 +455,11 @@ namespace PublicationSearchEngine.Data.Migrations
                     b.Navigation("Keyword");
 
                     b.Navigation("Topic");
+                });
+
+            modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Country", b =>
+                {
+                    b.Navigation("OpenAlexInstitutions");
                 });
 
             modelBuilder.Entity("PublicationSearchEngine.Domain.Entities.Field", b =>

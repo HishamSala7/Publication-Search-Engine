@@ -62,5 +62,19 @@ namespace PublicationSearchEngine.Api.Controllers
             await _openAlexSyncService.SyncTopicsAsync(cancellationToken);
             return ResultHandler.Success(ResponseKeys.Success);
         }
+
+        [HttpPost("sync-work-types")]
+        public async Task<Result> SyncWorkTypesAsync(CancellationToken cancellationToken)
+        {
+            await _openAlexSyncService.SyncWorkTypesAsync(cancellationToken);
+            return ResultHandler.Success(ResponseKeys.Success);
+        }
+
+        [HttpPost("sync-open-alex-institutions")]
+        public async Task<Result> SyncOpenAlexInstitutionsAsync(CancellationToken cancellationToken)
+        {
+            await _openAlexSyncService.SyncOpenAlexInstitutionsAsync(cancellationToken);
+            return ResultHandler.Success(ResponseKeys.Success);
+        }
     }
 }

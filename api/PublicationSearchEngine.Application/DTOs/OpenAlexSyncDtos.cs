@@ -107,3 +107,33 @@ public class OpenAlexKeywordDto
     [JsonPropertyName("works_count")]
     public long? WorksCount { get; set; }
 }
+
+public class OpenAlexWorkTypeDto
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("display_name")]
+    public string? DisplayName { get; set; }
+
+    [JsonPropertyName("works_count")]
+    public long? WorksCount { get; set; }
+}
+
+public class OpenAlexInstitutionDto
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("ror")]
+    public string? Ror { get; set; }
+
+    [JsonPropertyName("display_name")]
+    public string? DisplayName { get; set; }
+
+    [JsonPropertyName("country_code")]
+    public string? CountryCode { get; set; }
+
+    [JsonPropertyName("works_count")]
+    public long? WorksCount { get; set; }
+}

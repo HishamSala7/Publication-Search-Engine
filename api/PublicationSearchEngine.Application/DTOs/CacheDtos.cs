@@ -1,4 +1,6 @@
-﻿namespace PublicationSearchEngine.Application.DTOs;
+﻿using PublicationSearchEngine.Domain.Shared.Enums;
+
+namespace PublicationSearchEngine.Application.DTOs;
 
 public class OpenAlexWorksCacheDto
 {
@@ -17,6 +19,8 @@ public class OpenAlexWorksCacheKeyDto
     public List<string> SubFieldIds { get; set; } = [];
     public List<string> TopicIds { get; set; } = [];
     public List<string> KeywordIds { get; set; } = [];
+    public List<string> InstitutionIds { get; set; } = [];
+    public List<PublicationType> Types { get; set; } = [];
     public string? OrderBy { get; set; }
     public bool IsDescending { get; set; }
 }
@@ -43,7 +47,7 @@ public class OpenAlexDoiWorkCacheDto
 
 public class OpenAlexRorInstitutionCacheDto
 {
-    public OpenAlexInstitution? Institution { get; set; }
+    public OpenAlexInstitutionSimpleDto? Institution { get; set; }
 
     public static string GetCacheKey(string ror)
     {
@@ -56,5 +60,15 @@ public static class OpenAlexAuthorPositionCountCacheDto
     public static string GetCacheKey(string openAlexAuthorId)
     {
         return $"openalex:author-authorPositionCounts:{openAlexAuthorId}";
+    }
+}
+
+public class OpenAlexAuthorDetailCacheDto
+{
+    public OpenAlexAuthorDetail? Author { get; set; }
+
+    public static string GetCacheKey(string openAlexAuthorId)
+    {
+        return $"openalex:author-detail:{openAlexAuthorId.ToUpperInvariant()}";
     }
 }

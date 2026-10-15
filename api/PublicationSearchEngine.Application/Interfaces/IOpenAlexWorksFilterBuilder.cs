@@ -4,5 +4,8 @@ namespace PublicationSearchEngine.Application.Interfaces;
 
 public interface IOpenAlexWorksFilterBuilder
 {
-    List<OpenAlexFilter> Build(OpenAlexWorksSearchDto request);
+    Task<List<OpenAlexFilter>> BuildAsync(
+        OpenAlexWorksSearchDto request,
+        CancellationToken cancellationToken
+    );
 }

@@ -89,6 +89,23 @@ public static class OpenAlexExtensionMethods
         return IsOpenAlexKeywordId(id) ? id.ToLowerInvariant() : null;
     }
 
+    public static List<string> NormalizeStringList(
+        this IEnumerable<string>? values,
+        Func<string?, string?> extractor
+    )
+    {
+        if (values == null)
+            return [];
+
+        return values
+            .Select(extractor)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
     private static bool IsOpenAlexId(string value)
     {
         if (value.Length < 2)

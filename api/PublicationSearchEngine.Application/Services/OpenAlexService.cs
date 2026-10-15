@@ -34,10 +34,6 @@ public class OpenAlexService
         _selectBuilder = selectBuilder;
     }
 
-    //public async Task<OpenAlexWork?> GetWorkByIdAsync(string workId, CancellationToken ct) =>
-    //    await _httpClient.GetFromJsonAsync<OpenAlexWork>($"works/{workId}", ct);
-
-
     public async Task<Result<PagedResultDto<OpenAlexWork>>> SearchWorksAsync(
         OpenAlexWorksSearchDto request,
         CancellationToken cancellationToken
@@ -55,9 +51,6 @@ public class OpenAlexService
 
             request.OpenAlexAuthorId = authorId;
         }
-
-        //if (string.IsNullOrWhiteSpace(request.OpenAlexAuthorId))
-        //    return ResultHandler.NotFound<PagedResultDto<OpenAlexWork>>(ResponseKeys.NotFound);
 
         return await SearchWorksByAuthorAsync(request, cancellationToken);
     }
@@ -111,7 +104,7 @@ public class OpenAlexService
             if (response == null || response.Results.Count == 0)
                 break;
 
-            AppendWorksToCache(cached, response.Results);
+            cached.Works.AddRange(response.Results);
 
             cached.CursorMap[cached.Works.Count] = response.Meta.NextCursor;
 
@@ -120,7 +113,14 @@ public class OpenAlexService
             await _cacheService.SetAsync(cacheKey, cached, OpenAlexConsts.WorksExpiration);
         }
 
-        return ResultHandler.Success(MapSearchResult(cached, request), ResponseKeys.Success);
+        var result = new PagedResultDto<OpenAlexWork>
+        {
+            Items = cached.Works.Skip(request.Skip).Take(request.Take).ToList(),
+
+            TotalCount = cached.TotalCount,
+        };
+
+        return ResultHandler.Success(result, ResponseKeys.Success);
     }
 
     public async Task<Result<OpenAlexWork>> GetWorkByDoiAsync(
@@ -141,7 +141,7 @@ public class OpenAlexService
             return ResultHandler.Success(cached.Work);
 
         var work = await _openAlexClientService.GetFirstOrDefaultAsync<OpenAlexWork>(
-            OpenAlexEntityKeys.Works,
+            OpenAlexEntities.Works,
             [new OpenAlexFilter { Attribute = "doi", Value = doiNormalized }],
             null,
             null,
@@ -160,7 +160,7 @@ public class OpenAlexService
         return ResultHandler.Success(work);
     }
 
-    public async Task<OpenAlexInstitution?> GetInstitutionByRorAsync(
+    public async Task<OpenAlexInstitutionSimpleDto?> GetInstitutionByRorAsync(
         string rorId,
         CancellationToken cancellationToken
     )
@@ -177,12 +177,13 @@ public class OpenAlexService
         if (cached?.Institution != null)
             return cached.Institution;
 
-        var institution = await _openAlexClientService.GetFirstOrDefaultAsync<OpenAlexInstitution>(
-            OpenAlexEntityKeys.Institutions,
-            [new OpenAlexFilter { Attribute = "ror", Value = normalizedRor }],
-            null,
-            cancellationToken: cancellationToken
-        );
+        var institution =
+            await _openAlexClientService.GetFirstOrDefaultAsync<OpenAlexInstitutionSimpleDto>(
+                OpenAlexEntities.Institutions,
+                [new OpenAlexFilter { Attribute = "ror", Value = normalizedRor }],
+                null,
+                cancellationToken: cancellationToken
+            );
 
         if (institution == null)
             return null;
@@ -219,7 +220,7 @@ public class OpenAlexService
         }
 
         var response = await _openAlexClientService.GetPageAsync<OpenAlexAuthorDetail>(
-            OpenAlexEntityKeys.Authors,
+            OpenAlexEntities.Authors,
             OpenAlexConsts.AuthorCandidatesPerPageCount,
             filters,
             null,
@@ -228,20 +229,24 @@ public class OpenAlexService
             cancellationToken
         );
 
-        var candidates =
-            response
-                ?.Results?.Select(a => new AuthorCandidate
-                {
-                    OpenAlexId = a.Id!,
-                    DisplayName = a.DisplayName!,
-                    Orcid = a.Orcid,
-                    Institution = a.LastKnownInstitutions?.FirstOrDefault()?.DisplayName,
-                    WorksCount = a.WorksCount,
-                    CitedByCount = a.CitedByCount,
-                })
-                .ToList() ?? [];
+        var authorDetails = response?.Results ?? [];
 
-        await CacheOpenAlexAuthorIdsByOrcidAsync(candidates);
+        if (authorDetails.Count > 0)
+        {
+            await CacheOpenAlexAuthorDetailsAsync(authorDetails);
+        }
+
+        var candidates = authorDetails
+            .Select(author => new AuthorCandidate
+            {
+                OpenAlexId = author.Id!,
+                DisplayName = author.DisplayName!,
+                Orcid = author.Orcid,
+                Institution = author.LastKnownInstitutions?.FirstOrDefault()?.DisplayName,
+                WorksCount = author.WorksCount,
+                CitedByCount = author.CitedByCount,
+            })
+            .ToList();
 
         if (candidates.Count == 0 && !string.IsNullOrWhiteSpace(institutionId))
         {
@@ -249,6 +254,78 @@ public class OpenAlexService
         }
 
         return candidates;
+    }
+
+    public async Task<Result<OpenAlexAuthorDetail>> GetAuthorDetailByIdAsync(
+        string openAlexAuthorId,
+        CancellationToken cancellationToken
+    )
+    {
+        var id = openAlexAuthorId.ExtractOpenAlexId();
+
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return ResultHandler.NotFound<OpenAlexAuthorDetail>(ResponseKeys.NotFound);
+        }
+
+        var cacheKey = OpenAlexAuthorDetailCacheDto.GetCacheKey(id);
+
+        var cached = await _cacheService.GetAsync<OpenAlexAuthorDetailCacheDto>(cacheKey);
+
+        if (cached?.Author != null)
+        {
+            return ResultHandler.Success(cached.Author);
+        }
+
+        var author = await _openAlexClientService.GetByIdAsync<OpenAlexAuthorDetail>(
+            OpenAlexEntities.Authors,
+            id,
+            null,
+            cancellationToken
+        );
+
+        if (author == null)
+        {
+            return ResultHandler.NotFound<OpenAlexAuthorDetail>(ResponseKeys.NotFound);
+        }
+
+        await CacheOpenAlexAuthorDetailAsync(author);
+
+        return ResultHandler.Success(author);
+    }
+
+    public async Task<Result<OpenAlexAuthorDetail>> GetAuthorDetailByOrcidAsync(
+        string orcidValue,
+        CancellationToken cancellationToken
+    )
+    {
+        var orcid = orcidValue.ExtractOrcid();
+
+        if (string.IsNullOrWhiteSpace(orcid))
+            return ResultHandler.NotFound<OpenAlexAuthorDetail>(ResponseKeys.NotFound);
+
+        var cacheKey = OpenAlexOrcidAuthorCacheDto.GetCacheKey(orcid);
+
+        var cached = await _cacheService.GetAsync<OpenAlexOrcidAuthorCacheDto>(cacheKey);
+
+        if (!string.IsNullOrWhiteSpace(cached?.OpenAlexAuthorId))
+            return await GetAuthorDetailByIdAsync(cached.OpenAlexAuthorId, cancellationToken);
+
+        var author = await _openAlexClientService.GetFirstOrDefaultAsync<OpenAlexAuthorDetail>(
+            OpenAlexEntities.Authors,
+            [new OpenAlexFilter { Attribute = "orcid", Value = orcid }],
+            null,
+            null,
+            "*",
+            cancellationToken
+        );
+
+        if (author == null)
+            return ResultHandler.NotFound<OpenAlexAuthorDetail>(ResponseKeys.NotFound);
+
+        await CacheOpenAlexAuthorDetailAsync(author);
+
+        return ResultHandler.Success(author);
     }
 
     public async Task<Result<AuthorPositionCountDto>> GetAuthorPositionCountAsync(
@@ -268,14 +345,17 @@ public class OpenAlexService
         if (cached != null)
             return ResultHandler.Success(cached);
 
-        var filters = _filterBuilder.Build(new() { OpenAlexAuthorId = id });
+        var filters = await _filterBuilder.BuildAsync(
+            new OpenAlexWorksSearchDto { OpenAlexAuthorId = id },
+            cancellationToken
+        );
 
         var select = _selectBuilder.Build(
             new OpenAlexWorksSelectDto { IncludeId = true, IncludeAuthorships = true }
         );
 
         var works = await _openAlexClientService.GetAllAsync<OpenAlexWork>(
-            OpenAlexEntityKeys.Works,
+            OpenAlexEntities.Works,
             filters,
             null,
             select,
@@ -320,12 +400,12 @@ public class OpenAlexService
         CancellationToken cancellationToken
     )
     {
-        var filters = _filterBuilder.Build(request);
+        var filters = await _filterBuilder.BuildAsync(request, cancellationToken);
 
         var sort = _sortBuilder.Build(request);
 
         return await _openAlexClientService.GetPageAsync<OpenAlexWork>(
-            OpenAlexEntityKeys.Works,
+            OpenAlexEntities.Works,
             OpenAlexConsts.PerPageMaxLimit,
             filters,
             sort,
@@ -372,26 +452,6 @@ public class OpenAlexService
             .ToList();
 
         await CacheOpenAlexAuthorOrcidMappingsAsync(authors);
-    }
-
-    private async Task CacheOpenAlexAuthorIdsByOrcidAsync(IEnumerable<AuthorCandidate> authors)
-    {
-        var authorOrcids = authors
-            .Select(x => new
-            {
-                OpenAlexAuthorId = x.OpenAlexId.ExtractOpenAlexId(),
-                Orcid = x.Orcid.ExtractOrcid(),
-            })
-            .Where(x =>
-                !string.IsNullOrWhiteSpace(x.OpenAlexAuthorId)
-                && !string.IsNullOrWhiteSpace(x.Orcid)
-            )
-            .GroupBy(x => x.Orcid)
-            .Select(x => x.First())
-            .Select(x => (OpenAlexAuthorId: x.OpenAlexAuthorId!, Orcid: x.Orcid!))
-            .ToList();
-
-        await CacheOpenAlexAuthorOrcidMappingsAsync(authorOrcids);
     }
 
     private async Task CacheOpenAlexWorkByDoiAsync(string doi, OpenAlexWork work)
@@ -452,7 +512,7 @@ public class OpenAlexService
             return cached.OpenAlexAuthorId;
 
         var author = await _openAlexClientService.GetFirstOrDefaultAsync<OpenAlexAuthorDetail>(
-            OpenAlexEntityKeys.Authors,
+            OpenAlexEntities.Authors,
             [new OpenAlexFilter { Attribute = "orcid", Value = orcid }],
             null,
             null,
@@ -460,16 +520,15 @@ public class OpenAlexService
             cancellationToken
         );
 
-        var authorId = author?.Id.ExtractOpenAlexId();
+        if (author == null)
+            return null;
+
+        var authorId = author.Id.ExtractOpenAlexId();
 
         if (string.IsNullOrWhiteSpace(authorId))
             return null;
 
-        await _cacheService.SetAsync(
-            cacheKey,
-            new OpenAlexOrcidAuthorCacheDto { OpenAlexAuthorId = authorId },
-            OpenAlexConsts.AuthorOrcidExpiration
-        );
+        await CacheOpenAlexAuthorDetailAsync(author);
 
         return authorId;
     }
@@ -486,15 +545,29 @@ public class OpenAlexService
 
         return new OpenAlexWorksCacheKeyDto
         {
-            OpenAlexAuthorId = request.OpenAlexAuthorId,
+            OpenAlexAuthorId = request.OpenAlexAuthorId.ExtractOpenAlexId(),
 
-            FieldIds = request.OpenAlexFieldIds.Order().ToList(),
+            FieldIds = request.OpenAlexFieldIds.NormalizeStringList(x =>
+                x.ExtractOpenAlexFieldId()
+            ),
 
-            SubFieldIds = request.OpenAlexSubFieldIds.Order().ToList(),
+            SubFieldIds = request.OpenAlexSubFieldIds.NormalizeStringList(x =>
+                x.ExtractOpenAlexSubfieldId()
+            ),
 
-            TopicIds = request.OpenAlexTopicIds.Order().ToList(),
+            TopicIds = request.OpenAlexTopicIds.NormalizeStringList(x =>
+                x.ExtractOpenAlexTopicId()
+            ),
 
-            KeywordIds = request.OpenAlexKeywordIds.Order().ToList(),
+            KeywordIds = request.OpenAlexKeywordIds.NormalizeStringList(x =>
+                x.ExtractOpenAlexKeywordId()
+            ),
+
+            InstitutionIds = request.OpenAlexInstitutionIds.NormalizeStringList(x =>
+                x.ExtractOpenAlexId()
+            ),
+
+            Types = request.Types.Distinct().Order().ToList(),
 
             OrderBy = request.OrderBy,
 
@@ -506,24 +579,40 @@ public class OpenAlexService
         };
     }
 
-    private static void AppendWorksToCache(
-        OpenAlexWorksCacheDto cache,
-        IEnumerable<OpenAlexWork> works
-    )
+    private async Task CacheOpenAlexAuthorDetailAsync(OpenAlexAuthorDetail author)
     {
-        cache.Works.AddRange(works);
+        var openAlexAuthorId = author.Id.ExtractOpenAlexId();
+
+        if (string.IsNullOrWhiteSpace(openAlexAuthorId))
+            return;
+
+        var tasks = new List<Task>
+        {
+            _cacheService.SetAsync(
+                OpenAlexAuthorDetailCacheDto.GetCacheKey(openAlexAuthorId),
+                new OpenAlexAuthorDetailCacheDto { Author = author },
+                OpenAlexConsts.AuthorDetailExpiration
+            ),
+        };
+
+        var orcid = author.Orcid.ExtractOrcid();
+
+        if (!string.IsNullOrWhiteSpace(orcid))
+        {
+            tasks.Add(
+                _cacheService.SetAsync(
+                    OpenAlexOrcidAuthorCacheDto.GetCacheKey(orcid),
+                    new OpenAlexOrcidAuthorCacheDto { OpenAlexAuthorId = openAlexAuthorId },
+                    OpenAlexConsts.AuthorOrcidExpiration
+                )
+            );
+        }
+
+        await Task.WhenAll(tasks);
     }
 
-    private static PagedResultDto<OpenAlexWork> MapSearchResult(
-        OpenAlexWorksCacheDto cache,
-        OpenAlexWorksSearchDto request
-    )
+    private async Task CacheOpenAlexAuthorDetailsAsync(IEnumerable<OpenAlexAuthorDetail> authors)
     {
-        return new PagedResultDto<OpenAlexWork>
-        {
-            Items = cache.Works.Skip(request.Skip).Take(request.Take).ToList(),
-
-            TotalCount = cache.TotalCount,
-        };
+        await Task.WhenAll(authors.Select(CacheOpenAlexAuthorDetailAsync));
     }
 }

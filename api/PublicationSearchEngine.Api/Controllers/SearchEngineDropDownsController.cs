@@ -68,4 +68,20 @@ public class SearchEngineDropDownsController : ControllerBase
     {
         return await _searchEngineDropDownsService.GetKeywordsAsync(request, cancellationToken);
     }
+
+    [HttpGet("institutions-drop-down")]
+    public virtual async Task<Result<PagedResultDto<SearchEngineDropDownInstitutionDto>>> GetInstitutionsAsync(
+        [FromQuery] SearchEngineDropDownInstitutionSearchDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        return await _searchEngineDropDownsService.GetInstitutionsAsync(request, cancellationToken);
+    }
+
+    [HttpGet("work-types-drop-down")]
+    public virtual Result<List<WorkTypeDto>> GetWorkTypesAsync(CancellationToken cancellationToken)
+    {
+        return _searchEngineDropDownsService.GetWorkTypesAsync(cancellationToken);
+    }
+
 }

@@ -13,10 +13,14 @@ import {
 import type {
     ApiResult,
     AuthorCandidateSearchResult,
+    AuthorPositionCount,
+    OpenAlexAuthorDetail,
     OpenAlexWork,
     OpenAlexWorksSearchRequest,
     PagedResultDto,
+    SearchInstitutionOption,
     SearchTaxonomyOption,
+    WorkTypeOption,
     WorksSortMode
 } from "../types/search-ui.types";
 
@@ -26,6 +30,24 @@ interface GetAuthorCandidatesRequest {
     name: string;
 
     email?: string;
+
+    signal?: AbortSignal;
+
+}
+
+
+interface GetAuthorDetailsRequest {
+
+    openAlexAuthorId: string;
+
+    signal?: AbortSignal;
+
+}
+
+
+interface GetAuthorPositionCountsRequest {
+
+    openAlexAuthorId: string;
 
     signal?: AbortSignal;
 
@@ -159,6 +181,12 @@ function createWorksQuery(
         OpenAlexKeywordIds:
             request.openAlexKeywordIds,
 
+        OpenAlexInstitutionIds:
+            request.openAlexInstitutionIds,
+
+        Types:
+            request.types,
+
         Take:
             request.take,
 
@@ -208,6 +236,74 @@ async function getAuthorCandidates({
 }
 
 
+async function getAuthorDetails({
+    openAlexAuthorId,
+    signal
+}: GetAuthorDetailsRequest):
+    Promise<OpenAlexAuthorDetail> {
+
+    const result =
+        await apiClient.get<
+            ApiResult<
+                OpenAlexAuthorDetail
+            >
+        >(
+            API_ENDPOINTS
+                .authors
+                .details,
+            {
+                signal,
+
+                query: {
+
+                    openAlexAuthorId
+
+                }
+            }
+        );
+
+
+    return unwrapResult(
+        result
+    );
+
+}
+
+
+async function getAuthorPositionCounts({
+    openAlexAuthorId,
+    signal
+}: GetAuthorPositionCountsRequest):
+    Promise<AuthorPositionCount> {
+
+    const result =
+        await apiClient.get<
+            ApiResult<
+                AuthorPositionCount
+            >
+        >(
+            API_ENDPOINTS
+                .authors
+                .positionCounts,
+            {
+                signal,
+
+                query: {
+
+                    openAlexAuthorId
+
+                }
+            }
+        );
+
+
+    return unwrapResult(
+        result
+    );
+
+}
+
+
 async function getWorkByDoi({
     doi,
     signal
@@ -216,7 +312,9 @@ async function getWorkByDoi({
 
     const result =
         await apiClient.get<
-            ApiResult<OpenAlexWork>
+            ApiResult<
+                OpenAlexWork
+            >
         >(
             API_ENDPOINTS
                 .works
@@ -246,7 +344,9 @@ async function searchWorks({
     signal
 }: SearchWorksOptions):
     Promise<
-        PagedResultDto<OpenAlexWork>
+        PagedResultDto<
+            OpenAlexWork
+        >
     > {
 
     let endpoint:
@@ -540,9 +640,93 @@ async function getKeywords({
 }
 
 
+async function getInstitutions({
+    filter,
+    take = 10,
+    skip = 0,
+    signal
+}: BaseDropdownRequest):
+    Promise<
+        PagedResultDto<
+            SearchInstitutionOption
+        >
+    > {
+
+    const result =
+        await apiClient.get<
+            ApiResult<
+                PagedResultDto<
+                    SearchInstitutionOption
+                >
+            >
+        >(
+            API_ENDPOINTS
+                .searchEngineDropDowns
+                .institutions,
+            {
+                signal,
+
+                query: {
+
+                    Filter:
+                        filter,
+
+                    Take:
+                        take,
+
+                    Skip:
+                        skip
+
+                }
+            }
+        );
+
+
+    return unwrapResult(
+        result
+    );
+
+}
+
+
+async function getWorkTypes({
+    signal
+}: {
+    signal?: AbortSignal;
+} = {}):
+    Promise<
+        WorkTypeOption[]
+    > {
+
+    const result =
+        await apiClient.get<
+            ApiResult<
+                WorkTypeOption[]
+            >
+        >(
+            API_ENDPOINTS
+                .searchEngineDropDowns
+                .workTypes,
+            {
+                signal
+            }
+        );
+
+
+    return unwrapResult(
+        result
+    );
+
+}
+
+
 export const searchService = {
 
     getAuthorCandidates,
+
+    getAuthorDetails,
+
+    getAuthorPositionCounts,
 
     getWorkByDoi,
 
@@ -554,6 +738,10 @@ export const searchService = {
 
     getTopics,
 
-    getKeywords
+    getKeywords,
+
+    getInstitutions,
+
+    getWorkTypes
 
 };

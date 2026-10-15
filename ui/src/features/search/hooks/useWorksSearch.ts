@@ -101,6 +101,36 @@ function createWorksRequestKey(
                 ]
                     .sort(),
 
+            openAlexInstitutionIds:
+                [
+                    ...(
+                        request
+                            .openAlexInstitutionIds
+                        ??
+                        []
+                    )
+                ]
+                    .sort(),
+
+            types:
+                [
+                    ...(
+                        request
+                            .types
+                        ??
+                        []
+                    )
+                ]
+                    .sort(
+                        (
+                            first,
+                            second
+                        ) =>
+                            first
+                            -
+                            second
+                    ),
+
             sortMode
 
         }

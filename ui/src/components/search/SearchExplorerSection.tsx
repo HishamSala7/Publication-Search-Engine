@@ -11,6 +11,9 @@ import {
 import CandidateList
     from "./CandidateList";
 
+import OrcidAuthorInfo
+    from "./OrcidAuthorInfo";
+
 import SearchFilters
     from "./SearchFilters";
 
@@ -40,6 +43,7 @@ import {
     type AuthorCandidate,
     type OpenAlexWorksSearchRequest,
     type SearchFormValues,
+    type SearchInstitutionOption,
     type SearchMode,
     type WorksFilterValues,
     type WorksSortMode
@@ -56,9 +60,111 @@ function isSearchMode(
         ||
         value === "publications"
         ||
+        value === "institution"
+        ||
         value === "orcid"
         ||
         value === "doi"
+    );
+
+}
+
+
+function getInstitutionsFromSearchParams(
+    searchParams:
+        URLSearchParams
+): SearchInstitutionOption[] {
+
+    const ids =
+        searchParams.getAll(
+            "institutionId"
+        );
+
+
+    const openAlexIds =
+        searchParams.getAll(
+            "institutionOpenAlexId"
+        );
+
+
+    const names =
+        searchParams.getAll(
+            "institutionName"
+        );
+
+
+    return openAlexIds
+        .map(
+            (
+                openAlexId,
+                index
+            ) => {
+
+                if (
+                    !openAlexId
+                ) {
+
+                    return null;
+
+                }
+
+
+                return {
+
+                    id:
+                        ids[index]
+                        ||
+                        openAlexId,
+
+                    openAlexId,
+
+                    displayName:
+                        names[index]
+                        ||
+                        openAlexId
+
+                };
+
+            }
+        )
+        .filter(
+            (
+                institution
+            ): institution is SearchInstitutionOption =>
+                institution !== null
+        );
+
+}
+
+
+function appendInstitutions(
+    params:
+        URLSearchParams,
+    institutions:
+        SearchInstitutionOption[]
+) {
+
+    institutions.forEach(
+        institution => {
+
+            params.append(
+                "institutionId",
+                institution.id
+            );
+
+
+            params.append(
+                "institutionOpenAlexId",
+                institution.openAlexId
+            );
+
+
+            params.append(
+                "institutionName",
+                institution.displayName
+            );
+
+        }
     );
 
 }
@@ -123,6 +229,18 @@ export default function SearchExplorerSection() {
             : "author";
 
 
+    const initialInstitutions =
+        useMemo(
+            () =>
+                getInstitutionsFromSearchParams(
+                    searchParams
+                ),
+            [
+                searchParams
+            ]
+        );
+
+
     const initialValues =
         useMemo<
             Partial<SearchFormValues>
@@ -150,6 +268,9 @@ export default function SearchExplorerSection() {
                     ??
                     "",
 
+                institutions:
+                    initialInstitutions,
+
                 orcid:
                     searchParams.get(
                         "orcid"
@@ -166,7 +287,8 @@ export default function SearchExplorerSection() {
 
             }),
             [
-                searchParams
+                searchParams,
+                initialInstitutions
             ]
         );
 
@@ -232,13 +354,19 @@ export default function SearchExplorerSection() {
                 ? Boolean(
                     initialValues.name
                 )
-                : searchMode === "orcid"
-                    ? Boolean(
-                        initialValues.orcid
+                : searchMode === "institution"
+                    ? (
+                        initialInstitutions.length
+                        >
+                        0
                     )
-                    : Boolean(
-                        initialValues.doi
-                    );
+                    : searchMode === "orcid"
+                        ? Boolean(
+                            initialValues.orcid
+                        )
+                        : Boolean(
+                            initialValues.doi
+                        );
 
 
     function resetWorksUiState() {
@@ -334,8 +462,7 @@ export default function SearchExplorerSection() {
 
 
     /*
-        DOI search remains an isolated exact-work
-        lookup and does not use the Works workspace.
+        DOI remains an isolated exact-work lookup.
     */
     useEffect(
         () => {
@@ -385,14 +512,7 @@ export default function SearchExplorerSection() {
 
 
     /*
-        When arriving from Home using:
-
-        /search?mode=publications&filter=...
-
-        seed the Works text filter with that query.
-
-        The user can then continue editing the same
-        search from the Works toolbar.
+        Publication text arriving from Home.
     */
     useEffect(
         () => {
@@ -437,7 +557,47 @@ export default function SearchExplorerSection() {
 
 
     /*
-        Debounce the Works text filter.
+        Institution selections arriving from Home
+        become the initial Works institution filter.
+    */
+    useEffect(
+        () => {
+
+            if (
+                searchMode !== "institution"
+            ) {
+
+                return;
+
+            }
+
+
+            setAppliedFilters(
+                current => ({
+
+                    ...current,
+
+                    institutions:
+                        initialInstitutions
+
+                })
+            );
+
+
+            setCurrentPage(
+                1
+            );
+
+        },
+        [
+            searchMode,
+            initialInstitutions
+        ]
+    );
+
+
+    /*
+        Debounce Works text filtering.
     */
     useEffect(
         () => {
@@ -471,26 +631,7 @@ export default function SearchExplorerSection() {
 
 
     /*
-        Common Works search.
-
-        AUTHOR:
-            OpenAlexAuthorId populated.
-
-        ORCID:
-            Orcid populated.
-
-        PUBLICATIONS:
-            both are undefined.
-
-        All three modes share:
-            text
-            date
-            Field
-            Subfield
-            Topic
-            Keyword
-            pagination
-            sorting
+        Shared Works search.
     */
     useEffect(
         () => {
@@ -516,12 +657,25 @@ export default function SearchExplorerSection() {
                 "publications";
 
 
+            const hasInstitutionSearch =
+                searchMode ===
+                "institution"
+                &&
+                appliedFilters
+                    .institutions
+                    .length
+                >
+                0;
+
+
             if (
                 !hasAuthor
                 &&
                 !hasOrcid
                 &&
                 !isGlobalPublicationSearch
+                &&
+                !hasInstitutionSearch
             ) {
 
                 resetWorks();
@@ -589,6 +743,22 @@ export default function SearchExplorerSection() {
                         .map(
                             item =>
                                 item.openAlexId
+                        ),
+
+                openAlexInstitutionIds:
+                    appliedFilters
+                        .institutions
+                        .map(
+                            item =>
+                                item.openAlexId
+                        ),
+
+                types:
+                    appliedFilters
+                        .types
+                        .map(
+                            item =>
+                                item.key
                         ),
 
                 filter:
@@ -731,6 +901,18 @@ export default function SearchExplorerSection() {
 
 
         if (
+            searchMode === "institution"
+        ) {
+
+            appendInstitutions(
+                params,
+                values.institutions
+            );
+
+        }
+
+
+        if (
             searchMode === "orcid"
         ) {
 
@@ -795,6 +977,24 @@ export default function SearchExplorerSection() {
 
         }
 
+
+        if (
+            searchMode === "institution"
+        ) {
+
+            setAppliedFilters(
+                {
+
+                    ...createEmptyWorksFilterValues(),
+
+                    institutions:
+                        values.institutions
+
+                }
+            );
+
+        }
+
     }
 
 
@@ -832,8 +1032,22 @@ export default function SearchExplorerSection() {
 
     function handleClearFilters() {
 
+        const empty =
+            createEmptyWorksFilterValues();
+
+
+        if (
+            searchMode === "institution"
+        ) {
+
+            empty.institutions =
+                initialInstitutions;
+
+        }
+
+
         setAppliedFilters(
-            createEmptyWorksFilterValues()
+            empty
         );
 
 
@@ -980,6 +1194,7 @@ export default function SearchExplorerSection() {
                     <p>
 
                         Find a researcher,
+                        explore publications by institution,
                         search publications globally,
                         search by ORCID,
                         or retrieve one publication
@@ -1047,6 +1262,7 @@ export default function SearchExplorerSection() {
 
                             Find a researcher,
                             browse publications,
+                            select one or more institutions,
                             enter an ORCID,
                             or retrieve an exact
                             publication by DOI.
@@ -1081,12 +1297,78 @@ export default function SearchExplorerSection() {
                             <p>
 
                                 This search is not restricted
-                                to a researcher. Use publication
-                                text, dates, Field, Subfield,
-                                Topic or Keyword to refine
-                                the complete works dataset.
+                                to a researcher or institution.
+                                Use publication text, dates,
+                                Field, Subfield, Topic,
+                                Keyword, Institution or Work Type
+                                to refine the complete works dataset.
 
                             </p>
+
+                        </div>
+
+
+                        {
+                            renderWorksWorkspace()
+                        }
+
+                    </>
+                }
+
+
+                {
+                    hasSearchCriteria
+                    &&
+                    searchMode === "institution"
+                    &&
+                    <>
+
+                        <div className="search-context-card">
+
+                            <span className="search-context-label">
+
+                                INSTITUTION SEARCH
+
+                            </span>
+
+
+                            <h3>
+
+                                Publications by institution
+
+                            </h3>
+
+
+                            <p>
+
+                                Results are restricted to the
+                                selected institutions. You can
+                                continue refining the publications
+                                using the filters below.
+
+                            </p>
+
+
+                            <div className="search-context-meta">
+
+                                Institutions:
+
+                                {" "}
+
+                                <strong>
+
+                                    {
+                                        initialInstitutions
+                                            .map(
+                                                institution =>
+                                                    institution.displayName
+                                            )
+                                            .join(", ")
+                                    }
+
+                                </strong>
+
+                            </div>
 
                         </div>
 
@@ -1310,47 +1592,22 @@ export default function SearchExplorerSection() {
                     &&
                     <>
 
-                        <div className="search-context-card">
-
-                            <span className="search-context-label">
-
-                                ORCID SEARCH
-
-                            </span>
-
-
-                            <h3>
-
-                                Research works
-
-                            </h3>
-
-
-                            <p>
-
-                                Works associated with
-                                the supplied ORCID are
-                                loaded directly from
-                                the backend.
-
-                            </p>
-
-
-                            <div className="search-context-meta">
-
-                                ORCID:
-
-                                <strong>
-
-                                    {
-                                        initialValues.orcid
-                                    }
-
-                                </strong>
-
-                            </div>
-
-                        </div>
+                        <OrcidAuthorInfo
+                            orcid={
+                                initialValues.orcid
+                                ??
+                                ""
+                            }
+                            works={
+                                worksResult
+                                    ?.items
+                                ??
+                                []
+                            }
+                            isWorksLoading={
+                                isWorksLoading
+                            }
+                        />
 
 
                         {

@@ -26,13 +26,15 @@ import {
 
 interface SearchFormProps {
 
-    mode: SearchMode;
+    mode:
+    SearchMode;
 
     initialValues?:
     Partial<SearchFormValues>;
 
     onSubmit: (
-        values: SearchFormValues
+        values:
+            SearchFormValues
     ) => void;
 
 }
@@ -40,6 +42,26 @@ interface SearchFormProps {
 
 const INSTITUTION_PAGE_SIZE =
     10;
+
+
+function getInstitutionKey(
+    institution:
+        SearchInstitutionOption
+) {
+
+    return institution.id;
+
+}
+
+
+function getInstitutionLabel(
+    institution:
+        SearchInstitutionOption
+) {
+
+    return institution.displayName;
+
+}
 
 
 export default function SearchForm({
@@ -238,7 +260,15 @@ export default function SearchForm({
 
     function updateField(
         field:
-            keyof SearchFormValues,
+            "name"
+            |
+            "email"
+            |
+            "publicationQuery"
+            |
+            "orcid"
+            |
+            "doi",
         value:
             string
     ) {
@@ -327,7 +357,8 @@ export default function SearchForm({
 
 
     function handleInstitutionSearch(
-        value: string
+        value:
+            string
     ) {
 
         setInstitutionSearch(
@@ -743,6 +774,12 @@ export default function SearchForm({
                             }
                             totalCount={
                                 institutionsTotalCount
+                            }
+                            getOptionKey={
+                                getInstitutionKey
+                            }
+                            getOptionLabel={
+                                getInstitutionLabel
                             }
                             onSearchChange={
                                 handleInstitutionSearch

@@ -1,6 +1,7 @@
 import {
     FaArrowRight,
     FaBuildingColumns,
+    FaCircleInfo,
     FaFileLines,
     FaQuoteRight
 } from "react-icons/fa6";
@@ -12,39 +13,59 @@ import type {
 
 interface CandidateCardProps {
 
-    candidate: AuthorCandidate;
+    candidate:
+    AuthorCandidate;
 
-    isSelected: boolean;
+    isSelected:
+    boolean;
 
     onSelect: (
-        candidate: AuthorCandidate
+        candidate:
+            AuthorCandidate
+    ) => void;
+
+    onViewInfo: (
+        candidate:
+            AuthorCandidate
     ) => void;
 
 }
 
 
 function getInitials(
-    name: string
+    name:
+        string
 ) {
 
     const parts =
         name
             .trim()
-            .split(/\s+/)
-            .filter(Boolean);
+            .split(
+                /\s+/
+            )
+            .filter(
+                Boolean
+            );
 
 
-    if (parts.length === 0) {
+    if (
+        parts.length === 0
+    ) {
 
         return "?";
 
     }
 
 
-    if (parts.length === 1) {
+    if (
+        parts.length === 1
+    ) {
 
         return parts[0]
-            .slice(0, 2)
+            .slice(
+                0,
+                2
+            )
             .toUpperCase();
 
     }
@@ -56,7 +77,8 @@ function getInitials(
         parts[
         parts.length - 1
         ][0]
-    ).toUpperCase();
+    )
+        .toUpperCase();
 
 }
 
@@ -64,7 +86,8 @@ function getInitials(
 export default function CandidateCard({
     candidate,
     isSelected,
-    onSelect
+    onSelect,
+    onViewInfo
 }: CandidateCardProps) {
 
     return (
@@ -142,6 +165,7 @@ export default function CandidateCard({
 
                             <FaBuildingColumns />
 
+
                             <span>
 
                                 {
@@ -160,10 +184,12 @@ export default function CandidateCard({
 
                             <FaFileLines />
 
+
                             <strong>
 
                                 {
-                                    candidate.worksCount
+                                    candidate
+                                        .worksCount
                                         .toLocaleString()
                                 }
 
@@ -178,10 +204,12 @@ export default function CandidateCard({
 
                             <FaQuoteRight />
 
+
                             <strong>
 
                                 {
-                                    candidate.citedByCount
+                                    candidate
+                                        .citedByCount
                                         .toLocaleString()
                                 }
 
@@ -213,23 +241,46 @@ export default function CandidateCard({
             </div>
 
 
-            <button
-                type="button"
-                className="candidate-select-button"
-                onClick={() =>
-                    onSelect(candidate)
-                }
-            >
+            <div className="candidate-card-actions">
 
-                {
-                    isSelected
-                        ? "Selected"
-                        : "View works"
-                }
+                <button
+                    type="button"
+                    className="candidate-info-button"
+                    onClick={() =>
+                        onViewInfo(
+                            candidate
+                        )
+                    }
+                >
 
-                <FaArrowRight />
+                    <FaCircleInfo />
 
-            </button>
+                    Author info
+
+                </button>
+
+
+                <button
+                    type="button"
+                    className="candidate-select-button"
+                    onClick={() =>
+                        onSelect(
+                            candidate
+                        )
+                    }
+                >
+
+                    {
+                        isSelected
+                            ? "Selected"
+                            : "View works"
+                    }
+
+                    <FaArrowRight />
+
+                </button>
+
+            </div>
 
         </article>
 

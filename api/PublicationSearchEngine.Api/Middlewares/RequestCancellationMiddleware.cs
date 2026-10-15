@@ -30,6 +30,7 @@ public sealed class RequestCancellationMiddleware
 
             if (!context.Response.HasStarted)
             {
+                context.Response.Clear();
                 context.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
             }
         }

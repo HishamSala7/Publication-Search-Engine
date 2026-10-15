@@ -1,6 +1,6 @@
 ﻿namespace PublicationSearchEngine.Application.Shared.Keys;
 
-public class OpenAlexEntityKeys
+public class OpenAlexEntities
 {
     public const string Works = "works";
     public const string Institutions = "institutions";
@@ -10,4 +10,5 @@ public class OpenAlexEntityKeys
     public const string Topics = "topics";
     public const string Keywords = "keywords";
     public const string Authors = "authors";
+    public const string WorkTypes = "work-types";
 }

@@ -78,6 +78,8 @@ public static class DependencyInjection
         services.AddScoped<ISubFieldRepository, SubFieldRepository>();
         services.AddScoped<ITopicRepository, TopicRepository>();
         services.AddScoped<ITopicKeywordRepository, TopicKeywordRepository>();
+        services.AddScoped<IWorkTypeRepository, WorkTypeRepository>();
+        services.AddScoped<IOpenAlexInstitutionRepository, OpenAlexInstitutionRepository>();
 
         // interfaces & contracts
         services.AddSingleton<ISearchCacheKeyBuilder, SearchCacheKeyBuilder>();

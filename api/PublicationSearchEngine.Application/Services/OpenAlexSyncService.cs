@@ -3,6 +3,7 @@ using PublicationSearchEngine.Application.Services.HttpClientServices;
 using PublicationSearchEngine.Application.Shared.Keys;
 using PublicationSearchEngine.Domain.Entities;
 using PublicationSearchEngine.Domain.IRepositories;
+using PublicationSearchEngine.Domain.Shared.Enums;
 
 namespace PublicationSearchEngine.Application.Services;
 
@@ -16,6 +17,8 @@ public class OpenAlexSyncService
     private readonly ISubFieldRepository _subFieldRepository;
     private readonly ITopicRepository _topicRepository;
     private readonly ITopicKeywordRepository _topicKeywordRepository;
+    private readonly IWorkTypeRepository _workTypeRepository;
+    private readonly IOpenAlexInstitutionRepository _openAlexInstitutionRepository;
 
     public OpenAlexSyncService(
         OpenAlexClientService openAlexClientService,
@@ -25,7 +28,9 @@ public class OpenAlexSyncService
         IKeywordRepository keywordRepository,
         ISubFieldRepository subFieldRepository,
         ITopicRepository topicRepository,
-        ITopicKeywordRepository topicKeywordRepository
+        ITopicKeywordRepository topicKeywordRepository,
+        IWorkTypeRepository workTypeRepository,
+        IOpenAlexInstitutionRepository openAlexInstitutionRepository
     )
     {
         _openAlexClientService = openAlexClientService;
@@ -36,6 +41,8 @@ public class OpenAlexSyncService
         _subFieldRepository = subFieldRepository;
         _topicRepository = topicRepository;
         _topicKeywordRepository = topicKeywordRepository;
+        _workTypeRepository = workTypeRepository;
+        _openAlexInstitutionRepository = openAlexInstitutionRepository;
     }
 
     public virtual async Task SyncCountriesAsync(CancellationToken cancellationToken)
@@ -43,7 +50,7 @@ public class OpenAlexSyncService
         var syncTime = DateTime.UtcNow;
 
         var allCountries = await _openAlexClientService.GetAllAsync<OpenAlexCountryDto>(
-            OpenAlexEntityKeys.Countries,
+            OpenAlexEntities.Countries,
             null,
             null,
             null,
@@ -111,7 +118,7 @@ public class OpenAlexSyncService
         var syncTime = DateTime.UtcNow;
 
         var allFields = await _openAlexClientService.GetAllAsync<OpenAlexFieldDto>(
-            OpenAlexEntityKeys.Fields,
+            OpenAlexEntities.Fields,
             null,
             null,
             null,
@@ -173,7 +180,7 @@ public class OpenAlexSyncService
         var syncTime = DateTime.UtcNow;
 
         var allSubFields = await _openAlexClientService.GetAllAsync<OpenAlexSubfieldDto>(
-            OpenAlexEntityKeys.SubFields,
+            OpenAlexEntities.SubFields,
             null,
             null,
             null,
@@ -243,7 +250,7 @@ public class OpenAlexSyncService
         var syncTime = DateTime.UtcNow;
 
         var allTopics = await _openAlexClientService.GetAllAsync<OpenAlexTopicDto>(
-            OpenAlexEntityKeys.Topics,
+            OpenAlexEntities.Topics,
             null,
             null,
             null,
@@ -406,7 +413,7 @@ public class OpenAlexSyncService
         var syncTime = DateTime.UtcNow;
 
         var allKeywords = await _openAlexClientService.GetAllAsync<OpenAlexKeywordDto>(
-            OpenAlexEntityKeys.Keywords,
+            OpenAlexEntities.Keywords,
             null,
             null,
             null,
@@ -481,5 +488,251 @@ public class OpenAlexSyncService
             await _keywordRepository.AddRangeAsync(keywordsToAdd, cancellationToken);
 
         await _context.CompleteAsync(cancellationToken);
+    }
+
+    public async Task SyncWorkTypesAsync(CancellationToken cancellationToken)
+    {
+        var syncTime = DateTime.UtcNow;
+
+        var allWorkTypes = await _openAlexClientService.GetAllAsync<OpenAlexWorkTypeDto>(
+            OpenAlexEntities.WorkTypes,
+            null,
+            null,
+            null,
+            cancellationToken
+        );
+
+        var existingWorkTypes = await _workTypeRepository.GetAllAsync(cancellationToken);
+
+        var existingLookup = existingWorkTypes.ToDictionary(
+            x => x.OpenAlexId,
+            StringComparer.OrdinalIgnoreCase
+        );
+
+        var openAlexIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        var toAdd = new List<WorkType>();
+        var toUpdate = new List<WorkType>();
+
+        foreach (var openAlexWorkType in allWorkTypes)
+        {
+            var openAlexId = openAlexWorkType.Id?.Split("/").LastOrDefault();
+
+            if (string.IsNullOrWhiteSpace(openAlexId))
+                continue;
+
+            openAlexIds.Add(openAlexId);
+
+            var publicationType = MapOpenAlexTypeToPublicationType(openAlexId);
+
+            if (existingLookup.TryGetValue(openAlexId, out var existing))
+            {
+                existing.OpenAlexDisplayName = openAlexWorkType.DisplayName ?? openAlexId;
+                existing.WorksCount = openAlexWorkType.WorksCount ?? 0;
+                existing.Type = publicationType;
+                existing.SyncedAt = syncTime;
+
+                toUpdate.Add(existing);
+
+                continue;
+            }
+
+            toAdd.Add(
+                new WorkType
+                {
+                    Id = Guid.NewGuid(),
+                    OpenAlexId = openAlexId,
+                    OpenAlexDisplayName = openAlexWorkType.DisplayName ?? openAlexId,
+                    WorksCount = openAlexWorkType.WorksCount ?? 0,
+                    Type = publicationType,
+                    SyncedAt = syncTime,
+                }
+            );
+        }
+
+        var toDelete = existingWorkTypes.Where(x => !openAlexIds.Contains(x.OpenAlexId)).ToList();
+
+        if (toAdd.Any())
+            await _workTypeRepository.AddRangeAsync(toAdd, cancellationToken);
+
+        if (toUpdate.Any())
+            _workTypeRepository.UpdateRange(toUpdate);
+
+        if (toDelete.Any())
+            _workTypeRepository.DeleteRange(toDelete);
+
+        await _context.CompleteAsync(cancellationToken);
+    }
+
+    public async Task SyncOpenAlexInstitutionsAsync(CancellationToken cancellationToken)
+    {
+        var syncTime = DateTime.UtcNow;
+
+        var allInstitutions = await _openAlexClientService.GetAllAsync<OpenAlexInstitutionDto>(
+            OpenAlexEntities.Institutions,
+            null,
+            null,
+            null,
+            cancellationToken
+        );
+
+        var uniqueInstitutions = allInstitutions
+            .Select(x => new
+            {
+                Institution = x,
+                OpenAlexId = x.Id?.Split("/").LastOrDefault()?.Trim(),
+                Ror = NormalizeRor(x.Ror),
+            })
+            .Where(x => !string.IsNullOrWhiteSpace(x.OpenAlexId))
+            .GroupBy(
+                x =>
+                    !string.IsNullOrWhiteSpace(x.Ror) ? $"ROR:{x.Ror}" : $"OPENALEX:{x.OpenAlexId}",
+                StringComparer.OrdinalIgnoreCase
+            )
+            .Select(x => x.First())
+            .ToList();
+
+        var existingInstitutions = await _openAlexInstitutionRepository.GetAllAsync(
+            cancellationToken
+        );
+
+        var existingByOpenAlexId = existingInstitutions
+            .Where(x => !string.IsNullOrWhiteSpace(x.OpenAlexId))
+            .GroupBy(x => x.OpenAlexId, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.First(), StringComparer.OrdinalIgnoreCase);
+
+        var existingByRor = existingInstitutions
+            .Where(x => !string.IsNullOrWhiteSpace(x.Ror))
+            .Select(x => new { Institution = x, Ror = NormalizeRor(x.Ror) })
+            .Where(x => !string.IsNullOrWhiteSpace(x.Ror))
+            .GroupBy(x => x.Ror!, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.First().Institution, StringComparer.OrdinalIgnoreCase);
+
+        var countries = await _countryRepository.GetAllAsync(cancellationToken);
+
+        var countryLookup = countries
+            .Where(x => !string.IsNullOrWhiteSpace(x.CountryCodeAlphaTwo))
+            .GroupBy(x => x.CountryCodeAlphaTwo!.Trim(), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.First(), StringComparer.OrdinalIgnoreCase);
+
+        var toAdd = new List<OpenAlexInstitution>();
+        var toUpdate = new List<OpenAlexInstitution>();
+
+        var syncedInstitutionIds = new HashSet<Guid>();
+
+        foreach (var item in uniqueInstitutions)
+        {
+            var institution = item.Institution;
+            var openAlexId = item.OpenAlexId!;
+            var normalizedRor = item.Ror;
+
+            Guid? countryId = null;
+
+            var countryCode = institution.CountryCode?.Trim();
+
+            if (
+                !string.IsNullOrWhiteSpace(countryCode)
+                && countryLookup.TryGetValue(countryCode, out var country)
+            )
+                countryId = country.Id;
+
+            OpenAlexInstitution? existing = null;
+
+            if (
+                !string.IsNullOrWhiteSpace(normalizedRor)
+                && existingByRor.TryGetValue(normalizedRor, out var existingByRorMatch)
+            )
+            {
+                existing = existingByRorMatch;
+            }
+            else if (
+                existingByOpenAlexId.TryGetValue(openAlexId, out var existingByOpenAlexIdMatch)
+            )
+            {
+                existing = existingByOpenAlexIdMatch;
+            }
+
+            if (existing != null)
+            {
+                existing.OpenAlexId = openAlexId;
+                existing.DisplayName = institution.DisplayName ?? string.Empty;
+                existing.Ror = institution.Ror;
+                existing.CountryId = countryId;
+                existing.WorksCount = institution.WorksCount ?? 0;
+                existing.SyncedAt = syncTime;
+
+                toUpdate.Add(existing);
+
+                syncedInstitutionIds.Add(existing.Id);
+
+                existingByOpenAlexId[openAlexId] = existing;
+
+                if (!string.IsNullOrWhiteSpace(normalizedRor))
+                    existingByRor[normalizedRor] = existing;
+
+                continue;
+            }
+
+            var newInstitution = new OpenAlexInstitution
+            {
+                Id = Guid.NewGuid(),
+                OpenAlexId = openAlexId,
+                DisplayName = institution.DisplayName ?? string.Empty,
+                Ror = institution.Ror,
+                CountryId = countryId,
+                WorksCount = institution.WorksCount ?? 0,
+                SyncedAt = syncTime,
+            };
+
+            toAdd.Add(newInstitution);
+
+            syncedInstitutionIds.Add(newInstitution.Id);
+
+            existingByOpenAlexId[openAlexId] = newInstitution;
+
+            if (!string.IsNullOrWhiteSpace(normalizedRor))
+                existingByRor[normalizedRor] = newInstitution;
+        }
+
+        var toDelete = existingInstitutions
+            .Where(x => !syncedInstitutionIds.Contains(x.Id))
+            .ToList();
+
+        if (toAdd.Any())
+            await _openAlexInstitutionRepository.AddRangeAsync(toAdd, cancellationToken);
+
+        if (toUpdate.Any())
+            _openAlexInstitutionRepository.UpdateRange(toUpdate);
+
+        if (toDelete.Any())
+            _openAlexInstitutionRepository.DeleteRange(toDelete);
+
+        await _context.CompleteAsync(cancellationToken);
+    }
+
+    private static string? NormalizeRor(string? ror)
+    {
+        if (string.IsNullOrWhiteSpace(ror))
+            return null;
+
+        return ror.Trim().TrimEnd('/').ToLowerInvariant();
+    }
+
+    private static PublicationType MapOpenAlexTypeToPublicationType(string openAlexType)
+    {
+        return openAlexType.ToLowerInvariant() switch
+        {
+            "article" => PublicationType.Article,
+
+            "book" => PublicationType.Book,
+
+            "book-chapter" => PublicationType.BookChapter,
+
+            "conference-paper" or "conference-abstract" => PublicationType.Conference,
+
+            "preprint" => PublicationType.Preprint,
+
+            _ => PublicationType.Other,
+        };
     }
 }

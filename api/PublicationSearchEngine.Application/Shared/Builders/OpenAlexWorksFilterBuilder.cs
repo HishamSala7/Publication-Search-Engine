@@ -2,12 +2,23 @@
 using PublicationSearchEngine.Application.Interfaces;
 using PublicationSearchEngine.Application.Shared.Consts;
 using PublicationSearchEngine.Application.Shared.ExtensionMethods;
+using PublicationSearchEngine.Domain.IRepositories;
 
 namespace PublicationSearchEngine.Application.Shared.Builders;
 
 public class OpenAlexWorksFilterBuilder : IOpenAlexWorksFilterBuilder
 {
-    public List<OpenAlexFilter> Build(OpenAlexWorksSearchDto request)
+    private readonly IWorkTypeRepository _workTypeRepository;
+
+    public OpenAlexWorksFilterBuilder(IWorkTypeRepository workTypeRepository)
+    {
+        _workTypeRepository = workTypeRepository;
+    }
+
+    public async Task<List<OpenAlexFilter>> BuildAsync(
+        OpenAlexWorksSearchDto request,
+        CancellationToken cancellationToken
+    )
     {
         var filters = new List<OpenAlexFilter>();
 
@@ -23,7 +34,11 @@ public class OpenAlexWorksFilterBuilder : IOpenAlexWorksFilterBuilder
 
         AddTopicFilter(filters, request);
 
+        AddInstitutionFilter(filters, request);
+
         AddKeywordFilter(filters, request);
+
+        await AddWorkTypeFilterAsync(filters, request, cancellationToken);
 
         return filters;
     }
@@ -36,9 +51,12 @@ public class OpenAlexWorksFilterBuilder : IOpenAlexWorksFilterBuilder
         if (string.IsNullOrWhiteSpace(request.OpenAlexAuthorId))
             return;
 
-        filters.Add(
-            new OpenAlexFilter { Attribute = "author.id", Value = request.OpenAlexAuthorId }
-        );
+        var authorId = request.OpenAlexAuthorId.ExtractOpenAlexId();
+
+        if (string.IsNullOrWhiteSpace(authorId))
+            return;
+
+        filters.Add(new OpenAlexFilter { Attribute = "author.id", Value = authorId });
     }
 
     private static void AddFromPublicationDateFilter(
@@ -81,14 +99,18 @@ public class OpenAlexWorksFilterBuilder : IOpenAlexWorksFilterBuilder
 
     private static void AddFieldFilter(List<OpenAlexFilter> filters, OpenAlexWorksSearchDto request)
     {
-        if (request.OpenAlexFieldIds.Count == 0)
+        var fieldIds = request.OpenAlexFieldIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexFieldId()
+        );
+
+        if (fieldIds.Count == 0)
             return;
 
         filters.Add(
             new OpenAlexFilter
             {
                 Attribute = "primary_topic.field.id",
-                Value = string.Join("|", request.OpenAlexFieldIds),
+                Value = string.Join("|", fieldIds),
             }
         );
     }
@@ -98,28 +120,36 @@ public class OpenAlexWorksFilterBuilder : IOpenAlexWorksFilterBuilder
         OpenAlexWorksSearchDto request
     )
     {
-        if (request.OpenAlexSubFieldIds.Count == 0)
+        var subFieldIds = request.OpenAlexSubFieldIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexSubfieldId()
+        );
+
+        if (subFieldIds.Count == 0)
             return;
 
         filters.Add(
             new OpenAlexFilter
             {
                 Attribute = "primary_topic.subfield.id",
-                Value = string.Join("|", request.OpenAlexSubFieldIds),
+                Value = string.Join("|", subFieldIds),
             }
         );
     }
 
     private static void AddTopicFilter(List<OpenAlexFilter> filters, OpenAlexWorksSearchDto request)
     {
-        if (request.OpenAlexTopicIds.Count == 0)
+        var topicIds = request.OpenAlexTopicIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexTopicId()
+        );
+
+        if (topicIds.Count == 0)
             return;
 
         filters.Add(
             new OpenAlexFilter
             {
                 Attribute = "primary_topic.id",
-                Value = string.Join("|", request.OpenAlexTopicIds),
+                Value = string.Join("|", topicIds),
             }
         );
     }
@@ -129,15 +159,61 @@ public class OpenAlexWorksFilterBuilder : IOpenAlexWorksFilterBuilder
         OpenAlexWorksSearchDto request
     )
     {
-        if (request.OpenAlexKeywordIds.Count == 0)
+        var keywordIds = request.OpenAlexKeywordIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexKeywordId()
+        );
+
+        if (keywordIds.Count == 0)
+            return;
+
+        filters.Add(
+            new OpenAlexFilter { Attribute = "keywords.id", Value = string.Join("|", keywordIds) }
+        );
+    }
+
+    private static void AddInstitutionFilter(
+        List<OpenAlexFilter> filters,
+        OpenAlexWorksSearchDto request
+    )
+    {
+        var institutionIds = request.OpenAlexInstitutionIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexId()
+        );
+
+        if (institutionIds.Count == 0)
             return;
 
         filters.Add(
             new OpenAlexFilter
             {
-                Attribute = "keywords.id",
-                Value = string.Join("|", request.OpenAlexKeywordIds),
+                Attribute = "authorships.institutions.id",
+                Value = string.Join("|", institutionIds),
             }
+        );
+    }
+
+    private async Task AddWorkTypeFilterAsync(
+        List<OpenAlexFilter> filters,
+        OpenAlexWorksSearchDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        if (request.Types.Count == 0)
+            return;
+
+        var workTypes = await _workTypeRepository.GetByTypesAsync(request.Types, cancellationToken);
+
+        var openAlexTypes = workTypes
+            .Select(x => x.OpenAlexId)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (openAlexTypes.Count == 0)
+            return;
+
+        filters.Add(
+            new OpenAlexFilter { Attribute = "type", Value = string.Join("|", openAlexTypes) }
         );
     }
 }

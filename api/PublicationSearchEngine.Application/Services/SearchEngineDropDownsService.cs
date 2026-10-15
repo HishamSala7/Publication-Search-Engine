@@ -3,6 +3,7 @@ using PublicationSearchEngine.Application.Shared.Keys;
 using PublicationSearchEngine.Application.Shared.Result;
 using PublicationSearchEngine.Domain.Entities;
 using PublicationSearchEngine.Domain.IRepositories;
+using PublicationSearchEngine.Domain.Shared.Enums;
 
 namespace PublicationSearchEngine.Application.Services;
 
@@ -13,13 +14,15 @@ public class SearchEngineDropDownsService
     private readonly ISubFieldRepository _subFieldRepository;
     private readonly ITopicRepository _topicRepository;
     private readonly IKeywordRepository _keywordRepository;
+    private readonly IOpenAlexInstitutionRepository _openAlexInstitutionRepository;
 
     public SearchEngineDropDownsService(
         ICountryRepository countryRepository,
         IFieldRepository fieldRepository,
         ISubFieldRepository subFieldRepository,
         ITopicRepository topicRepository,
-        IKeywordRepository keywordRepository
+        IKeywordRepository keywordRepository,
+        IOpenAlexInstitutionRepository openAlexInstitutionRepository
     )
     {
         _countryRepository = countryRepository;
@@ -27,6 +30,7 @@ public class SearchEngineDropDownsService
         _subFieldRepository = subFieldRepository;
         _topicRepository = topicRepository;
         _keywordRepository = keywordRepository;
+        _openAlexInstitutionRepository = openAlexInstitutionRepository;
     }
 
     public virtual async Task<
@@ -213,5 +217,51 @@ public class SearchEngineDropDownsService
             : ResultHandler.NoContent<PagedResultDto<SearchEngineDropDownKeywordDto>>(
                 ResponseKeys.NoContent
             );
+    }
+
+    public virtual async Task<
+        Result<PagedResultDto<SearchEngineDropDownInstitutionDto>>
+    > GetInstitutionsAsync(
+        SearchEngineDropDownInstitutionSearchDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        (List<OpenAlexInstitution> entities, long totalCount) =
+            await _openAlexInstitutionRepository.SearchWithPaginationAsync(
+                request.Take,
+                request.Skip,
+                request.Filter,
+                cancellationToken
+            );
+
+        var dtos = entities
+            .Select(x => new SearchEngineDropDownInstitutionDto
+            {
+                Id = x.Id,
+                OpenAlexId = x.OpenAlexId,
+                DisplayName = x.DisplayName,
+            })
+            .ToList();
+
+        var result = new PagedResultDto<SearchEngineDropDownInstitutionDto>
+        {
+            TotalCount = totalCount,
+            Items = dtos,
+        };
+
+        return totalCount > 0
+            ? ResultHandler.Success(result, ResponseKeys.Success)
+            : ResultHandler.NoContent<PagedResultDto<SearchEngineDropDownInstitutionDto>>(
+                ResponseKeys.NoContent
+            );
+    }
+
+    public virtual Result<List<WorkTypeDto>> GetWorkTypesAsync(CancellationToken cancellationToken)
+    {
+        var workTypes = Enum.GetValues<PublicationType>()
+            .Select(x => new WorkTypeDto { Key = x, Value = x.ToString() })
+            .ToList();
+
+        return ResultHandler.Success(workTypes, ResponseKeys.Success);
     }
 }

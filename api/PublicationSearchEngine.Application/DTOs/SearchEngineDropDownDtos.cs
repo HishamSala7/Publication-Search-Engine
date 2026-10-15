@@ -57,3 +57,12 @@ public class SearchEngineDropDownKeywordDto
     public string OpenAlexId { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
 }
+
+public class SearchEngineDropDownInstitutionSearchDto : SearchDto { }
+
+public class SearchEngineDropDownInstitutionDto
+{
+    public Guid Id { get; set; }
+    public string OpenAlexId { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+}

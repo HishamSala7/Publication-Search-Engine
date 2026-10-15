@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using PublicationSearchEngine.Domain.Shared.Enums;
 
 namespace PublicationSearchEngine.Application.DTOs;
 
@@ -106,7 +107,13 @@ public class OpenAlexAuthorDetail
     public long CitedByCount { get; set; }
 
     [JsonPropertyName("last_known_institutions")]
-    public List<OpenAlexInstitution>? LastKnownInstitutions { get; set; }
+    public List<OpenAlexInstitutionSimpleDto>? LastKnownInstitutions { get; set; }
+
+    [JsonPropertyName("counts_by_year")]
+    public List<AuthorWorksCountByYearDto>? AuthorWorksCountByYear { get; set; }
+
+    [JsonPropertyName("topics")]
+    public List<AuthorTopicDto>? Topics { get; set; }
 
     [JsonPropertyName("affiliations")]
     public List<OpenAlexAffiliation>? Affiliations { get; set; }
@@ -115,13 +122,13 @@ public class OpenAlexAuthorDetail
 public class OpenAlexAffiliation
 {
     [JsonPropertyName("institution")]
-    public OpenAlexInstitution? Institution { get; set; }
+    public OpenAlexInstitutionSimpleDto? Institution { get; set; }
 
     [JsonPropertyName("years")]
     public List<int>? Years { get; set; } // years this affiliation was active
 }
 
-public class OpenAlexInstitution
+public class OpenAlexInstitutionSimpleDto
 {
     [JsonPropertyName("id")]
     public string Id { get; set; } = default!; // "https://openalex.org/I136199984"
@@ -136,6 +143,39 @@ public class OpenAlexInstitution
     public List<string>? Lineage { get; set; } // hierarchy chain of institution IDs
 }
 
+public class AuthorWorksCountByYearDto
+{
+    [JsonPropertyName("year")]
+    public int Year { get; set; }
+
+    [JsonPropertyName("works_count")]
+    public int WorksCount { get; set; }
+
+    [JsonPropertyName("cited_by_count")]
+    public int CitedByCount { get; set; }
+}
+
+public class AuthorTopicDto
+{
+    [JsonPropertyName("display_name")]
+    public string? DisplayName { get; set; }
+
+    [JsonPropertyName("count")]
+    public int? Count { get; set; }
+
+    [JsonPropertyName("subfield")]
+    public AuthorTopicMainDto? Subfield { get; set; }
+
+    [JsonPropertyName("field")]
+    public AuthorTopicMainDto? Field { get; set; }
+}
+
+public class AuthorTopicMainDto
+{
+    [JsonPropertyName("display_name")]
+    public string? DisplayName { get; set; }
+}
+
 public class OpenAlexWorksSearchDto : SearchDto
 {
     public string? OpenAlexAuthorId { get; set; }
@@ -146,6 +186,8 @@ public class OpenAlexWorksSearchDto : SearchDto
     public List<string> OpenAlexSubFieldIds { get; set; } = [];
     public List<string> OpenAlexTopicIds { get; set; } = [];
     public List<string> OpenAlexKeywordIds { get; set; } = [];
+    public List<PublicationType> Types { get; set; } = [];
+    public List<string> OpenAlexInstitutionIds { get; set; } = [];
 }
 
 public class OpenAlexFilter
@@ -171,4 +213,10 @@ public class OpenAlexWorksSelectDto
 {
     public bool IncludeId { get; set; }
     public bool IncludeAuthorships { get; set; }
+}
+
+public class WorkTypeDto
+{
+    public PublicationType Key { get; set; }
+    public string Value { get; set; } = string.Empty;
 }

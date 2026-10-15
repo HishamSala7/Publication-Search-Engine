@@ -13,6 +13,8 @@ public class PublicationDbContext : DbContext
     public DbSet<Keyword> Keywords { get; set; }
     public DbSet<Country> Countries { get; set; }
     public DbSet<TopicKeyword> TopicKeywords { get; set; }
+    public DbSet<WorkType> WorkTypes { get; set; }
+    public DbSet<OpenAlexInstitution> OpenAlexInstitutions { get; set; }
 
     public PublicationDbContext(DbContextOptions<PublicationDbContext> options)
         : base(options) { }

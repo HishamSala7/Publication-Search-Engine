@@ -1,12 +1,11 @@
 ﻿using PublicationSearchEngine.Application.DTOs;
-using PublicationSearchEngine.Application.Interfaces;
 using PublicationSearchEngine.Application.Shared.Consts;
 using PublicationSearchEngine.Application.Shared.ExtensionMethods;
 using PublicationSearchEngine.Domain.IRepositories;
 
 namespace PublicationSearchEngine.Application.Shared.Builders;
 
-public class OpenAlexWorksFilterBuilder : IOpenAlexWorksFilterBuilder
+public class OpenAlexWorksFilterBuilder
 {
     private readonly IWorkTypeRepository _workTypeRepository;
 

@@ -1,10 +1,14 @@
 ﻿using PublicationSearchEngine.Application.DTOs;
 using PublicationSearchEngine.Application.Interfaces;
 using PublicationSearchEngine.Application.Services.HttpClientServices;
+using PublicationSearchEngine.Application.Shared.Builders;
 using PublicationSearchEngine.Application.Shared.Consts;
 using PublicationSearchEngine.Application.Shared.ExtensionMethods;
 using PublicationSearchEngine.Application.Shared.Keys;
 using PublicationSearchEngine.Application.Shared.Result;
+using PublicationSearchEngine.Domain.Entities;
+using PublicationSearchEngine.Domain.IRepositories;
+using PublicationSearchEngine.Domain.Shared.Enums;
 
 namespace PublicationSearchEngine.Application.Services;
 
@@ -13,17 +17,21 @@ public class OpenAlexService
     private readonly OpenAlexClientService _openAlexClientService;
     private readonly ICacheService _cacheService;
     private readonly ISearchCacheKeyBuilder _cacheKeyBuilder;
-    private readonly IOpenAlexWorksFilterBuilder _filterBuilder;
-    private readonly IOpenAlexWorksSortBuilder _sortBuilder;
-    private readonly IOpenAlexWorksSelectBuilder _selectBuilder;
+    private readonly OpenAlexWorksFilterBuilder _filterBuilder;
+    private readonly OpenAlexWorksSortBuilder _sortBuilder;
+    private readonly OpenAlexWorksSelectBuilder _selectBuilder;
+    private readonly IOpenAlexInstitutionRepository _openAlexInstitutionRepository;
+    private readonly OpenAlexResearcherGraphGroupByBuilder _openAlexResearcherGraphGroupByBuilder;
 
     public OpenAlexService(
         OpenAlexClientService openAlexClientService,
         ICacheService cacheService,
         ISearchCacheKeyBuilder cacheKeyBuilder,
-        IOpenAlexWorksFilterBuilder filterBuilder,
-        IOpenAlexWorksSortBuilder sortBuilder,
-        IOpenAlexWorksSelectBuilder selectBuilder
+        OpenAlexWorksFilterBuilder filterBuilder,
+        OpenAlexWorksSortBuilder sortBuilder,
+        OpenAlexWorksSelectBuilder selectBuilder,
+        IOpenAlexInstitutionRepository openAlexInstitutionRepository,
+        OpenAlexResearcherGraphGroupByBuilder openAlexResearcherGraphGroupByBuilder
     )
     {
         _openAlexClientService = openAlexClientService;
@@ -32,6 +40,8 @@ public class OpenAlexService
         _filterBuilder = filterBuilder;
         _sortBuilder = sortBuilder;
         _selectBuilder = selectBuilder;
+        _openAlexInstitutionRepository = openAlexInstitutionRepository;
+        _openAlexResearcherGraphGroupByBuilder = openAlexResearcherGraphGroupByBuilder;
     }
 
     public async Task<Result<PagedResultDto<OpenAlexWork>>> SearchWorksAsync(
@@ -195,6 +205,66 @@ public class OpenAlexService
         );
 
         return institution;
+    }
+
+    public async Task<Result<List<OpenAlexInstitutionMainGraphDto>>> GetInstitutionGraphAsync(
+        OpenAlexWorksGroupedByFieldsSearchDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        var institutionIds = request.OpenAlexInstitutionIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexId()
+        );
+
+        if (institutionIds.Count == 0)
+            return ResultHandler.BadRequest<List<OpenAlexInstitutionMainGraphDto>>(
+                ResponseKeys.BadRequest
+            );
+
+        var startDate = request
+            .StartDate.ToNullableDateOnly(OpenAlexConsts.DateFormat)
+            ?.ToString(OpenAlexConsts.DateFormat);
+
+        var endDate = request
+            .EndDate.ToNullableDateOnly(OpenAlexConsts.DateFormat)
+            ?.ToString(OpenAlexConsts.DateFormat);
+
+        var fieldIds = request.OpenAlexFieldIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexFieldId()
+        );
+
+        var types = request.Types.Distinct().Order().ToList();
+
+        var institutions = await _openAlexInstitutionRepository.GetByOpenAlexIdsAsync(
+            institutionIds,
+            cancellationToken
+        );
+
+        var institutionMap = institutions.ToDictionary(
+            x => x.OpenAlexId,
+            StringComparer.OrdinalIgnoreCase
+        );
+
+        var result = new List<OpenAlexInstitutionMainGraphDto>();
+
+        foreach (var institutionId in institutionIds)
+        {
+            institutionMap.TryGetValue(institutionId, out var institution);
+
+            var graph = await GetInstitutionGraphItemAsync(
+                institutionId,
+                institution,
+                startDate,
+                endDate,
+                fieldIds,
+                types,
+                cancellationToken
+            );
+
+            result.Add(graph);
+        }
+
+        return ResultHandler.Success(result, ResponseKeys.Success);
     }
 
     public async Task<List<AuthorCandidate>> FindAuthorCandidatesAsync(
@@ -392,6 +462,64 @@ public class OpenAlexService
         await _cacheService.SetAsync(cacheKey, result, OpenAlexConsts.AuthorPositionExpiration);
 
         return ResultHandler.Success(result);
+    }
+
+    public async Task<Result<List<OpenAlexAuthorGraphDto>>> GetAuthorsGraphAsync(
+        OpenAlexAuthorsGraphSearchDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        var authorIds = request.OpenAlexAuthorIds.NormalizeStringList(x => x.ExtractOpenAlexId());
+
+        if (authorIds.Count == 0)
+            return ResultHandler.BadRequest<List<OpenAlexAuthorGraphDto>>(ResponseKeys.BadRequest);
+
+        var startDate = request
+            .StartDate.ToNullableDateOnly(OpenAlexConsts.DateFormat)
+            ?.ToString(OpenAlexConsts.DateFormat);
+
+        var endDate = request
+            .EndDate.ToNullableDateOnly(OpenAlexConsts.DateFormat)
+            ?.ToString(OpenAlexConsts.DateFormat);
+
+        var institutionIds = request.OpenAlexInstitutionIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexId()
+        );
+
+        var fieldIds = request.OpenAlexFieldIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexFieldId()
+        );
+
+        var subFieldIds = request.OpenAlexSubFieldIds.NormalizeStringList(x =>
+            x.ExtractOpenAlexSubfieldId()
+        );
+
+        var types = request.Types.Distinct().Order().ToList();
+
+        var result = new List<OpenAlexAuthorGraphDto>();
+
+        foreach (var authorId in authorIds)
+        {
+            var graph = await GetAuthorGraphAsync(
+                authorId,
+                startDate,
+                endDate,
+                institutionIds,
+                fieldIds,
+                subFieldIds,
+                types,
+                request.Mode,
+                cancellationToken
+            );
+
+            if (graph != null)
+                result.Add(graph);
+        }
+
+        if (result.Count == 0)
+            return ResultHandler.NotFound<List<OpenAlexAuthorGraphDto>>(ResponseKeys.NotFound);
+
+        return ResultHandler.Success(result, ResponseKeys.Success);
     }
 
     private async Task<OpenAlexResponse<OpenAlexWork>?> LoadFullWorksPageFromOpenAlexAsync(
@@ -614,5 +742,180 @@ public class OpenAlexService
     private async Task CacheOpenAlexAuthorDetailsAsync(IEnumerable<OpenAlexAuthorDetail> authors)
     {
         await Task.WhenAll(authors.Select(CacheOpenAlexAuthorDetailAsync));
+    }
+
+    private async Task<OpenAlexInstitutionMainGraphDto> GetInstitutionGraphItemAsync(
+        string institutionId,
+        OpenAlexInstitution? institution,
+        string? startDate,
+        string? endDate,
+        List<string> fieldIds,
+        List<PublicationType> types,
+        CancellationToken cancellationToken
+    )
+    {
+        var cacheKeyDto = new OpenAlexInstitutionGraphCacheKeyDto
+        {
+            OpenAlexInstitutionId = institutionId,
+            StartDate = startDate,
+            EndDate = endDate,
+            FieldIds = fieldIds,
+            Types = types,
+        };
+
+        var cacheKey = _cacheKeyBuilder.Build("openalex:institution-field-graph", cacheKeyDto);
+
+        var cached = await _cacheService.GetAsync<OpenAlexInstitutionMainGraphDto>(cacheKey);
+
+        if (cached != null)
+            return cached;
+
+        var searchRequest = new OpenAlexWorksSearchDto
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            OpenAlexFieldIds = fieldIds,
+            Types = types,
+            OpenAlexInstitutionIds = [institutionId],
+        };
+
+        var filters = await _filterBuilder.BuildAsync(searchRequest, cancellationToken);
+
+        var groups = await _openAlexClientService.GetAllGroupedAsync(
+            OpenAlexEntities.Works,
+            OpenAlexWorkAttributesKeys.PrimaryTopicFieldId,
+            false,
+            filters,
+            cancellationToken
+        );
+
+        var fields = groups
+            .Where(x => !string.IsNullOrWhiteSpace(x.KeyDisplayName))
+            .Select(x => new OpenAlexInstitutionFieldsDto
+            {
+                FieldDisplayName = x.KeyDisplayName!,
+                Count = x.Count,
+            })
+            .ToList();
+
+        var result = new OpenAlexInstitutionMainGraphDto
+        {
+            Id = institution?.Id ?? Guid.Empty,
+            OpenAlexInstitutionId = institutionId,
+            InstitutionDisplayName = institution?.DisplayName ?? string.Empty,
+            Fields = fields,
+        };
+
+        await _cacheService.SetAsync(cacheKey, result, OpenAlexConsts.InstitutionGraphExpiration);
+
+        return result;
+    }
+
+    private async Task<OpenAlexAuthorGraphDto?> GetAuthorGraphAsync(
+        string authorId,
+        string? startDate,
+        string? endDate,
+        List<string> institutionIds,
+        List<string> fieldIds,
+        List<string> subFieldIds,
+        List<PublicationType> types,
+        OpenAlexGraphMode mode,
+        CancellationToken cancellationToken
+    )
+    {
+        var authorResult = await GetAuthorDetailByIdAsync(authorId, cancellationToken);
+
+        if (!authorResult.Succeeded || authorResult.Data == null)
+            return null;
+
+        var cacheKeyDto = new OpenAlexAuthorGraphCacheKeyDto
+        {
+            OpenAlexAuthorId = authorId,
+            StartDate = startDate,
+            EndDate = endDate,
+            InstitutionIds = institutionIds,
+            FieldIds = fieldIds,
+            SubFieldIds = subFieldIds,
+            Types = types,
+            Mode = mode,
+        };
+
+        var cacheKey = _cacheKeyBuilder.Build("openalex:author-graph", cacheKeyDto);
+
+        var cached = await _cacheService.GetAsync<OpenAlexAuthorGroupedGraphCacheDto>(cacheKey);
+
+        if (cached != null)
+            return new OpenAlexAuthorGraphDto
+            {
+                OpenAlexAuthorId = authorId,
+                AuthorDisplayName = authorResult.Data.DisplayName ?? string.Empty,
+                Mode = mode,
+                Items = cached.Items,
+            };
+
+        var searchRequest = new OpenAlexWorksSearchDto
+        {
+            OpenAlexAuthorId = authorId,
+            StartDate = startDate,
+            EndDate = endDate,
+
+            OpenAlexInstitutionIds = institutionIds,
+            OpenAlexFieldIds = fieldIds,
+            OpenAlexSubFieldIds = subFieldIds,
+
+            Types = types,
+        };
+
+        var filters = await _filterBuilder.BuildAsync(searchRequest, cancellationToken);
+
+        var groupByAttribute = _openAlexResearcherGraphGroupByBuilder.Build(mode);
+
+        var groups = await _openAlexClientService.GetAllGroupedAsync(
+            OpenAlexEntities.Works,
+            groupByAttribute,
+            false,
+            filters,
+            cancellationToken
+        );
+
+        var items = MapAuthorGraphItems(groups, mode);
+
+        await _cacheService.SetAsync(
+            cacheKey,
+            new OpenAlexAuthorGroupedGraphCacheDto { Items = items },
+            OpenAlexConsts.ResearcherGraphExpiration
+        );
+
+        return new OpenAlexAuthorGraphDto
+        {
+            OpenAlexAuthorId = authorId,
+            AuthorDisplayName = authorResult.Data.DisplayName ?? string.Empty,
+            Mode = mode,
+            Items = items,
+        };
+    }
+
+    private static List<OpenAlexAuthorGraphItemDto> MapAuthorGraphItems(
+        List<OpenAlexGroupByItem> groups,
+        OpenAlexGraphMode mode
+    )
+    {
+        var items = groups
+            .Where(x =>
+                !string.IsNullOrWhiteSpace(x.Key) || !string.IsNullOrWhiteSpace(x.KeyDisplayName)
+            )
+            .Select(x => new OpenAlexAuthorGraphItemDto
+            {
+                Key = x.Key ?? string.Empty,
+                DisplayName = x.KeyDisplayName ?? x.Key ?? string.Empty,
+                Count = x.Count,
+            });
+
+        if (mode == OpenAlexGraphMode.Year)
+            return items
+                .OrderBy(x => int.TryParse(x.Key, out var year) ? year : int.MaxValue)
+                .ToList();
+
+        return items.ToList();
     }
 }

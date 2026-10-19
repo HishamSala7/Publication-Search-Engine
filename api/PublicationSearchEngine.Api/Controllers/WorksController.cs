@@ -70,4 +70,22 @@ public class WorksController : ControllerBase
     {
         return await _openAlexService.SearchWorksAsync(request, cancellationToken);
     }
+
+    [HttpGet("get-institutions-graph")]
+    public async Task<Result<List<OpenAlexInstitutionMainGraphDto>>> GetInstitutionGraphAsync(
+        [FromQuery] OpenAlexWorksGroupedByFieldsSearchDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        return await _openAlexService.GetInstitutionGraphAsync(request, cancellationToken);
+    }
+
+    [HttpGet("get-authors-graph")]
+    public async Task<Result<List<OpenAlexAuthorGraphDto>>> GetAuthorsGraphAsync(
+        [FromQuery] OpenAlexAuthorsGraphSearchDto request,
+        CancellationToken cancellationToken
+    )
+    {
+        return await _openAlexService.GetAuthorsGraphAsync(request, cancellationToken);
+    }
 }

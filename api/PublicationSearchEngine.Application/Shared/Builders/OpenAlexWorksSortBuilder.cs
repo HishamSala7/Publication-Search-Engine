@@ -1,9 +1,8 @@
 ﻿using PublicationSearchEngine.Application.DTOs;
-using PublicationSearchEngine.Application.Interfaces;
 
 namespace PublicationSearchEngine.Application.Shared.Builders;
 
-public class OpenAlexWorksSortBuilder : IOpenAlexWorksSortBuilder
+public class OpenAlexWorksSortBuilder
 {
     public List<OpenAlexSort> Build(OpenAlexWorksSearchDto request)
     {

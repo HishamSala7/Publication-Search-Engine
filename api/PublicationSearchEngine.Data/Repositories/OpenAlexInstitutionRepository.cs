@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using PublicationSearchEngine.Data.Context;
 using PublicationSearchEngine.Domain.Entities;
 using PublicationSearchEngine.Domain.IRepositories;
@@ -25,6 +26,30 @@ public class OpenAlexInstitutionRepository : IOpenAlexInstitutionRepository
     public async Task<List<OpenAlexInstitution>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await _context.OpenAlexInstitutions.ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<OpenAlexInstitution>> GetByOpenAlexIdsAsync(
+        List<string> openAlexIds,
+        CancellationToken cancellationToken
+    )
+    {
+        if (openAlexIds.Count == 0)
+            return [];
+
+        return await _context
+            .OpenAlexInstitutions.AsNoTracking()
+            .Where(x => openAlexIds.Contains(x.OpenAlexId))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<OpenAlexInstitution?> FirstOrDefaultAsync(
+        Expression<Func<OpenAlexInstitution, bool>>? predicate = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return predicate is null
+            ? await _context.OpenAlexInstitutions.FirstOrDefaultAsync(cancellationToken)
+            : await _context.OpenAlexInstitutions.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
     public void UpdateRange(IEnumerable<OpenAlexInstitution> entities)

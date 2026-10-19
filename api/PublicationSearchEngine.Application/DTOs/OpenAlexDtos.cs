@@ -220,3 +220,80 @@ public class WorkTypeDto
     public PublicationType Key { get; set; }
     public string Value { get; set; } = string.Empty;
 }
+
+public class OpenAlexGroupByResponse
+{
+    [JsonPropertyName("meta")]
+    public OpenAlexGroupByMeta Meta { get; set; } = new();
+
+    [JsonPropertyName("group_by")]
+    public List<OpenAlexGroupByItem> GroupBy { get; set; } = [];
+}
+
+public class OpenAlexGroupByMeta : OpenAlexMeta
+{
+    [JsonPropertyName("groups_count")]
+    public int? GroupsCount { get; set; }
+}
+
+public class OpenAlexGroupByItem
+{
+    [JsonPropertyName("key")]
+    public string? Key { get; set; }
+
+    [JsonPropertyName("key_display_name")]
+    public string? KeyDisplayName { get; set; }
+
+    [JsonPropertyName("count")]
+    public int Count { get; set; }
+}
+
+public class OpenAlexWorksGroupedByFieldsSearchDto : SearchDto
+{
+    public List<string> OpenAlexInstitutionIds { get; set; } = [];
+    public string? StartDate { get; set; }
+    public string? EndDate { get; set; }
+    public List<string> OpenAlexFieldIds { get; set; } = [];
+    public List<PublicationType> Types { get; set; } = [];
+}
+
+public class OpenAlexInstitutionMainGraphDto
+{
+    public Guid Id { get; set; }
+    public string OpenAlexInstitutionId { get; set; } = string.Empty;
+    public string InstitutionDisplayName { get; set; } = string.Empty;
+    public List<OpenAlexInstitutionFieldsDto> Fields { get; set; } = [];
+}
+
+public class OpenAlexInstitutionFieldsDto
+{
+    public string FieldDisplayName { get; set; } = string.Empty;
+    public long Count { get; set; }
+}
+
+public class OpenAlexAuthorsGraphSearchDto
+{
+    public List<string> OpenAlexAuthorIds { get; set; } = [];
+    public string? StartDate { get; set; }
+    public string? EndDate { get; set; }
+    public List<string> OpenAlexInstitutionIds { get; set; } = [];
+    public List<string> OpenAlexFieldIds { get; set; } = [];
+    public List<string> OpenAlexSubFieldIds { get; set; } = [];
+    public List<PublicationType> Types { get; set; } = [];
+    public OpenAlexGraphMode Mode { get; set; } = OpenAlexGraphMode.Year;
+}
+
+public class OpenAlexAuthorGraphDto
+{
+    public string OpenAlexAuthorId { get; set; } = string.Empty;
+    public string AuthorDisplayName { get; set; } = string.Empty;
+    public OpenAlexGraphMode Mode { get; set; }
+    public List<OpenAlexAuthorGraphItemDto> Items { get; set; } = [];
+}
+
+public class OpenAlexAuthorGraphItemDto
+{
+    public string Key { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public long Count { get; set; }
+}

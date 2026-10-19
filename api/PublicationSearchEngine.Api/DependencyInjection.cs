@@ -83,9 +83,12 @@ public static class DependencyInjection
 
         // interfaces & contracts
         services.AddSingleton<ISearchCacheKeyBuilder, SearchCacheKeyBuilder>();
-        services.AddTransient<IOpenAlexWorksFilterBuilder, OpenAlexWorksFilterBuilder>();
-        services.AddTransient<IOpenAlexWorksSortBuilder, OpenAlexWorksSortBuilder>();
-        services.AddTransient<IOpenAlexWorksSelectBuilder, OpenAlexWorksSelectBuilder>();
+
+        // builders
+        services.AddTransient<OpenAlexWorksFilterBuilder>();
+        services.AddTransient<OpenAlexWorksSortBuilder>();
+        services.AddTransient<OpenAlexWorksSelectBuilder>();
+        services.AddTransient<OpenAlexResearcherGraphGroupByBuilder>();
     }
 
     public static void AddApiMiddleWares(this WebApplication app)

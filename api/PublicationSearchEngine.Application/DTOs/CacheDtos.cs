@@ -72,3 +72,29 @@ public class OpenAlexAuthorDetailCacheDto
         return $"openalex:author-detail:{openAlexAuthorId.ToUpperInvariant()}";
     }
 }
+
+public class OpenAlexInstitutionGraphCacheKeyDto
+{
+    public string OpenAlexInstitutionId { get; set; } = string.Empty;
+    public string? StartDate { get; set; }
+    public string? EndDate { get; set; }
+    public List<string> FieldIds { get; set; } = [];
+    public List<PublicationType> Types { get; set; } = [];
+}
+
+public class OpenAlexAuthorGraphCacheKeyDto
+{
+    public string OpenAlexAuthorId { get; set; } = string.Empty;
+    public string? StartDate { get; set; }
+    public string? EndDate { get; set; }
+    public List<string> InstitutionIds { get; set; } = [];
+    public List<string> FieldIds { get; set; } = [];
+    public List<string> SubFieldIds { get; set; } = [];
+    public List<PublicationType> Types { get; set; } = [];
+    public OpenAlexGraphMode Mode { get; set; }
+}
+
+public class OpenAlexAuthorGroupedGraphCacheDto
+{
+    public List<OpenAlexAuthorGraphItemDto> Items { get; set; } = [];
+}

@@ -1,10 +1,9 @@
 ﻿using PublicationSearchEngine.Application.DTOs;
-using PublicationSearchEngine.Application.Interfaces;
 using PublicationSearchEngine.Application.Shared.Keys;
 
 namespace PublicationSearchEngine.Application.Shared.Builders;
 
-public class OpenAlexWorksSelectBuilder : IOpenAlexWorksSelectBuilder
+public class OpenAlexWorksSelectBuilder
 {
     public List<string> Build(OpenAlexWorksSelectDto request)
     {

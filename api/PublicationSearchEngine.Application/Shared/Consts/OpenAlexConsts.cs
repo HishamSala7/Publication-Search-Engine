@@ -13,4 +13,6 @@ public class OpenAlexConsts
     public static readonly TimeSpan InstitutionExpiration = TimeSpan.FromDays(7);
     public static readonly TimeSpan AuthorPositionExpiration = TimeSpan.FromDays(1);
     public static readonly TimeSpan AuthorDetailExpiration = TimeSpan.FromHours(24);
+    public static readonly TimeSpan InstitutionGraphExpiration = TimeSpan.FromHours(1);
+    public static readonly TimeSpan ResearcherGraphExpiration = TimeSpan.FromHours(1);
 }

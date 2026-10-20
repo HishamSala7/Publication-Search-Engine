@@ -1,0 +1,1426 @@
+/* ========================================
+   Graph Section + Compact Filters
+======================================== */
+
+.author-graph-section {
+    margin-top: 26px;
+}
+
+.author-graph-section-heading {
+    margin-bottom: 12px;
+}
+
+.author-graph-section-heading>div {
+    max-width: 760px;
+}
+
+.author-graph-section-heading h2 {
+    margin-top: 4px;
+    color: var(--ink);
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1.2;
+}
+
+.author-graph-section-heading p {
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.author-graph-filters {
+    position: relative;
+    z-index: 5;
+    margin-top: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+}
+
+.author-graph-filters-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.author-graph-filters-heading>div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.author-graph-filters-heading>div:first-child>svg {
+    color: var(--primary);
+    font-size: 13px;
+}
+
+.author-graph-filters-heading strong {
+    display: block;
+    color: var(--secondary);
+    font-size: 12px;
+}
+
+.author-graph-filters-heading span {
+    display: block;
+    margin-top: 1px;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.author-graph-clear-button {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--muted);
+    padding: 0 10px;
+    font-size: 9px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.author-graph-clear-button:hover {
+    border-color: var(--primary);
+    color: var(--secondary);
+}
+
+.author-graph-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(260px, 1.25fr) repeat(4, minmax(150px, 1fr));
+    gap: 10px;
+    align-items: end;
+}
+
+.author-graph-filter-grid--institution {
+    grid-template-columns: minmax(260px, 1.2fr) repeat(2, minmax(180px, 1fr));
+}
+
+.author-graph-filter-grid .taxonomy-multi-select {
+    min-width: 0;
+    margin: 0;
+}
+
+.author-graph-filter-grid .taxonomy-multi-select-label {
+    margin-bottom: 5px;
+    font-size: 9px;
+    letter-spacing: .55px;
+}
+
+.author-graph-filter-grid .taxonomy-multi-select-control {
+    min-height: 38px;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.author-graph-filter-grid .taxonomy-multi-select-values input {
+    min-height: 26px;
+    font-size: 10px;
+}
+
+.author-graph-filter-grid .taxonomy-selected-value {
+    min-height: 24px;
+    padding: 3px 7px;
+    font-size: 9px;
+}
+
+.author-graph-filter-grid .taxonomy-options-dropdown {
+    z-index: 100;
+}
+
+.author-graph-date-filter {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 7px;
+    min-width: 0;
+}
+
+.author-graph-date-filter>label {
+    grid-column: 1 / -1;
+    margin-bottom: -2px;
+    color: var(--ink);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .55px;
+    text-transform: uppercase;
+}
+
+.author-graph-date-filter>div>span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.author-graph-date-filter input {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: 0;
+    background: #fff;
+    color: var(--ink);
+    padding: 0 8px;
+    font-size: 10px;
+}
+
+.author-graph-date-filter input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(215, 154, 42, .10);
+}
+
+.author-graph-filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.author-graph-filter-actions>button {
+    min-height: 36px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--secondary);
+    color: #fff;
+    padding: 0 15px;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.author-graph-filter-actions>button:hover {
+    background: var(--secondary-dark);
+}
+
+
+/* ========================================
+   Research Graph
+======================================== */
+
+.research-graph-card {
+    --graph-series-1: var(--secondary);
+    --graph-series-2: var(--primary);
+    --graph-series-3: #4879a8;
+    --graph-series-4: #8b5f91;
+
+    margin-top: 12px;
+    padding: 26px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: var(--shadow);
+}
+
+.research-graph-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.research-graph-header>div:first-child {
+    max-width: 680px;
+}
+
+.research-graph-header h2 {
+    margin-top: 5px;
+    color: var(--ink);
+    font-size: clamp(23px, 3vw, 31px);
+    line-height: 1.2;
+    letter-spacing: -.7px;
+}
+
+.research-graph-header p {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+.research-graph-header-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.research-graph-mode-select,
+.research-graph-mode-static {
+    flex: 0 0 190px;
+}
+
+.research-graph-mode-select>span,
+.research-graph-mode-static>span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--ink);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+}
+
+.research-graph-mode-select>div,
+.research-graph-mode-static>div {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 11px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--light);
+}
+
+.research-graph-mode-select>div:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(215, 154, 42, .12);
+}
+
+.research-graph-mode-select svg,
+.research-graph-mode-static svg {
+    flex: 0 0 auto;
+    color: var(--primary);
+}
+
+.research-graph-mode-select select {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--secondary);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.research-graph-mode-static strong {
+    color: var(--secondary);
+    font-size: 11px;
+}
+
+
+/* ========================================
+   Legend
+======================================== */
+
+.research-graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px 18px;
+    margin-top: 18px;
+}
+
+.research-graph-legend>span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.research-graph-series-marker {
+    width: 9px;
+    height: 9px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.series-0 {
+    color: var(--graph-series-1);
+}
+
+.series-1 {
+    color: var(--graph-series-2);
+}
+
+.series-2 {
+    color: var(--graph-series-3);
+}
+
+.series-3 {
+    color: var(--graph-series-4);
+}
+
+
+/* ========================================
+   Line Chart
+======================================== */
+
+.research-line-chart-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 16px;
+    padding: 8px 2px 0;
+}
+
+.research-line-chart {
+    width: 100%;
+    min-width: 680px;
+    height: auto;
+    overflow: visible;
+}
+
+.research-graph-grid-line {
+    stroke: #e8edeb;
+    stroke-width: 1;
+}
+
+.research-graph-axis-label {
+    fill: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.research-graph-year-label {
+    font-size: 10px;
+}
+
+.research-graph-axis-title {
+    fill: var(--ink);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+}
+
+.research-graph-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.research-graph-point {
+    fill: #fff;
+    stroke: currentColor;
+    stroke-width: 3;
+}
+
+
+/* ========================================
+   Horizontal Bar Chart
+======================================== */
+
+.research-bar-chart {
+    margin-top: 22px;
+}
+
+.research-bar-axis-heading {
+    display: grid;
+    grid-template-columns: minmax(180px, 28%) 1fr;
+    gap: 18px;
+    padding: 0 0 9px;
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+}
+
+.research-bar-axis-heading span:last-child {
+    text-align: right;
+}
+
+.research-bar-category {
+    display: grid;
+    grid-template-columns: minmax(180px, 28%) 1fr;
+    gap: 18px;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+}
+
+.research-bar-category-name {
+    align-self: center;
+    color: var(--secondary);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.research-bar-series-list {
+    display: grid;
+    gap: 8px;
+}
+
+.research-bar-row {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 52px;
+    align-items: center;
+    gap: 10px;
+}
+
+.research-bar-row:has(.research-bar-author-name) {
+    grid-template-columns: minmax(90px, 160px) minmax(0, 1fr) 52px;
+}
+
+.research-bar-author-name {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.research-bar-track {
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #edf1ef;
+}
+
+.research-bar-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: currentColor;
+    transition: width .35s ease;
+}
+
+.research-bar-row strong {
+    color: var(--ink);
+    font-size: 10px;
+    text-align: right;
+}
+
+
+/* ========================================
+   Institution Column Chart
+======================================== */
+
+.institution-column-chart-wrap {
+    overflow-x: auto;
+    margin-top: 22px;
+    padding: 6px 4px 2px;
+}
+
+.institution-column-chart {
+    min-width: 680px;
+    height: 310px;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(42px, 1fr));
+    align-items: end;
+    gap: 10px;
+    padding: 18px 12px 0;
+    border-bottom: 1px solid var(--border);
+    background-image: linear-gradient(to top,
+            transparent 24%,
+            #edf1ef 25%,
+            transparent 25.5%,
+            transparent 49%,
+            #edf1ef 50%,
+            transparent 50.5%,
+            transparent 74%,
+            #edf1ef 75%,
+            transparent 75.5%);
+}
+
+.institution-column-item {
+    height: 100%;
+    min-width: 0;
+    display: grid;
+    grid-template-rows: 22px 1fr 28px;
+    align-items: end;
+    text-align: center;
+    cursor: help;
+}
+
+.institution-column-value {
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 800;
+}
+
+.institution-column-track {
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.institution-column-bar {
+    width: min(36px, 70%);
+    min-height: 4px;
+    border-radius: 5px 5px 0 0;
+    background: var(--secondary);
+    box-shadow: 0 6px 18px rgba(4, 29, 26, .10);
+    transition: var(--transition);
+}
+
+.institution-column-item:hover .institution-column-bar {
+    background: var(--primary);
+    transform: translateY(-2px);
+}
+
+.institution-column-label {
+    align-self: center;
+    color: var(--ink);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .5px;
+}
+
+
+/* ========================================
+   Graph Details
+======================================== */
+
+.research-graph-more-note {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border: 1px solid rgba(215, 154, 42, .26);
+    border-radius: 7px;
+    background: rgba(215, 154, 42, .06);
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.research-graph-details {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.research-graph-details-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 13px;
+}
+
+.research-graph-details-heading span {
+    color: var(--primary);
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .8px;
+}
+
+.research-graph-details-heading h3 {
+    margin-top: 3px;
+    color: var(--secondary);
+    font-size: 18px;
+}
+
+.research-graph-details-heading small {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.research-graph-detail-group+.research-graph-detail-group {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+
+.research-graph-detail-group h4 {
+    margin-bottom: 5px;
+    color: var(--secondary);
+    font-size: 12px;
+}
+
+.research-graph-detail-group p,
+.research-graph-summary {
+    margin-bottom: 12px;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.65;
+}
+
+.research-graph-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px 18px;
+}
+
+.research-graph-detail-row {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #edf1ef;
+}
+
+.research-graph-detail-row span {
+    min-width: 0;
+    color: var(--ink);
+    font-size: 10px;
+    overflow-wrap: anywhere;
+}
+
+.research-graph-detail-row strong {
+    flex: 0 0 auto;
+    color: var(--secondary);
+    font-size: 10px;
+}
+
+
+/* ========================================
+   Graph States
+======================================== */
+
+.research-graph-state {
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 35px;
+    color: var(--muted);
+    text-align: center;
+}
+
+.research-graph-state strong {
+    color: var(--secondary);
+    font-size: 14px;
+}
+
+.research-graph-state span {
+    max-width: 520px;
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+.research-graph-state--error strong,
+.research-graph-state--error span {
+    color: #b42318;
+}
+
+.research-graph-loader {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 6px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: research-graph-spin .7s linear infinite;
+}
+
+@keyframes research-graph-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ========================================
+   Institution Graph Subject
+======================================== */
+
+.institution-graph-subject {
+    width: 190px;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 11px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--light);
+}
+
+.institution-graph-subject>svg {
+    flex: 0 0 auto;
+    color: var(--primary);
+    font-size: 14px;
+}
+
+.institution-graph-subject>div {
+    min-width: 0;
+}
+
+.institution-graph-subject span {
+    display: block;
+    margin-bottom: 1px;
+    color: var(--muted);
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+}
+
+.institution-graph-subject strong {
+    display: block;
+    overflow: hidden;
+    color: var(--secondary);
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* ========================================
+   Responsive
+======================================== */
+
+@media (max-width: 1180px) {
+    .author-graph-filter-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .author-graph-date-filter {
+        grid-column: span 2;
+    }
+
+    .author-graph-filter-grid--institution {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 820px) {
+
+    .author-graph-filter-grid,
+    .author-graph-filter-grid--institution {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .author-graph-date-filter {
+        grid-column: 1 / -1;
+    }
+
+    .research-graph-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .research-graph-header-actions {
+        align-items: stretch;
+        flex-wrap: wrap;
+    }
+
+    .research-graph-mode-select,
+    .research-graph-mode-static,
+    .institution-graph-subject {
+        flex: 1 1 180px;
+        width: auto;
+    }
+
+    .research-bar-axis-heading {
+        display: none;
+    }
+
+    .research-bar-category {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .research-graph-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .author-graph-filters {
+        padding: 12px;
+    }
+
+    .author-graph-filters-heading {
+        align-items: flex-start;
+    }
+
+    .author-graph-filter-grid,
+    .author-graph-filter-grid--institution {
+        grid-template-columns: 1fr;
+    }
+
+    .author-graph-date-filter {
+        grid-column: auto;
+        grid-template-columns: 1fr;
+    }
+
+    .author-graph-date-filter>label {
+        grid-column: auto;
+    }
+
+    .author-graph-filter-actions>button {
+        width: 100%;
+    }
+
+    .research-graph-card {
+        padding: 20px 16px;
+    }
+
+    .research-bar-row:has(.research-bar-author-name) {
+        grid-template-columns: 1fr 42px;
+    }
+
+    .research-bar-author-name {
+        grid-column: 1 / -1;
+    }
+
+    .research-bar-row {
+        grid-template-columns: minmax(0, 1fr) 42px;
+    }
+
+    .research-graph-details-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+
+/* ========================================
+   Final Graph Consistency Pass
+======================================== */
+
+.author-graph-section {
+    margin-top: 22px;
+}
+
+
+.author-graph-section-heading {
+    margin-bottom: 10px;
+}
+
+
+.author-graph-filters,
+.research-graph-card {
+    border-radius: 10px;
+}
+
+
+.author-graph-filters {
+    box-shadow:
+        0 8px 24px rgba(4, 29, 26, .04);
+}
+
+
+.research-graph-card {
+    margin-top: 10px;
+
+    padding: 22px;
+
+    box-shadow:
+        0 12px 32px rgba(4, 29, 26, .07);
+}
+
+
+.research-graph-header {
+    align-items: center;
+
+    gap: 18px;
+
+    padding-bottom: 15px;
+}
+
+
+.research-graph-header h2 {
+    margin-top: 4px;
+
+    font-size:
+        clamp(22px, 3vw, 28px);
+}
+
+
+.research-graph-header p {
+    margin-top: 5px;
+
+    font-size: 10px;
+
+    line-height: 1.65;
+}
+
+
+.research-graph-header-actions {
+    flex-wrap: wrap;
+
+    justify-content: flex-end;
+}
+
+
+.research-graph-mode-select,
+.research-graph-mode-static {
+    flex-basis: 165px;
+}
+
+
+.research-graph-mode-select>div,
+.research-graph-mode-static>div,
+.institution-graph-subject {
+    min-height: 38px;
+
+    border-radius: 6px;
+}
+
+
+.research-graph-mode-select>span,
+.research-graph-mode-static>span,
+.institution-graph-subject span {
+    margin-bottom: 4px;
+
+    font-size: 8px;
+}
+
+
+.research-graph-mode-select select,
+.research-graph-mode-static strong {
+    font-size: 10px;
+}
+
+
+.research-graph-legend {
+    gap: 7px 14px;
+
+    margin-top: 14px;
+}
+
+
+.research-graph-legend>span {
+    font-size: 9px;
+}
+
+
+.research-graph-more-note {
+    display: flex;
+
+    align-items: center;
+
+    min-height: 34px;
+
+    margin-top: 10px;
+
+    padding: 8px 10px;
+
+    border-color:
+        rgba(215, 154, 42, .22);
+
+    background:
+        rgba(215, 154, 42, .05);
+
+    font-size: 8px;
+}
+
+
+.research-graph-details {
+    margin-top: 18px;
+
+    padding:
+        16px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 8px;
+
+    background:
+        #fbfcfc;
+}
+
+
+.research-graph-details-heading {
+    margin-bottom: 10px;
+}
+
+
+.research-graph-details-heading span {
+    font-size: 8px;
+}
+
+
+.research-graph-details-heading h3 {
+    font-size: 16px;
+}
+
+
+.research-graph-details-heading small {
+    font-size: 8px;
+}
+
+
+.research-graph-detail-group+.research-graph-detail-group {
+    margin-top: 14px;
+
+    padding-top: 14px;
+}
+
+
+.research-graph-detail-group h4 {
+    font-size: 11px;
+}
+
+
+.research-graph-detail-group p,
+.research-graph-summary {
+    margin-bottom: 9px;
+
+    font-size: 9px;
+}
+
+
+.research-graph-detail-grid {
+    gap:
+        5px 16px;
+}
+
+
+.research-graph-detail-row {
+    padding:
+        7px 0;
+}
+
+
+.research-graph-detail-row span,
+.research-graph-detail-row strong {
+    font-size: 9px;
+}
+
+
+.institution-column-chart-wrap,
+.research-line-chart-wrap,
+.research-bar-chart {
+    margin-top: 18px;
+}
+
+
+.institution-column-chart {
+    height: 285px;
+}
+
+
+.institution-column-value {
+    font-size: 7px;
+}
+
+
+.institution-column-label {
+    font-size: 8px;
+}
+
+
+.institution-graph-subject {
+    width: 175px;
+
+    padding:
+        8px 10px;
+}
+
+
+.institution-graph-subject strong {
+    font-size: 10px;
+}
+
+
+.author-graph-filter-grid .taxonomy-multi-select-label,
+.author-graph-date-filter>label {
+    font-size: 8px;
+}
+
+
+.author-graph-filter-grid .taxonomy-multi-select-control,
+.author-graph-date-filter input {
+    min-height: 36px;
+}
+
+
+.author-graph-filter-actions>button {
+    min-height: 34px;
+
+    font-size: 9px;
+}
+
+
+.author-graph-clear-button {
+    min-height: 30px;
+
+    font-size: 8px;
+}
+
+
+@media (max-width: 820px) {
+
+    .research-graph-card {
+        padding: 18px;
+    }
+
+
+    .research-graph-header {
+        align-items: stretch;
+    }
+
+
+    .research-graph-header-actions {
+        justify-content: flex-start;
+    }
+
+
+    .research-graph-mode-select,
+    .research-graph-mode-static,
+    .institution-graph-subject {
+        width: min(280px, 100%);
+
+        flex-basis: auto;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .research-graph-card {
+        padding:
+            16px 13px;
+    }
+
+
+    .research-graph-details {
+        padding:
+            13px;
+    }
+
+}
+
+
+/* ========================================
+   Author Categorical Column Chart
+======================================== */
+
+.research-column-chart-wrap {
+    overflow-x: auto;
+
+    margin-top: 18px;
+
+    padding-bottom: 4px;
+}
+
+
+.research-column-chart {
+    min-width: 720px;
+
+    height: 285px;
+
+    display: flex;
+
+    align-items: stretch;
+
+    gap: 8px;
+
+    padding:
+        18px 4px 0;
+
+    border-bottom:
+        1px solid var(--border);
+}
+
+
+.research-column-group {
+    min-width: 46px;
+
+    flex: 1;
+
+    display: grid;
+
+    grid-template-rows:
+        minmax(0, 1fr) 34px;
+
+    gap: 8px;
+}
+
+
+.research-column-bars {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    min-height: 0;
+}
+
+
+.research-column-slot {
+    position: relative;
+
+    width: min(20px, 24%);
+
+    height: 100%;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: center;
+}
+
+
+.research-column {
+    width: 100%;
+
+    min-height: 0;
+
+    border-radius:
+        4px 4px 0 0;
+
+    background:
+        currentColor;
+
+    cursor: help;
+
+    transition:
+        opacity .2s ease,
+        transform .2s ease;
+}
+
+
+.research-column:hover {
+    opacity: .82;
+
+    transform:
+        translateY(-2px);
+}
+
+
+.research-column-count {
+    position: absolute;
+
+    top: -17px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        var(--muted);
+
+    font-size: 7px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.research-column-label {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: center;
+
+    color:
+        var(--secondary);
+
+    font-size: 8px;
+
+    font-weight: 900;
+
+    letter-spacing: .5px;
+
+    cursor: help;
+}
+
+
+/* ========================================
+   Author Graph Detail Matrix
+======================================== */
+
+.research-detail-table {
+    overflow-x: auto;
+
+    margin-top: 10px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 6px;
+
+    background: #fff;
+}
+
+
+.research-detail-table-row {
+    min-width: 680px;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(210px, 1.4fr) repeat(4, minmax(110px, 1fr));
+
+    align-items: center;
+
+    border-top:
+        1px solid var(--border);
+}
+
+
+.research-detail-table-row:first-child {
+    border-top: 0;
+}
+
+
+.research-detail-table-row>span,
+.research-detail-table-row>strong {
+    min-width: 0;
+
+    overflow: hidden;
+
+    padding:
+        8px 10px;
+
+    color:
+        var(--muted);
+
+    font-size: 8px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.research-detail-table-row>span:not(:first-child),
+.research-detail-table-row>strong:not(:first-child) {
+    text-align: right;
+}
+
+
+.research-detail-table-row>span:first-child {
+    color:
+        var(--secondary);
+
+    font-weight: 700;
+}
+
+
+.research-detail-table-row--head {
+    background:
+        var(--light);
+}
+
+
+.research-detail-table-row--head>strong {
+    color:
+        var(--ink);
+
+    font-weight: 800;
+}
+
+
+@media (max-width: 600px) {
+
+    .research-column-chart {
+        min-width: 640px;
+    }
+
+}

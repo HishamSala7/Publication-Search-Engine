@@ -285,6 +285,90 @@
 }
 
 
+
+
+.feature-grid--platform {
+    align-items: stretch;
+}
+
+
+.feature-card-topline {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+
+.feature-card-topline .feature-icon {
+    margin-bottom: 22px;
+}
+
+
+.feature-eyebrow {
+    color:
+        var(--muted);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: .9px;
+
+    text-transform: uppercase;
+}
+
+
+.feature-card--featured {
+    border-color:
+        rgba(215, 154, 42, .45);
+
+    background:
+        linear-gradient(145deg,
+            rgba(215, 154, 42, .08),
+            #fff 52%);
+}
+
+
+.feature-card--featured::before {
+    content: "Dedicated workspace";
+
+    position: absolute;
+
+    right: 18px;
+
+    bottom: 18px;
+
+    color:
+        rgba(13, 70, 63, .08);
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: .8px;
+
+    text-transform: uppercase;
+
+    pointer-events: none;
+}
+
+
+.feature-card a>svg {
+    transition:
+        transform .25s ease;
+}
+
+
+.feature-card:hover a>svg {
+    transform:
+        translateX(4px);
+}
+
+
 /* ========================================
    Workflow
 ======================================== */

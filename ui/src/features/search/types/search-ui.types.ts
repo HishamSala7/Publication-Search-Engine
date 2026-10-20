@@ -21,6 +21,34 @@ export type PublicationType =
     | 5; // Other
 
 
+export type OpenAlexGraphMode =
+    | 1 // Year
+    | 2 // Institution
+    | 3 // Field
+    | 4 // SubField
+    | 5; // PublicationType
+
+
+export const OpenAlexGraphModes = {
+
+    Year:
+        1 as OpenAlexGraphMode,
+
+    Institution:
+        2 as OpenAlexGraphMode,
+
+    Field:
+        3 as OpenAlexGraphMode,
+
+    SubField:
+        4 as OpenAlexGraphMode,
+
+    PublicationType:
+        5 as OpenAlexGraphMode
+
+} as const;
+
+
 export interface SearchInstitutionOption {
 
     id: string;
@@ -40,7 +68,8 @@ export interface SearchFormValues {
 
     publicationQuery: string;
 
-    institutions: SearchInstitutionOption[];
+    institutions:
+    SearchInstitutionOption[];
 
     orcid: string;
 
@@ -55,9 +84,11 @@ export interface AuthorCandidate {
 
     displayName: string;
 
-    orcid?: string | null;
+    orcid?:
+    string | null;
 
-    institution?: string | null;
+    institution?:
+    string | null;
 
     worksCount: number;
 
@@ -68,64 +99,81 @@ export interface AuthorCandidate {
 
 export interface AuthorCandidateSearchResult {
 
-    resolvedInstitution?: string | null;
+    resolvedInstitution?:
+    string | null;
 
-    candidates: AuthorCandidate[];
+    candidates:
+    AuthorCandidate[];
 
 }
 
 
 export interface OpenAlexAuthor {
 
-    id?: string | null;
+    id?:
+    string | null;
 
-    display_name?: string | null;
+    display_name?:
+    string | null;
 
-    orcid?: string | null;
+    orcid?:
+    string | null;
 
 }
 
 
 export interface OpenAlexAuthorship {
 
-    author_position?: string | null;
+    author_position?:
+    string | null;
 
-    author?: OpenAlexAuthor | null;
+    author?:
+    OpenAlexAuthor | null;
 
 }
 
 
 export interface OpenAlexSource {
 
-    display_name?: string | null;
+    display_name?:
+    string | null;
 
 }
 
 
 export interface OpenAlexPrimaryLocation {
 
-    source?: OpenAlexSource | null;
+    source?:
+    OpenAlexSource | null;
 
-    is_oa?: boolean | null;
+    is_oa?:
+    boolean | null;
 
-    landing_page_url?: string | null;
+    landing_page_url?:
+    string | null;
 
 }
 
 
 export interface OpenAlexWork {
 
-    id?: string | null;
+    id?:
+    string | null;
 
-    doi?: string | null;
+    doi?:
+    string | null;
 
-    title?: string | null;
+    title?:
+    string | null;
 
-    publication_year?: number | null;
+    publication_year?:
+    number | null;
 
-    publication_date?: string | null;
+    publication_date?:
+    string | null;
 
-    cited_by_count?: number | null;
+    cited_by_count?:
+    number | null;
 
     abstract_inverted_index?:
     Record<string, number[]> | null;
@@ -141,22 +189,28 @@ export interface OpenAlexWork {
 
 export interface PagedResultDto<T> {
 
-    items: T[];
+    items:
+    T[];
 
-    totalCount: number;
+    totalCount:
+    number;
 
 }
 
 
 export interface ApiResult<T> {
 
-    statusCode: number;
+    statusCode:
+    number;
 
-    succeeded: boolean;
+    succeeded:
+    boolean;
 
-    message?: string | null;
+    message?:
+    string | null;
 
-    data?: T | null;
+    data?:
+    T | null;
 
 }
 
@@ -174,9 +228,11 @@ export interface SearchTaxonomyOption {
 
 export interface WorkTypeOption {
 
-    key: PublicationType;
+    key:
+    PublicationType;
 
-    value: string;
+    value:
+    string;
 
 }
 
@@ -187,64 +243,81 @@ export interface OpenAlexInstitutionSimple {
 
     display_name: string;
 
-    ror?: string | null;
+    ror?:
+    string | null;
 
-    lineage?: string[] | null;
+    lineage?:
+    string[] | null;
 
 }
 
 
 export interface AuthorWorksCountByYear {
 
-    year: number;
+    year:
+    number;
 
-    works_count: number;
+    works_count:
+    number;
 
-    cited_by_count: number;
+    cited_by_count:
+    number;
 
 }
 
 
 export interface AuthorTopicMain {
 
-    display_name?: string | null;
+    display_name?:
+    string | null;
 
 }
 
 
 export interface AuthorTopic {
 
-    display_name?: string | null;
+    display_name?:
+    string | null;
 
-    count?: number | null;
+    count?:
+    number | null;
 
-    subfield?: AuthorTopicMain | null;
+    subfield?:
+    AuthorTopicMain | null;
 
-    field?: AuthorTopicMain | null;
+    field?:
+    AuthorTopicMain | null;
 
 }
 
 
 export interface OpenAlexAffiliation {
 
-    institution?: OpenAlexInstitutionSimple | null;
+    institution?:
+    OpenAlexInstitutionSimple | null;
 
-    years?: number[] | null;
+    years?:
+    number[] | null;
 
 }
 
 
 export interface OpenAlexAuthorDetail {
 
-    id?: string | null;
+    id?:
+    string | null;
 
-    display_name?: string | null;
+    display_name?:
+    string | null;
 
-    orcid?: string | null;
+    orcid?:
+    string | null;
 
-    works_count: number;
+    works_count:
+    number;
 
-    cited_by_count: number;
+    cited_by_count:
+    number;
 
     last_known_institutions?:
     OpenAlexInstitutionSimple[] | null;
@@ -263,67 +336,209 @@ export interface OpenAlexAuthorDetail {
 
 export interface AuthorPositionCount {
 
-    firstPositionCount: number;
+    firstPositionCount:
+    number;
 
-    middlePositionCount: number;
+    middlePositionCount:
+    number;
 
-    lastPositionCount: number;
+    lastPositionCount:
+    number;
 
 }
 
 
 export interface WorksFilterValues {
 
-    startDate: string;
+    startDate:
+    string;
 
-    endDate: string;
+    endDate:
+    string;
 
-    fields: SearchTaxonomyOption[];
+    fields:
+    SearchTaxonomyOption[];
 
-    subFields: SearchTaxonomyOption[];
+    subFields:
+    SearchTaxonomyOption[];
 
-    topics: SearchTaxonomyOption[];
+    topics:
+    SearchTaxonomyOption[];
 
-    keywords: SearchTaxonomyOption[];
+    keywords:
+    SearchTaxonomyOption[];
 
-    institutions: SearchInstitutionOption[];
+    institutions:
+    SearchInstitutionOption[];
 
-    types: WorkTypeOption[];
+    types:
+    WorkTypeOption[];
 
 }
 
 
 export interface OpenAlexWorksSearchRequest {
 
-    openAlexAuthorId?: string;
+    openAlexAuthorId?:
+    string;
 
-    orcid?: string;
+    orcid?:
+    string;
 
-    startDate?: string;
+    startDate?:
+    string;
 
-    endDate?: string;
+    endDate?:
+    string;
 
-    openAlexFieldIds?: string[];
+    openAlexFieldIds?:
+    string[];
 
-    openAlexSubFieldIds?: string[];
+    openAlexSubFieldIds?:
+    string[];
 
-    openAlexTopicIds?: string[];
+    openAlexTopicIds?:
+    string[];
 
-    openAlexKeywordIds?: string[];
+    openAlexKeywordIds?:
+    string[];
 
-    openAlexInstitutionIds?: string[];
+    openAlexInstitutionIds?:
+    string[];
 
-    types?: PublicationType[];
+    types?:
+    PublicationType[];
 
-    take: number;
+    take:
+    number;
 
-    skip: number;
+    skip:
+    number;
 
-    filter?: string;
+    filter?:
+    string;
 
-    orderBy?: string;
+    orderBy?:
+    string;
 
-    isDescending?: boolean;
+    isDescending?:
+    boolean;
+
+}
+
+
+/* ========================================
+   Author Graph
+======================================== */
+
+export interface OpenAlexAuthorsGraphSearchRequest {
+
+    openAlexAuthorIds:
+    string[];
+
+    startDate?:
+    string;
+
+    endDate?:
+    string;
+
+    openAlexInstitutionIds?:
+    string[];
+
+    openAlexFieldIds?:
+    string[];
+
+    openAlexSubFieldIds?:
+    string[];
+
+    types?:
+    PublicationType[];
+
+    mode:
+    OpenAlexGraphMode;
+
+}
+
+
+export interface OpenAlexAuthorGraphItemDto {
+
+    key:
+    string;
+
+    displayName:
+    string;
+
+    count:
+    number;
+
+}
+
+
+export interface OpenAlexAuthorGraphDto {
+
+    openAlexAuthorId:
+    string;
+
+    authorDisplayName:
+    string;
+
+    mode:
+    OpenAlexGraphMode;
+
+    items:
+    OpenAlexAuthorGraphItemDto[];
+
+}
+
+
+/* ========================================
+   Institution Graph
+======================================== */
+
+export interface OpenAlexInstitutionsGraphSearchRequest {
+
+    openAlexInstitutionIds:
+    string[];
+
+    startDate?:
+    string;
+
+    endDate?:
+    string;
+
+    openAlexFieldIds?:
+    string[];
+
+    types?:
+    PublicationType[];
+
+}
+
+
+export interface OpenAlexInstitutionFieldDto {
+
+    fieldDisplayName:
+    string;
+
+    count:
+    number;
+
+}
+
+
+export interface OpenAlexInstitutionMainGraphDto {
+
+    id:
+    string;
+
+    openAlexInstitutionId:
+    string;
+
+    institutionDisplayName:
+    string;
+
+    fields:
+    OpenAlexInstitutionFieldDto[];
 
 }
 
@@ -331,17 +546,23 @@ export interface OpenAlexWorksSearchRequest {
 export const emptySearchFormValues:
     SearchFormValues = {
 
-    name: "",
+    name:
+        "",
 
-    email: "",
+    email:
+        "",
 
-    publicationQuery: "",
+    publicationQuery:
+        "",
 
-    institutions: [],
+    institutions:
+        [],
 
-    orcid: "",
+    orcid:
+        "",
 
-    doi: ""
+    doi:
+        ""
 
 };
 
@@ -351,21 +572,29 @@ export function createEmptyWorksFilterValues():
 
     return {
 
-        startDate: "",
+        startDate:
+            "",
 
-        endDate: "",
+        endDate:
+            "",
 
-        fields: [],
+        fields:
+            [],
 
-        subFields: [],
+        subFields:
+            [],
 
-        topics: [],
+        topics:
+            [],
 
-        keywords: [],
+        keywords:
+            [],
 
-        institutions: [],
+        institutions:
+            [],
 
-        types: []
+        types:
+            []
 
     };
 

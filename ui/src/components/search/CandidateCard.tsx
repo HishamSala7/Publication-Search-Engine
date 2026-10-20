@@ -221,21 +221,6 @@ export default function CandidateCard({
 
                     </div>
 
-
-                    <div className="candidate-openalex-id">
-
-                        OpenAlex ID:
-
-                        <code>
-
-                            {
-                                candidate.openAlexId
-                            }
-
-                        </code>
-
-                    </div>
-
                 </div>
 
             </div>

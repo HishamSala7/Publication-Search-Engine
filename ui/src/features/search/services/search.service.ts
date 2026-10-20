@@ -15,6 +15,10 @@ import type {
     AuthorCandidateSearchResult,
     AuthorPositionCount,
     OpenAlexAuthorDetail,
+    OpenAlexAuthorGraphDto,
+    OpenAlexAuthorsGraphSearchRequest,
+    OpenAlexInstitutionMainGraphDto,
+    OpenAlexInstitutionsGraphSearchRequest,
     OpenAlexWork,
     OpenAlexWorksSearchRequest,
     PagedResultDto,
@@ -70,6 +74,28 @@ interface SearchWorksOptions {
 
     sortMode:
     WorksSortMode;
+
+    signal?:
+    AbortSignal;
+
+}
+
+
+interface GetAuthorsGraphOptions {
+
+    request:
+    OpenAlexAuthorsGraphSearchRequest;
+
+    signal?:
+    AbortSignal;
+
+}
+
+
+interface GetInstitutionsGraphOptions {
+
+    request:
+    OpenAlexInstitutionsGraphSearchRequest;
 
     signal?:
     AbortSignal;
@@ -201,6 +227,69 @@ function createWorksQuery(
 
         IsDescending:
             request.isDescending
+
+    };
+
+}
+
+
+function createAuthorsGraphQuery(
+    request:
+        OpenAlexAuthorsGraphSearchRequest
+) {
+
+    return {
+
+        OpenAlexAuthorIds:
+            request.openAlexAuthorIds,
+
+        StartDate:
+            request.startDate,
+
+        EndDate:
+            request.endDate,
+
+        OpenAlexInstitutionIds:
+            request.openAlexInstitutionIds,
+
+        OpenAlexFieldIds:
+            request.openAlexFieldIds,
+
+        OpenAlexSubFieldIds:
+            request.openAlexSubFieldIds,
+
+        Types:
+            request.types,
+
+        Mode:
+            request.mode
+
+    };
+
+}
+
+
+function createInstitutionsGraphQuery(
+    request:
+        OpenAlexInstitutionsGraphSearchRequest
+) {
+
+    return {
+
+        OpenAlexInstitutionIds:
+            request.openAlexInstitutionIds,
+
+        StartDate:
+            request.startDate,
+
+        EndDate:
+            request.endDate,
+
+        OpenAlexFieldIds:
+            request.openAlexFieldIds,
+
+        Types:
+            request.types
 
     };
 
@@ -407,6 +496,72 @@ async function searchWorks({
 
                 query:
                     createWorksQuery(
+                        request
+                    )
+            }
+        );
+
+
+    return unwrapResult(
+        result
+    );
+
+}
+
+
+async function getAuthorsGraph({
+    request,
+    signal
+}: GetAuthorsGraphOptions):
+    Promise<OpenAlexAuthorGraphDto[]> {
+
+    const result =
+        await apiClient.get<
+            ApiResult<
+                OpenAlexAuthorGraphDto[]
+            >
+        >(
+            API_ENDPOINTS
+                .works
+                .authorsGraph,
+            {
+                signal,
+
+                query:
+                    createAuthorsGraphQuery(
+                        request
+                    )
+            }
+        );
+
+
+    return unwrapResult(
+        result
+    );
+
+}
+
+
+async function getInstitutionsGraph({
+    request,
+    signal
+}: GetInstitutionsGraphOptions):
+    Promise<OpenAlexInstitutionMainGraphDto[]> {
+
+    const result =
+        await apiClient.get<
+            ApiResult<
+                OpenAlexInstitutionMainGraphDto[]
+            >
+        >(
+            API_ENDPOINTS
+                .works
+                .institutionsGraph,
+            {
+                signal,
+
+                query:
+                    createInstitutionsGraphQuery(
                         request
                     )
             }
@@ -731,6 +886,10 @@ export const searchService = {
     getWorkByDoi,
 
     searchWorks,
+
+    getAuthorsGraph,
+
+    getInstitutionsGraph,
 
     getFields,
 

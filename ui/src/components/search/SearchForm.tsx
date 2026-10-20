@@ -10,8 +10,8 @@ import {
     FaMagnifyingGlass
 } from "react-icons/fa6";
 
-import SearchMultiSelect
-    from "./SearchMultiSelect";
+import SearchSingleSelect
+    from "./SearchSingleSelect";
 
 import useInstitutions
     from "../../features/search/hooks/useInstitutions";
@@ -180,9 +180,22 @@ export default function SearchForm({
                     "",
 
                 institutions:
-                    initialValues?.institutions
-                    ??
-                    [],
+                    mode === "institution"
+                        ? (
+                            initialValues
+                                ?.institutions
+                                ?.slice(
+                                    0,
+                                    1
+                                )
+                            ??
+                            []
+                        )
+                        : (
+                            initialValues?.institutions
+                            ??
+                            []
+                        ),
 
                 orcid:
                     initialValues?.orcid
@@ -298,48 +311,37 @@ export default function SearchForm({
     }
 
 
-    function toggleInstitution(
+    function selectInstitution(
         institution:
             SearchInstitutionOption
     ) {
 
         setValues(
-            currentValues => {
+            currentValues => ({
 
-                const exists =
-                    currentValues
-                        .institutions
-                        .some(
-                            selectedInstitution =>
-                                selectedInstitution.id
-                                ===
-                                institution.id
-                        );
+                ...currentValues,
+
+                institutions:
+                    [
+                        institution
+                    ]
+
+            })
+        );
 
 
-                return {
+        setInstitutionSearch(
+            ""
+        );
 
-                    ...currentValues,
 
-                    institutions:
-                        exists
-                            ? currentValues
-                                .institutions
-                                .filter(
-                                    selectedInstitution =>
-                                        selectedInstitution.id
-                                        !==
-                                        institution.id
-                                )
-                            : [
-                                ...currentValues
-                                    .institutions,
-                                institution
-                            ]
+        setInstitutionBackendSearch(
+            ""
+        );
 
-                };
 
-            }
+        setInstitutionSkip(
+            0
         );
 
 
@@ -355,6 +357,47 @@ export default function SearchForm({
 
     }
 
+
+    function clearInstitution() {
+
+        setValues(
+            currentValues => ({
+
+                ...currentValues,
+
+                institutions:
+                    []
+
+            })
+        );
+
+
+        setInstitutionSearch(
+            ""
+        );
+
+
+        setInstitutionBackendSearch(
+            ""
+        );
+
+
+        setInstitutionSkip(
+            0
+        );
+
+
+        if (
+            error
+        ) {
+
+            setError(
+                ""
+            );
+
+        }
+
+    }
 
     function handleInstitutionSearch(
         value:
@@ -454,7 +497,14 @@ export default function SearchForm({
                     .trim(),
 
             institutions:
-                values.institutions,
+                mode === "institution"
+                    ? values
+                        .institutions
+                        .slice(
+                            0,
+                            1
+                        )
+                    : values.institutions,
 
             orcid:
                 values.orcid.trim(),
@@ -491,7 +541,7 @@ export default function SearchForm({
         ) {
 
             setError(
-                "Select at least one institution."
+                "Select an institution."
             );
 
             return;
@@ -754,14 +804,16 @@ export default function SearchForm({
                         "
                     >
 
-                        <SearchMultiSelect
-                            label="Institutions"
-                            placeholder="Search institutions..."
+                        <SearchSingleSelect
+                            label="Institution"
+                            placeholder="Select an institution..."
                             options={
                                 institutions
                             }
-                            selected={
-                                values.institutions
+                            value={
+                                values.institutions[0]
+                                ??
+                                null
                             }
                             searchValue={
                                 institutionSearch
@@ -784,8 +836,11 @@ export default function SearchForm({
                             onSearchChange={
                                 handleInstitutionSearch
                             }
-                            onToggle={
-                                toggleInstitution
+                            onSelect={
+                                selectInstitution
+                            }
+                            onClear={
+                                clearInstitution
                             }
                             onLoadMore={
                                 handleInstitutionLoadMore

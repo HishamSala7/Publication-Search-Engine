@@ -7,6 +7,9 @@ import {
 import AuthorInfoContent
     from "./AuthorInfoContent";
 
+import AuthorGraphSection
+    from "./AuthorGraphSection";
+
 import useAuthorInfo
     from "../../features/search/hooks/useAuthorInfo";
 
@@ -551,55 +554,66 @@ export default function OrcidAuthorInfo({
 
     return (
 
-        <div className="search-context-card">
+        <>
 
-            <span className="search-context-label">
+            <div className="search-context-card">
 
-                ORCID AUTHOR
+                <span className="search-context-label">
 
-            </span>
+                    ORCID AUTHOR
 
-
-            <h3>
-
-                {
-                    authorInfo
-                        .details
-                        .display_name
-                    ??
-                    resolvedDisplayName
-                    ??
-                    "Researcher"
-                }
-
-            </h3>
+                </span>
 
 
-            <p>
+                <h3>
 
-                Researcher information associated
-                with the supplied ORCID.
+                    {
+                        authorInfo
+                            .details
+                            .display_name
+                        ??
+                        resolvedDisplayName
+                        ??
+                        "Researcher"
+                    }
 
-            </p>
+                </h3>
 
 
-            <AuthorInfoContent
-                details={
-                    authorInfo.details
-                }
-                positionCounts={
-                    authorInfo
-                        .positionCounts
-                }
-                fallbackOpenAlexId={
+                <p>
+
+                    Researcher information associated
+                    with the supplied ORCID.
+
+                </p>
+
+
+                <AuthorInfoContent
+                    details={
+                        authorInfo.details
+                    }
+                    positionCounts={
+                        authorInfo
+                            .positionCounts
+                    }
+                    fallbackOpenAlexId={
+                        resolvedAuthorId
+                    }
+                    fallbackOrcid={
+                        normalizedOrcid
+                    }
+                />
+
+            </div>
+
+
+            <AuthorGraphSection
+                authorId={
                     resolvedAuthorId
-                }
-                fallbackOrcid={
-                    normalizedOrcid
                 }
             />
 
-        </div>
+        </>
 
     );
 

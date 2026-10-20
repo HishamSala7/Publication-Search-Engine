@@ -11,6 +11,12 @@ import {
 import CandidateList
     from "./CandidateList";
 
+import AuthorGraphSection
+    from "./AuthorGraphSection";
+
+import InstitutionGraphSection
+    from "./InstitutionGraphSection";
+
 import OrcidAuthorInfo
     from "./OrcidAuthorInfo";
 
@@ -231,12 +237,32 @@ export default function SearchExplorerSection() {
 
     const initialInstitutions =
         useMemo(
-            () =>
-                getInstitutionsFromSearchParams(
-                    searchParams
-                ),
+            () => {
+
+                const institutions =
+                    getInstitutionsFromSearchParams(
+                        searchParams
+                    );
+
+
+                if (
+                    searchMode === "institution"
+                ) {
+
+                    return institutions.slice(
+                        0,
+                        1
+                    );
+
+                }
+
+
+                return institutions;
+
+            },
             [
-                searchParams
+                searchParams,
+                searchMode
             ]
         );
 
@@ -1092,7 +1118,9 @@ export default function SearchExplorerSection() {
     }
 
 
-    function renderWorksWorkspace() {
+    function renderWorksWorkspace(
+        hideInstitutionFilter = false
+    ) {
 
         return (
 
@@ -1107,6 +1135,9 @@ export default function SearchExplorerSection() {
                     }
                     onClear={
                         handleClearFilters
+                    }
+                    hideInstitution={
+                        hideInstitutionFilter
                     }
                 />
 
@@ -1262,7 +1293,7 @@ export default function SearchExplorerSection() {
 
                             Find a researcher,
                             browse publications,
-                            select one or more institutions,
+                            select an institution,
                             enter an ORCID,
                             or retrieve an exact
                             publication by DOI.
@@ -1342,7 +1373,7 @@ export default function SearchExplorerSection() {
                             <p>
 
                                 Results are restricted to the
-                                selected institutions. You can
+                                selected institution. You can
                                 continue refining the publications
                                 using the filters below.
 
@@ -1351,19 +1382,17 @@ export default function SearchExplorerSection() {
 
                             <div className="search-context-meta">
 
-                                Institutions:
+                                Institution:
 
                                 {" "}
 
                                 <strong>
 
                                     {
-                                        initialInstitutions
-                                            .map(
-                                                institution =>
-                                                    institution.displayName
-                                            )
-                                            .join(", ")
+                                        initialInstitutions[0]
+                                            ?.displayName
+                                        ??
+                                        ""
                                     }
 
                                 </strong>
@@ -1374,7 +1403,20 @@ export default function SearchExplorerSection() {
 
 
                         {
-                            renderWorksWorkspace()
+                            initialInstitutions[0]
+                            &&
+                            <InstitutionGraphSection
+                                institution={
+                                    initialInstitutions[0]
+                                }
+                            />
+                        }
+
+
+                        {
+                            renderWorksWorkspace(
+                                true
+                            )
                         }
 
                     </>
@@ -1533,27 +1575,6 @@ export default function SearchExplorerSection() {
 
                             <div className="selected-author-actions">
 
-                                <div>
-
-                                    <span>
-
-                                        OpenAlex ID
-
-                                    </span>
-
-
-                                    <strong>
-
-                                        {
-                                            selectedCandidate
-                                                .openAlexId
-                                        }
-
-                                    </strong>
-
-                                </div>
-
-
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -1575,6 +1596,13 @@ export default function SearchExplorerSection() {
                             </div>
 
                         </div>
+
+
+                        <AuthorGraphSection
+                            authorId={
+                                selectedCandidate.openAlexId
+                            }
+                        />
 
 
                         {

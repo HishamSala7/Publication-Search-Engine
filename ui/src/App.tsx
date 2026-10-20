@@ -11,6 +11,9 @@ import ScrollToHash
 import PublicLayout
   from "./components/layout/PublicLayout";
 
+import ComparePage
+  from "./pages/ComparePage";
+
 import HomePage
   from "./pages/HomePage";
 
@@ -50,6 +53,14 @@ export default function App() {
             path="/search"
             element={
               <SearchPage />
+            }
+          />
+
+
+          <Route
+            path="/compare"
+            element={
+              <ComparePage />
             }
           />
 

@@ -211,12 +211,12 @@
    Institution Search Form
 ======================================== */
 
-.search-form--institution .taxonomy-multi-select {
+.search-form--institution .search-single-select {
     margin-top: 0;
 }
 
 
-.search-form--institution .taxonomy-multi-select-label {
+.search-form--institution .search-single-select-label {
     margin-bottom: 6px;
 
     color: var(--ink);
@@ -226,28 +226,409 @@
     font-weight: 800;
 
     letter-spacing: .6px;
+
+    text-transform: uppercase;
 }
 
 
-.search-form--institution .taxonomy-multi-select-control {
+/* ========================================
+   Search Single Select
+======================================== */
+
+.search-single-select {
+    position: relative;
+
+    width: 100%;
+}
+
+
+.search-single-select-label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--ink);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: .6px;
+
+    text-transform: uppercase;
+}
+
+
+.search-single-select-control {
     min-height: 48px;
+
+    display: flex;
+
+    align-items: stretch;
+
+    border:
+        1px solid var(--border);
 
     border-radius: 6px;
 
-    padding:
-        7px 11px;
+    background: #fff;
+
+    transition: var(--transition);
 }
 
 
-.search-form--institution .taxonomy-multi-select-values input {
-    min-height: 30px;
+.search-single-select-control:hover {
+    border-color:
+        rgba(215, 154, 42, .7);
+}
+
+
+.search-single-select:focus-within .search-single-select-control {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(215, 154, 42, .12);
+}
+
+
+.search-single-select-trigger {
+    min-width: 0;
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    border: 0;
+
+    outline: 0;
+
+    background: transparent;
+
+    padding:
+        0 12px;
+
+    color: var(--ink);
+
+    text-align: left;
+}
+
+
+.search-single-select-value,
+.search-single-select-placeholder {
+    min-width: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
 
     font-size: 12px;
 }
 
 
-.search-form--institution .taxonomy-options-dropdown {
-    z-index: 60;
+.search-single-select-value {
+    color: var(--secondary);
+
+    font-weight: 700;
+}
+
+
+.search-single-select-placeholder {
+    color: #98a4a1;
+
+    font-weight: 500;
+}
+
+
+.search-single-select-chevron {
+    flex:
+        0 0 auto;
+
+    color: var(--muted);
+
+    font-size: 9px;
+
+    transition:
+        transform .2s ease;
+}
+
+
+.search-single-select-chevron.open {
+    transform:
+        rotate(180deg);
+}
+
+
+.search-single-select-clear {
+    width: 42px;
+
+    flex:
+        0 0 42px;
+
+    display: grid;
+
+    place-items: center;
+
+    border: 0;
+
+    border-left:
+        1px solid var(--border);
+
+    background: transparent;
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    transition: var(--transition);
+}
+
+
+.search-single-select-clear:hover {
+    background:
+        rgba(13, 70, 63, .05);
+
+    color: var(--secondary);
+}
+
+
+.search-single-select-dropdown {
+    position: absolute;
+
+    top:
+        calc(100% + 5px);
+
+    left: 0;
+
+    right: 0;
+
+    z-index: 70;
+
+    overflow: hidden;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 6px;
+
+    background: #fff;
+
+    box-shadow:
+        0 14px 34px rgba(4, 29, 26, .15);
+}
+
+
+.search-single-select-search {
+    min-height: 44px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    padding:
+        0 11px;
+}
+
+
+.search-single-select-search>svg {
+    flex:
+        0 0 auto;
+
+    color: var(--primary);
+
+    font-size: 11px;
+}
+
+
+.search-single-select-search input {
+    width: 100%;
+
+    min-width: 0;
+
+    border: 0;
+
+    outline: 0;
+
+    background: transparent;
+
+    color: var(--ink);
+
+    font-size: 11px;
+}
+
+
+.search-single-select-search input::placeholder {
+    color: #98a4a1;
+}
+
+
+.search-single-select-options {
+    max-height: 230px;
+
+    overflow-y: auto;
+
+    overscroll-behavior: contain;
+}
+
+
+.search-single-select-option {
+    width: 100%;
+
+    min-height: 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    border: 0;
+
+    border-bottom:
+        1px solid rgba(226, 232, 230, .65);
+
+    background: #fff;
+
+    color: var(--ink);
+
+    padding:
+        8px 11px;
+
+    text-align: left;
+
+    font-size: 10px;
+
+    transition: var(--transition);
+}
+
+
+.search-single-select-option:last-of-type {
+    border-bottom: 0;
+}
+
+
+.search-single-select-option:hover {
+    background: var(--light);
+
+    color: var(--secondary);
+}
+
+
+.search-single-select-option.selected {
+    background:
+        rgba(215, 154, 42, .08);
+
+    color: var(--secondary);
+
+    font-weight: 800;
+}
+
+
+.search-single-select-option svg {
+    flex:
+        0 0 auto;
+
+    color: var(--primary);
+
+    font-size: 9px;
+}
+
+
+.search-single-select-message {
+    padding: 15px;
+
+    color: var(--muted);
+
+    text-align: center;
+
+    font-size: 10px;
+}
+
+
+.search-single-select-message.error {
+    color: #b42318;
+}
+
+
+.search-single-select-loading {
+    padding: 10px;
+
+    border-top:
+        1px solid var(--border);
+
+    color: var(--muted);
+
+    text-align: center;
+
+    font-size: 9px;
+}
+
+
+.search-single-select-hint {
+    padding: 8px;
+
+    border-top:
+        1px solid var(--border);
+
+    background: var(--light);
+
+    color: var(--muted);
+
+    text-align: center;
+
+    font-size: 8px;
+
+    font-weight: 600;
+}
+
+
+.search-single-select-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+
+.search-single-select-options::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+.search-single-select-options::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+
+    background: #d4ddda;
+}
+
+
+.search-single-select-options::-webkit-scrollbar-thumb:hover {
+    background: #b9c5c1;
+}
+
+
+.search-launch .search-form--institution .search-single-select-label {
+    color:
+        rgba(255, 255, 255, .92);
+}
+
+
+.search-launch .search-form--institution .search-single-select-control {
+    border-color:
+        rgba(255, 255, 255, .52);
+
+    background: #fff;
 }
 
 
@@ -350,21 +731,6 @@
 .search-launch .search-form-field label small {
     color:
         rgba(255, 255, 255, .67);
-}
-
-
-.search-launch .search-form--institution .taxonomy-multi-select-label {
-    color:
-        rgba(255, 255, 255, .92);
-}
-
-
-.search-launch .search-form--institution .taxonomy-multi-select-control {
-    border-color:
-        rgba(255, 255, 255, .52);
-
-    background:
-        #fff;
 }
 
 
@@ -694,6 +1060,22 @@
     .search-empty-state,
     .search-context-card {
         padding: 22px;
+    }
+
+
+
+    .search-single-select-dropdown {
+        position: relative;
+
+        top: 4px;
+
+        box-shadow:
+            0 7px 20px rgba(4, 29, 26, .09);
+    }
+
+
+    .search-single-select-options {
+        max-height: 200px;
     }
 
 }

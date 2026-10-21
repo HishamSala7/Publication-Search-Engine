@@ -23,7 +23,6 @@ export default function HomePage() {
 
         <main id="home">
 
-
             <HeroSlider />
 
 
@@ -40,7 +39,6 @@ export default function HomePage() {
 
 
             <AboutSection />
-
 
         </main>
 

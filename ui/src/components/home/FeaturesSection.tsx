@@ -1,135 +1,180 @@
 import {
     FaArrowRight,
-    FaBook,
     FaBuildingColumns,
-    FaChartLine,
+    FaChartColumn,
     FaFileLines,
-    FaIdCard,
-    FaLightbulb
+    FaIdBadge,
+    FaLink,
+    FaUserGroup
 } from "react-icons/fa6";
 
 import type {
     IconType
 } from "react-icons";
 
+import {
+    Link
+} from "react-router-dom";
+
 
 interface FeatureItem {
 
-    icon: IconType;
+    icon:
+    IconType;
 
-    title: string;
+    eyebrow:
+    string;
 
-    description: string;
+    title:
+    string;
 
-    linkText: string;
+    description:
+    string;
+
+    linkText:
+    string;
+
+    href:
+    string;
+
+    featured?:
+    boolean;
 
 }
 
 
-const features: FeatureItem[] = [
+const features:
+    FeatureItem[] = [
 
-    {
+        {
+            icon:
+                FaUserGroup,
 
-        icon:
-            FaFileLines,
+            eyebrow:
+                "PEOPLE",
 
-        title:
-            "Publications",
+            title:
+                "Researcher discovery",
 
-        description:
-            "Explore journal articles, conference papers, citations, years, co-authors and publication venues.",
+            description:
+                "Find researchers by name and optional email, review candidate matches, then explore author information, research analytics and publications.",
 
-        linkText:
-            "Explore records"
+            linkText:
+                "Find researchers",
 
-    },
-
-
-    {
-
-        icon:
-            FaBook,
-
-        title:
-            "Books & Chapters",
-
-        description:
-            "Discover books, edited volumes and chapters associated with a faculty member's academic record.",
-
-        linkText:
-            "Find books"
-
-    },
+            href:
+                "/search?mode=author"
+        },
 
 
-    {
+        {
+            icon:
+                FaFileLines,
 
-        icon:
-            FaLightbulb,
+            eyebrow:
+                "OUTPUT",
 
-        title:
-            "Patents",
+            title:
+                "Publication search",
 
-        description:
-            "Trace inventions, patent families, inventors, assignees and filing or publication dates.",
+            description:
+                "Search publications directly and refine the dataset with publication date, institution, field, subfield, topic, keyword and publication-type filters.",
 
-        linkText:
-            "Search patents"
+            linkText:
+                "Search publications",
 
-    },
-
-
-    {
-
-        icon:
-            FaIdCard,
-
-        title:
-            "Academic CV",
-
-        description:
-            "View a structured faculty profile with education, positions, affiliations, research interests and links.",
-
-        linkText:
-            "View profiles"
-
-    },
+            href:
+                "/search?mode=publications"
+        },
 
 
-    {
+        {
+            icon:
+                FaBuildingColumns,
 
-        icon:
-            FaBuildingColumns,
+            eyebrow:
+                "ORGANIZATIONS",
 
-        title:
-            "Institutions",
+            title:
+                "Institution analytics",
 
-        description:
-            "Filter and connect researchers by university, department, laboratory, center and affiliation.",
+            description:
+                "Select an institution, inspect its research-field distribution and then explore publications scoped specifically to that institution.",
 
-        linkText:
-            "Browse institutions"
+            linkText:
+                "Explore institutions",
 
-    },
+            href:
+                "/search?mode=institution"
+        },
 
 
-    {
+        {
+            icon:
+                FaIdBadge,
 
-        icon:
-            FaChartLine,
+            eyebrow:
+                "IDENTIFIERS",
 
-        title:
-            "Research Analytics",
+            title:
+                "ORCID lookup",
 
-        description:
-            "Use publication timelines, subject areas and research indicators to identify meaningful patterns.",
+            description:
+                "Resolve a researcher through ORCID, open the matching author profile and continue into the same research analytics and publication workflow.",
 
-        linkText:
-            "Analyze research"
+            linkText:
+                "Search by ORCID",
 
-    }
+            href:
+                "/search?mode=orcid"
+        },
 
-];
+
+        {
+            icon:
+                FaLink,
+
+            eyebrow:
+                "IDENTIFIERS",
+
+            title:
+                "DOI lookup",
+
+            description:
+                "Open a specific scholarly work directly from its DOI when you already know the publication you need to inspect.",
+
+            linkText:
+                "Find by DOI",
+
+            href:
+                "/search?mode=doi"
+        },
+
+
+        {
+            icon:
+                FaChartColumn,
+
+            eyebrow:
+                "COMPARISON",
+
+            title:
+                "Compare research performance",
+
+            description:
+                "Compare two to four researchers or institutions side by side using shared research graphs and a concise data summary on a dedicated workspace.",
+
+            linkText:
+                "Open comparison",
+
+            href:
+                "/compare",
+
+            featured:
+                true
+        }
+
+    ];
 
 
 export default function FeaturesSection() {
@@ -141,26 +186,23 @@ export default function FeaturesSection() {
             id="features"
         >
 
-
             <div className="container">
 
-
                 <div className="section-heading">
-
 
                     <div>
 
                         <span className="section-kicker">
 
-                            POWERFUL RESEARCH DISCOVERY
+                            EXPLORE THE PLATFORM
 
                         </span>
 
 
                         <h2>
 
-                            Everything about a faculty member,
-                            in one place.
+                            Start with the research question
+                            you need to answer.
 
                         </h2>
 
@@ -169,24 +211,20 @@ export default function FeaturesSection() {
 
                     <p>
 
-                        Scientific Hub brings together
-                        the information researchers,
-                        universities and analysts need
-                        to understand academic activity quickly.
+                        Each capability has its own focused workflow.
+                        Search, analyze or compare without crowding the
+                        home page with the full research workspace.
 
                     </p>
-
 
                 </div>
 
 
-                <div className="feature-grid">
-
+                <div className="feature-grid feature-grid--platform">
 
                     {
                         features.map(
                             feature => {
-
 
                                 const Icon =
                                     feature.icon;
@@ -195,40 +233,67 @@ export default function FeaturesSection() {
                                 return (
 
                                     <article
-                                        key={feature.title}
-                                        className="feature-card"
+                                        key={
+                                            feature.title
+                                        }
+                                        className={
+                                            feature.featured
+                                                ? "feature-card feature-card--featured"
+                                                : "feature-card"
+                                        }
                                     >
 
+                                        <div className="feature-card-topline">
 
-                                        <div className="feature-icon">
+                                            <div className="feature-icon">
 
-                                            <Icon />
+                                                <Icon />
+
+                                            </div>
+
+
+                                            <span className="feature-eyebrow">
+
+                                                {
+                                                    feature.eyebrow
+                                                }
+
+                                            </span>
 
                                         </div>
 
 
                                         <h3>
 
-                                            {feature.title}
+                                            {
+                                                feature.title
+                                            }
 
                                         </h3>
 
 
                                         <p>
 
-                                            {feature.description}
+                                            {
+                                                feature.description
+                                            }
 
                                         </p>
 
 
-                                        <a href="#search">
+                                        <Link
+                                            to={
+                                                feature.href
+                                            }
+                                        >
 
-                                            {feature.linkText}
+                                            {
+                                                feature.linkText
+                                            }
 
                                             <FaArrowRight />
 
-                                        </a>
-
+                                        </Link>
 
                                     </article>
 
@@ -238,12 +303,9 @@ export default function FeaturesSection() {
                         )
                     }
 
-
                 </div>
 
-
             </div>
-
 
         </section>
 

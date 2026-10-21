@@ -29,7 +29,13 @@ export const API_ENDPOINTS = {
             "/api/Works/get-latest-works",
 
         highestCited:
-            "/api/Works/get-highest-cited-works"
+            "/api/Works/get-highest-cited-works",
+
+        authorsGraph:
+            "/api/Works/get-authors-graph",
+
+        institutionsGraph:
+            "/api/Works/get-institutions-graph"
 
     },
 

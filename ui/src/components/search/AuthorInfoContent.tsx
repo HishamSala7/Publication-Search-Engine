@@ -18,6 +18,12 @@ interface AuthorInfoContentProps {
     positionCounts:
     AuthorPositionCount;
 
+    /*
+        Keep this temporarily because existing callers
+        may still pass it.
+
+        It is no longer displayed in the UI.
+    */
     fallbackOpenAlexId?:
     string | null;
 
@@ -49,7 +55,6 @@ function normalizeOrcid(
 export default function AuthorInfoContent({
     details,
     positionCounts,
-    fallbackOpenAlexId,
     fallbackOrcid
 }: AuthorInfoContentProps) {
 
@@ -79,14 +84,6 @@ export default function AuthorInfoContent({
             .affiliations
         ??
         [];
-
-
-    const openAlexId =
-        details.id
-        ??
-        fallbackOpenAlexId
-        ??
-        "Not available";
 
 
     const orcid =
@@ -170,26 +167,6 @@ export default function AuthorInfoContent({
 
 
                 <dl className="author-info-list">
-
-                    <div>
-
-                        <dt>
-
-                            OpenAlex ID
-
-                        </dt>
-
-
-                        <dd>
-
-                            {
-                                openAlexId
-                            }
-
-                        </dd>
-
-                    </div>
-
 
                     <div>
 
@@ -428,21 +405,47 @@ export default function AuthorInfoContent({
                                             <small>
 
                                                 {
-                                                    [
-                                                        topic
-                                                            .field
-                                                            ?.display_name,
+                                                    topic
+                                                        .field
+                                                        ?.display_name
+                                                    &&
+                                                    <>
+                                                        Field:{" "}
+                                                        {
+                                                            topic
+                                                                .field
+                                                                .display_name
+                                                        }
+                                                    </>
+                                                }
 
-                                                        topic
-                                                            .subfield
-                                                            ?.display_name
-                                                    ]
-                                                        .filter(
-                                                            Boolean
-                                                        )
-                                                        .join(
-                                                            " · "
-                                                        )
+
+                                                {
+                                                    topic
+                                                        .field
+                                                        ?.display_name
+                                                    &&
+                                                    topic
+                                                        .subfield
+                                                        ?.display_name
+                                                    &&
+                                                    " · "
+                                                }
+
+
+                                                {
+                                                    topic
+                                                        .subfield
+                                                        ?.display_name
+                                                    &&
+                                                    <>
+                                                        Subfield:{" "}
+                                                        {
+                                                            topic
+                                                                .subfield
+                                                                .display_name
+                                                        }
+                                                    </>
                                                 }
 
                                             </small>
@@ -590,13 +593,6 @@ export default function AuthorInfoContent({
                                     }
 
 
-                                    const years =
-                                        affiliation
-                                            .years
-                                        ??
-                                        [];
-
-
                                     return (
 
                                         <div
@@ -619,35 +615,6 @@ export default function AuthorInfoContent({
                                                     }
 
                                                 </strong>
-
-
-                                                {
-                                                    years.length
-                                                    >
-                                                    0
-                                                    &&
-                                                    <small>
-
-                                                        {
-                                                            [
-                                                                ...years
-                                                            ]
-                                                                .sort(
-                                                                    (
-                                                                        first,
-                                                                        second
-                                                                    ) =>
-                                                                        second
-                                                                        -
-                                                                        first
-                                                                )
-                                                                .join(
-                                                                    ", "
-                                                                )
-                                                        }
-
-                                                    </small>
-                                                }
 
                                             </div>
 

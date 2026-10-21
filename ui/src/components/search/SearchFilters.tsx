@@ -44,6 +44,9 @@ interface SearchFiltersProps {
     onClear:
     () => void;
 
+    hideInstitution?:
+    boolean;
+
 }
 
 
@@ -165,7 +168,8 @@ function getWorkTypeLabel(
 export default function SearchFilters({
     value,
     onApply,
-    onClear
+    onClear,
+    hideInstitution = false
 }: SearchFiltersProps) {
 
     const [
@@ -1335,48 +1339,52 @@ export default function SearchFilters({
             </div>
 
 
-            <SearchMultiSelect
-                label="Institution"
-                placeholder="Search institutions..."
-                options={
-                    institutions
-                }
-                selected={
-                    draftFilters.institutions
-                }
-                searchValue={
-                    institutionSearch
-                }
-                isLoading={
-                    isInstitutionsLoading
-                }
-                error={
-                    institutionsError
-                }
-                totalCount={
-                    institutionsTotalCount
-                }
-                getOptionKey={
-                    getInstitutionKey
-                }
-                getOptionLabel={
-                    getInstitutionLabel
-                }
-                onOpen={() =>
-                    setShouldLoadInstitutions(
-                        true
-                    )
-                }
-                onSearchChange={
-                    handleInstitutionSearch
-                }
-                onToggle={
-                    handleInstitutionToggle
-                }
-                onLoadMore={
-                    loadMoreInstitutions
-                }
-            />
+            {
+                !hideInstitution
+                &&
+                <SearchMultiSelect
+                    label="Institution"
+                    placeholder="Search institutions..."
+                    options={
+                        institutions
+                    }
+                    selected={
+                        draftFilters.institutions
+                    }
+                    searchValue={
+                        institutionSearch
+                    }
+                    isLoading={
+                        isInstitutionsLoading
+                    }
+                    error={
+                        institutionsError
+                    }
+                    totalCount={
+                        institutionsTotalCount
+                    }
+                    getOptionKey={
+                        getInstitutionKey
+                    }
+                    getOptionLabel={
+                        getInstitutionLabel
+                    }
+                    onOpen={() =>
+                        setShouldLoadInstitutions(
+                            true
+                        )
+                    }
+                    onSearchChange={
+                        handleInstitutionSearch
+                    }
+                    onToggle={
+                        handleInstitutionToggle
+                    }
+                    onLoadMore={
+                        loadMoreInstitutions
+                    }
+                />
+            }
 
 
             <SearchMultiSelect
